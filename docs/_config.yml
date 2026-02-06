@@ -1,0 +1,27 @@
+# Jekyll configuration for Quobby GitHub Pages
+
+# Site settings
+title: Quobby - Smart Flashcards & Study Companion
+description: Master any subject with Quobby. Create flashcards, track habits, and boost your learning with AI-powered study tools.
+url: ""
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+
+# IMPORTANT: No theme to avoid SCSS processing errors
+# Your site uses inline CSS in HTML files
+theme: null
+
+# Exclude files from build
+exclude:
+  - README.md
+  - LICENSE
+  - Gemfile
+  - Gemfile.lock
+  - .gitignore
+  - vendor
+
+# Sass configuration (disabled since we use inline CSS)
+sass:
+  style: compressed
