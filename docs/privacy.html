@@ -1,100 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Quobby</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #ffffff;
-            line-height: 1.8;
-        }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .updated {
-            color: #718096;
-            font-size: 0.9rem;
-            margin-bottom: 32px;
-        }
-        h2 {
-            font-size: 1.25rem;
-            color: #667eea;
-            margin-top: 32px;
-            margin-bottom: 12px;
-        }
-        p, li {
-            color: #cbd5e0;
-            margin-bottom: 16px;
-        }
-        ul {
-            padding-left: 24px;
-        }
-        a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .back {
-            display: inline-block;
-            margin-bottom: 24px;
-            color: #a0aec0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Quobby</title>
+  <meta name="description" content="Quobby Privacy Policy. Learn how we collect, use, and protect your personal information.">
+  <meta name="theme-color" content="#0a0a14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="assets/app-icon.png">
+  <link rel="apple-touch-icon" href="assets/app-icon.png">
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="back">← Back to Home</a>
-        
-        <h1>Privacy Policy</h1>
-        <p class="updated">Last updated: February 2026</p>
+  <div class="bg-gradient"></div>
 
-        <p>Your privacy is important to us. This Privacy Policy explains how Quobby ("we", "our", or "us") collects, uses, and protects your information.</p>
-
-        <h2>Information We Collect</h2>
-        <p>We collect information you provide directly, including:</p>
-        <ul>
-            <li>Account information (email, username)</li>
-            <li>Study content you create (flashcards, notes, habits)</li>
-            <li>Usage data to improve your experience</li>
-        </ul>
-
-        <h2>How We Use Your Information</h2>
-        <p>We use your information to:</p>
-        <ul>
-            <li>Provide and improve our services</li>
-            <li>Sync your data across devices</li>
-            <li>Send important updates about your account</li>
-            <li>Display relevant advertisements (for free users)</li>
-        </ul>
-
-        <h2>Data Storage</h2>
-        <p>Your data is securely stored using Supabase, with industry-standard encryption. We do not sell your personal information to third parties.</p>
-
-        <h2>Advertising</h2>
-        <p>We use Google AdMob to display ads. AdMob may collect device identifiers and usage data to show relevant ads. You can opt out of personalized ads in your device settings.</p>
-
-        <h2>Your Rights</h2>
-        <p>You can request to access, update, or delete your data at any time by contacting us.</p>
-
-        <h2>Contact Us</h2>
-        <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:HelpMeQuobby@gmail.com">HelpMeQuobby@gmail.com</a></p>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html" class="active">Privacy</a></li>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="https://apps.apple.com/ie/app/quobby/id6758044478" class="nav-cta" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download
+        </a></li>
+      </ul>
     </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">Last updated: January 19, 2026</p>
+  </header>
+
+  <!-- Content -->
+  <main class="page-content">
+    <section class="policy-section">
+      <h2>Introduction</h2>
+      <p>Quobby ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.</p>
+      <p>Please read this policy carefully. By using Quobby, you consent to the practices described in this Privacy Policy.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Information We Collect</h2>
+      <p>We collect the following types of information:</p>
+      <p><strong>Account Information:</strong></p>
+      <ul>
+        <li>Email address (for account creation and communication)</li>
+        <li>Display name and avatar (customisable by you)</li>
+        <li>Authentication data (securely managed by our authentication provider)</li>
+      </ul>
+      <p><strong>User-Generated Content:</strong></p>
+      <ul>
+        <li>Flashcards and decks you create</li>
+        <li>Habit tracking data</li>
+        <li>Scanned documents (Premium users)</li>
+        <li>Study progress and statistics</li>
+      </ul>
+      <p><strong>Usage Data:</strong></p>
+      <ul>
+        <li>App feature usage patterns</li>
+        <li>Study session duration and frequency</li>
+        <li>Error logs and crash reports</li>
+        <li>Device type and operating system version</li>
+      </ul>
+      <p><strong>For Advertising (Free Users):</strong></p>
+      <ul>
+        <li>Device advertising identifier (IDFA)</li>
+        <li>General location (country/region)</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>How We Use Your Information</h2>
+      <p>We use your information to:</p>
+      <ul>
+        <li>Provide and maintain the App's functionality</li>
+        <li>Sync your data across devices (Premium users)</li>
+        <li>Enable community features (deck sharing, leaderboards)</li>
+        <li>Send important notifications and updates</li>
+        <li>Analyse usage to improve the App</li>
+        <li>Provide customer support</li>
+        <li>Display relevant advertisements (free users)</li>
+        <li>Detect and prevent fraud or abuse</li>
+      </ul>
+      <p><strong>We do NOT:</strong></p>
+      <ul>
+        <li>Sell your personal data to third parties</li>
+        <li>Share your flashcard content without your consent</li>
+        <li>Use your data for purposes unrelated to the App</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Data Storage and Security</h2>
+      <p>Your data is stored using industry-standard security measures:</p>
+      <p><strong>Local Storage:</strong></p>
+      <ul>
+        <li>Flashcards and app data are stored locally on your device</li>
+        <li>Local data is protected by your device's security features</li>
+      </ul>
+      <p><strong>Cloud Storage (Premium):</strong></p>
+      <ul>
+        <li>Data is encrypted in transit using TLS/SSL</li>
+        <li>Cloud data is stored on secure Supabase servers</li>
+        <li>We use row-level security to protect your data</li>
+        <li>Only you can access your personal content</li>
+      </ul>
+      <p>We retain your data for as long as your account is active. You may request deletion at any time.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Third-Party Services</h2>
+      <p>We use the following third-party services:</p>
+      <p><strong>Supabase (Cloud Infrastructure):</strong></p>
+      <ul>
+        <li>Provides authentication, database, and file storage</li>
+        <li>Privacy Policy: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a></li>
+      </ul>
+      <p><strong>Google AdMob (Advertising - Free Users):</strong></p>
+      <ul>
+        <li>Displays personalised and non-personalised ads</li>
+        <li>May collect device identifiers and usage data</li>
+        <li>Privacy Policy: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></li>
+      </ul>
+      <p><strong>Apple (App Store &amp; Payments):</strong></p>
+      <ul>
+        <li>Processes in-app purchases and subscriptions</li>
+        <li>Privacy Policy: <a href="https://www.apple.com/privacy" target="_blank" rel="noopener">apple.com/privacy</a></li>
+      </ul>
+      <p><strong>Translation APIs:</strong></p>
+      <ul>
+        <li>Used for AI vocabulary features</li>
+        <li>Only text content is sent, not personal identifiers</li>
+      </ul>
+      <p>These services have their own privacy policies governing their data practices.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Advertising</h2>
+      <p>Free users see advertisements served by Google AdMob.</p>
+      <p><strong>How Ads Work:</strong></p>
+      <ul>
+        <li>AdMob may use your device's advertising ID (IDFA)</li>
+        <li>Ads may be personalised based on your interests</li>
+        <li>You can opt out of personalised ads in iOS Settings</li>
+      </ul>
+      <p><strong>To Limit Ad Tracking:</strong><br>Settings &rarr; Privacy &rarr; Tracking &rarr; Disable "Allow Apps to Request to Track"</p>
+      <p><strong>Premium Subscribers:</strong><br>Premium users do not see any advertisements, and we do not collect advertising-related data from premium accounts.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Your Rights (GDPR &amp; CCPA)</h2>
+      <p>Depending on your location, you may have the following rights:</p>
+      <p><strong>European Union (GDPR):</strong></p>
+      <ul>
+        <li>Right to access your personal data</li>
+        <li>Right to rectification of inaccurate data</li>
+        <li>Right to erasure ("right to be forgotten")</li>
+        <li>Right to data portability</li>
+        <li>Right to restrict or object to processing</li>
+        <li>Right to withdraw consent</li>
+      </ul>
+      <p><strong>California (CCPA):</strong></p>
+      <ul>
+        <li>Right to know what personal information is collected</li>
+        <li>Right to delete personal information</li>
+        <li>Right to opt-out of sale of personal information</li>
+        <li>Right to non-discrimination for exercising rights</li>
+      </ul>
+      <p>We do not sell your personal information.</p>
+      <p>To exercise these rights, contact us at: <a href="mailto:helpmequobby@gmail.com">helpmequobby@gmail.com</a></p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Children's Privacy</h2>
+      <p>Quobby is intended for users aged 13 and older.</p>
+      <p>We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal information, please contact us immediately and we will delete such information.</p>
+      <p>Users between 13&ndash;18 should have parental consent before using the App.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Data Retention</h2>
+      <p>We retain your data as follows:</p>
+      <p><strong>Active Accounts:</strong></p>
+      <ul>
+        <li>Data is retained while your account is active</li>
+        <li>Study statistics may be retained for service improvement</li>
+      </ul>
+      <p><strong>Deleted Accounts:</strong></p>
+      <ul>
+        <li>Account data is deleted within 30 days</li>
+        <li>Some anonymised analytics may be retained</li>
+        <li>Backup copies may persist for up to 90 days</li>
+      </ul>
+      <p><strong>Published Decks:</strong></p>
+      <ul>
+        <li>Community decks may remain available unless you request removal</li>
+        <li>Ratings and download counts are anonymised and retained</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>International Data Transfers</h2>
+      <p>Your data may be processed in countries outside your residence, including:</p>
+      <ul>
+        <li>European Union (Supabase infrastructure)</li>
+        <li>United States (Google services)</li>
+      </ul>
+      <p>We ensure appropriate safeguards are in place for international transfers, including:</p>
+      <ul>
+        <li>Standard Contractual Clauses (SCCs)</li>
+        <li>Privacy Shield compliance where applicable</li>
+        <li>Adequacy decisions by the European Commission</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by:</p>
+      <ul>
+        <li>Posting the new policy in the App</li>
+        <li>Updating the "Last Updated" date</li>
+        <li>Sending an email notification for material changes</li>
+      </ul>
+      <p>Your continued use of the App after changes constitutes acceptance of the updated policy.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Contact Us</h2>
+      <p>If you have questions or concerns about this Privacy Policy or our data practices, please contact us:</p>
+      <p><strong>Email:</strong> <a href="mailto:helpmequobby@gmail.com">helpmequobby@gmail.com</a></p>
+      <p>For GDPR-related inquiries:<br><strong>Data Protection Officer:</strong> <a href="mailto:helpmequobby@gmail.com">helpmequobby@gmail.com</a></p>
+      <p>We will respond to all requests within 30 days.</p>
+    </section>
+
+    <div class="policy-footer">
+      Your privacy matters to us. We are committed to being transparent about our data practices and giving you control over your information.
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Service</a></li>
+        <li><a href="mailto:helpmequobby@gmail.com">Contact</a></li>
+      </ul>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/quobby.official/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://apps.apple.com/ie/app/quobby/id6758044478" target="_blank" rel="noopener" aria-label="App Store">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Quobby. All rights reserved.
+    </div>
+  </footer>
 </body>
 </html>

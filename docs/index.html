@@ -1,190 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quobby - Smart Flashcards & Study Companion</title>
-    <meta name="description" content="Master any subject with Quobby. Create flashcards, track habits, and boost your learning with AI-powered study tools.">
-    <meta name="apple-itunes-app" content="app-id=6758044478">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quobby - Smart Flashcards & Study Tools</title>
+  <meta name="description" content="Quobby is the all-in-one study app with smart flashcards, spaced repetition, group study sessions, smart focus blocker, rewards shop, habit tracking, notes, and AI-powered learning tools. Download now on iOS.">
+  <meta name="theme-color" content="#0a0a14">
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #ffffff;
-            line-height: 1.6;
-        }
+  <!-- Open Graph -->
+  <meta property="og:title" content="Quobby - Smart Flashcards & Study Tools">
+  <meta property="og:description" content="The all-in-one study companion. Smart flashcards, spaced repetition, group study sessions, classroom quizzes, smart focus blocker, rewards shop, habit tracking, notes, and AI-powered learning.">
+  <meta property="og:image" content="https://www.quobby.com/assets/app-icon.png">
+  <meta property="og:url" content="https://www.quobby.com">
+  <meta property="og:type" content="website">
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 60px 20px;
-            text-align: center;
-        }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        .logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 28px;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/app-icon.png">
+  <link rel="apple-touch-icon" href="assets/app-icon.png">
 
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .tagline {
-            font-size: 1.25rem;
-            color: #a0aec0;
-            margin-bottom: 40px;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            margin: 48px 0;
-            text-align: left;
-        }
-
-        .feature {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .feature h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: #667eea;
-        }
-
-        .feature p {
-            font-size: 0.95rem;
-            color: #a0aec0;
-        }
-
-        .app-store-badge {
-            display: inline-block;
-            margin: 32px 0;
-        }
-
-        .app-store-badge img {
-            height: 54px;
-            transition: transform 0.2s ease;
-        }
-
-        .app-store-badge img:hover {
-            transform: scale(1.05);
-        }
-
-        .links {
-            margin-top: 48px;
-            padding-top: 32px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .links a {
-            color: #a0aec0;
-            text-decoration: none;
-            margin: 0 16px;
-            font-size: 0.9rem;
-            transition: color 0.2s ease;
-        }
-
-        .links a:hover {
-            color: #667eea;
-        }
-
-        .contact {
-            margin-top: 24px;
-            color: #718096;
-            font-size: 0.85rem;
-        }
-
-        .contact a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .tagline {
-                font-size: 1.1rem;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <div class="container">
-        <img src="QuobbyMascot.png" 
-             alt="Quobby App Icon" 
-             class="logo">
-        
-        <h1>Quobby</h1>
-        <p class="tagline">Smart Flashcards & Study Companion</p>
+  <div class="bg-gradient"></div>
 
-        <p style="color: #cbd5e0; max-width: 500px; margin: 0 auto;">
-            Master any subject with intelligent flashcards, habit tracking, and AI-powered study tools. 
-            Learn smarter, not harder.
-        </p>
-
-        <!-- App Store Download Button -->
-        <a href="https://apps.apple.com/app/id6758044478" class="app-store-badge">
-            <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" 
-                 alt="Download on the App Store">
-        </a>
-
-        <div class="features">
-            <div class="feature">
-                <h3>📚 Smart Flashcards</h3>
-                <p>Create and study flashcards with spaced repetition for optimal memory retention.</p>
-            </div>
-            <div class="feature">
-                <h3>🎯 Habit Tracking</h3>
-                <p>Build consistent study habits and track your daily progress.</p>
-            </div>
-            <div class="feature">
-                <h3>✨ AI-Powered</h3>
-                <p>Get intelligent suggestions and auto-generated cards to speed up learning.</p>
-            </div>
-            <div class="feature">
-                <h3>🏆 Gamification</h3>
-                <p>Earn streaks, climb leaderboards, and stay motivated with daily challenges.</p>
-            </div>
-        </div>
-
-        <div class="links">
-            <!-- Update these links to your actual Notion pages or hosted pages -->
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Service</a>
-            <a href="support.html">Support</a>
-        </div>
-
-        <div class="contact">
-            Questions? Contact us at <a href="mailto:HelpMeQuobby@gmail.com">HelpMeQuobby@gmail.com</a>
-        </div>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="https://apps.apple.com/ie/app/quobby/id6758044478" class="nav-cta" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download
+        </a></li>
+      </ul>
     </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+      <img src="assets/app-icon.png" alt="Quobby App Icon" class="hero-icon">
+      <div class="hero-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Available on iOS
+      </div>
+      <h1>Study smarter,<br><span class="gradient-text">not harder.</span></h1>
+      <p>Quobby is your all-in-one study companion. Smart flashcards, spaced repetition, group study sessions, smart focus mode, a rewards shop, habit tracking, notes, and AI-powered tools to help you learn anything.</p>
+      <div class="hero-buttons">
+        <a href="https://apps.apple.com/ie/app/quobby/id6758044478" class="btn btn-primary" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download on App Store
+        </a>
+        <a href="https://www.instagram.com/quobby.official/" class="btn btn-secondary" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Follow on Instagram
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="features-inner">
+      <div class="section-title">
+        <h2>Everything you need to learn</h2>
+        <p>Powerful study tools designed to help you remember more in less time.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(255, 149, 0, 0.12);">
+            <span>&#x1F4DA;</span>
+          </div>
+          <h3>Smart Flashcards</h3>
+          <p>Create beautiful, customisable flashcards with rich text, colours, and example sentences. Organise them into decks for any subject.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(139, 0, 81, 0.15);">
+            <span>&#x1F9E0;</span>
+          </div>
+          <h3>Spaced Repetition</h3>
+          <p>Our intelligent algorithm schedules reviews at the perfect intervals so you remember more with less effort.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(184, 255, 107, 0.12);">
+            <span>&#x1F916;</span>
+          </div>
+          <h3>AI-Powered Learning</h3>
+          <p>Generate vocabulary, get translations, and create study materials with built-in AI assistance. Study smarter with intelligent tools.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(90, 200, 250, 0.12);">
+            <span>&#x2705;</span>
+          </div>
+          <h3>Habit Tracking</h3>
+          <p>Build consistent study habits with streak tracking, daily goals, and progress analytics to keep you motivated.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(255, 59, 48, 0.12);">
+            <span>&#x1F30D;</span>
+          </div>
+          <h3>Community Decks</h3>
+          <p>Discover and download decks shared by other learners, or publish your own to help the community.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(88, 86, 214, 0.12);">
+            <span>&#x1F465;</span>
+          </div>
+          <h3>Group Study Sessions</h3>
+          <p>Study together in real-time with code sessions and multipl choice classroom quizzes. Compete on leaderboards, invite friends, and learn together.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(52, 199, 89, 0.12);">
+            <span>&#x1F4DD;</span>
+          </div>
+          <h3>Notes & Templates</h3>
+          <p>Write, colour, and plan with customisable notes. Choose from templates like budget planners, weekly shopping lists, and more.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(255, 149, 0, 0.12);">
+            <span>&#x1F4F7;</span>
+          </div>
+          <h3>Document Scanning</h3>
+          <p>Scan notes and textbooks, then convert them into digital study materials and flashcards.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(255, 69, 58, 0.12);">
+            <span>&#x1F6AB;</span>
+          </div>
+          <h3>Smart Focus</h3>
+          <p>Premium members can block distracting apps while studying with the built-in focus blocker. Set timed study sessions and stay on track without temptation.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(255, 214, 10, 0.12);">
+            <span>&#x1F3C6;</span>
+          </div>
+          <h3>Rewards Shop</h3>
+          <p>Earn Study Points as you level up and spend them on card themes, app themes, avatars, profile frames, and feature boosts.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(175, 82, 222, 0.12);">
+            <span>&#x2601;&#xFE0F;</span>
+          </div>
+          <h3>Cloud Sync</h3>
+          <p>Premium users get seamless sync across all devices. Your study progress is always up to date, everywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-box">
+      <h2>Ready to transform how you learn?</h2>
+      <p>Join thousands of students using Quobby to study smarter. Free to download.</p>
+      <a href="https://apps.apple.com/ie/app/quobby/id6758044478" class="btn btn-primary" target="_blank" rel="noopener" style="position: relative;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Get Quobby Free
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Service</a></li>
+        <li><a href="mailto:helpmequobby@gmail.com">Contact</a></li>
+      </ul>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/quobby.official/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://apps.apple.com/ie/app/quobby/id6758044478" target="_blank" rel="noopener" aria-label="App Store">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Quobby. All rights reserved.
+    </div>
+  </footer>
 </body>
 </html>

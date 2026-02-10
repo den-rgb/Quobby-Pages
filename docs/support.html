@@ -1,129 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support - Quobby</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #ffffff;
-            line-height: 1.8;
-        }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .subtitle {
-            color: #a0aec0;
-            margin-bottom: 40px;
-        }
-        h2 {
-            font-size: 1.25rem;
-            color: #667eea;
-            margin-top: 32px;
-            margin-bottom: 12px;
-        }
-        p, li {
-            color: #cbd5e0;
-            margin-bottom: 16px;
-        }
-        a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .back {
-            display: inline-block;
-            margin-bottom: 24px;
-            color: #a0aec0;
-        }
-        .contact-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 32px;
-            margin: 32px 0;
-            text-align: center;
-        }
-        .contact-card h3 {
-            color: #ffffff;
-            margin-bottom: 8px;
-        }
-        .email-link {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-        .faq-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        .faq-item h3 {
-            color: #ffffff;
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-        .faq-item p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support - Quobby</title>
+  <meta name="description" content="Quobby Support. Get help, find answers to frequently asked questions, or contact our team.">
+  <meta name="theme-color" content="#0a0a14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="assets/app-icon.png">
+  <link rel="apple-touch-icon" href="assets/app-icon.png">
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="back">← Back to Home</a>
-        
-        <h1>Support</h1>
-        <p class="subtitle">We're here to help you get the most out of Quobby.</p>
+  <div class="bg-gradient"></div>
 
-        <div class="contact-card">
-            <h3>Need Help?</h3>
-            <p>Email us and we'll get back to you as soon as possible.</p>
-            <a href="mailto:HelpMeQuobby@gmail.com" class="email-link">HelpMeQuobby@gmail.com</a>
-        </div>
-
-        <h2>Frequently Asked Questions</h2>
-
-        <div class="faq-item">
-            <h3>How do I create flashcards?</h3>
-            <p>Tap the + button on the Flashcards tab, create a deck, then add cards with questions and answers. You can also use AI to generate cards automatically!</p>
-        </div>
-
-        <div class="faq-item">
-            <h3>How do I restore my Premium purchase?</h3>
-            <p>Go to Profile → Premium, then tap "Restore Purchases". Make sure you're signed in with the same Apple ID used for the original purchase.</p>
-        </div>
-
-        <div class="faq-item">
-            <h3>How do I cancel my subscription?</h3>
-            <p>Open Settings on your iPhone → tap your name → Subscriptions → select Quobby → Cancel Subscription.</p>
-        </div>
-
-        <div class="faq-item">
-            <h3>Is my data synced across devices?</h3>
-            <p>Yes! When you create an account, your flashcards, habits, and progress sync automatically across all your devices.</p>
-        </div>
-
-        <div class="faq-item">
-            <h3>How do I delete my account?</h3>
-            <p>Go to Profile → Settings → Delete Account. This will permanently remove all your data.</p>
-        </div>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="support.html" class="active">Support</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="https://apps.apple.com/ie/app/quobby/id6758044478" class="nav-cta" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download
+        </a></li>
+      </ul>
     </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="support-header-icon">&#x2753;</div>
+    <h1>How can we help?</h1>
+    <p class="subtitle">Find answers or reach out to our team</p>
+  </header>
+
+  <!-- Content -->
+  <main class="page-content">
+    <!-- Quick Actions -->
+    <div class="support-actions">
+      <a href="mailto:helpmequobby@gmail.com?subject=Quobby%20Support%20Request" class="support-action">
+        <div class="support-action-icon" style="background: rgba(59, 130, 246, 0.15);">
+          <span>&#x2709;&#xFE0F;</span>
+        </div>
+        <div class="support-action-text">
+          <h3>Email Support</h3>
+          <p>Get help from our team</p>
+        </div>
+      </a>
+      <a href="mailto:helpmequobby@gmail.com?subject=Quobby%20Bug%20Report" class="support-action">
+        <div class="support-action-icon" style="background: rgba(239, 68, 68, 0.15);">
+          <span>&#x1F41B;</span>
+        </div>
+        <div class="support-action-text">
+          <h3>Report a Bug</h3>
+          <p>Help us improve Quobby</p>
+        </div>
+      </a>
+      <a href="mailto:helpmequobby@gmail.com?subject=Quobby%20Feature%20Request" class="support-action">
+        <div class="support-action-icon" style="background: rgba(234, 179, 8, 0.15);">
+          <span>&#x1F4A1;</span>
+        </div>
+        <div class="support-action-text">
+          <h3>Feature Request</h3>
+          <p>Suggest new features</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I create flashcards?
+          <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="faq-answer">
+          <p>Tap the + button on the Flashcards tab, create a deck first, then add cards to your deck. You can customise colours, fonts, and add example sentences.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          What is Premium?
+          <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="faq-answer">
+          <p>Premium unlocks cloud sync across devices, note templates, unlimited decks and cards, AI vocabulary generation, community deck downloads, document scanning, and removes all advertisements.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How does spaced repetition work?
+          <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="faq-answer">
+          <p>Quobby uses a smart algorithm that shows you cards at optimal intervals. Cards you know well appear less frequently, while difficult cards appear more often to maximise learning efficiency.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Can I share my decks?
+          <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="faq-answer">
+          <p>Yes! Premium users can publish decks to the community. Go to a deck, tap the share icon, and choose 'Publish to Community'. Others can then download and learn from your deck.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I cancel my subscription?
+          <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="faq-answer">
+          <p>You can manage your subscription in your iPhone's Settings app &rarr; Your Name &rarr; Subscriptions &rarr; Quobby. From there you can cancel or change your plan.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Is my data backed up?
+          <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="faq-answer">
+          <p>Premium users get automatic cloud sync. Your flashcards, habits, and progress are securely stored and synced across all your devices. Free users' data is stored locally on their device.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal Links -->
+    <div class="faq-section">
+      <h2>Legal</h2>
+      <div class="legal-links">
+        <a href="terms.html" class="legal-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Terms of Service (EULA)
+          <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="privacy.html" class="legal-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Privacy Policy
+          <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- App Info -->
+    <div class="text-center mt-4" style="padding: 40px 0;">
+      <img src="assets/app-icon.png" alt="Quobby" style="width: 56px; height: 56px; border-radius: 14px; margin-bottom: 16px;">
+      <p style="font-weight: 600; color: var(--text-primary);">Quobby</p>
+      <p style="font-size: 0.85rem; color: var(--text-faint); margin-top: 4px;">Made with love for learners everywhere</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Service</a></li>
+        <li><a href="mailto:helpmequobby@gmail.com">Contact</a></li>
+      </ul>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/quobby.official/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://apps.apple.com/ie/app/quobby/id6758044478" target="_blank" rel="noopener" aria-label="App Store">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Quobby. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    function toggleFAQ(button) {
+      const item = button.closest('.faq-item');
+      const wasActive = item.classList.contains('active');
+      
+      // Close all FAQ items
+      document.querySelectorAll('.faq-item').forEach(faq => {
+        faq.classList.remove('active');
+      });
+      
+      // Toggle the clicked one
+      if (!wasActive) {
+        item.classList.add('active');
+      }
+    }
+  </script>
 </body>
 </html>
