@@ -1,101 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - Quobby</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #ffffff;
-            line-height: 1.8;
-        }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .updated {
-            color: #718096;
-            font-size: 0.9rem;
-            margin-bottom: 32px;
-        }
-        h2 {
-            font-size: 1.25rem;
-            color: #667eea;
-            margin-top: 32px;
-            margin-bottom: 12px;
-        }
-        p, li {
-            color: #cbd5e0;
-            margin-bottom: 16px;
-        }
-        ul {
-            padding-left: 24px;
-        }
-        a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .back {
-            display: inline-block;
-            margin-bottom: 24px;
-            color: #a0aec0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - Quobby</title>
+  <meta name="description" content="Quobby Terms of Service. Read the terms and conditions governing your use of the Quobby app.">
+  <meta name="theme-color" content="#0a0a14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="assets/app-icon.png">
+  <link rel="apple-touch-icon" href="assets/app-icon.png">
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="back">← Back to Home</a>
-        
-        <h1>Terms of Service</h1>
-        <p class="updated">Last updated: February 2026</p>
+  <div class="bg-gradient"></div>
 
-        <p>By using Quobby, you agree to these Terms of Service. Please read them carefully.</p>
-
-        <h2>Use of Service</h2>
-        <p>Quobby provides a platform for creating flashcards, tracking habits, and studying. You agree to use the service for lawful purposes only.</p>
-
-        <h2>User Accounts</h2>
-        <p>You are responsible for maintaining the security of your account and all activities under it. You must provide accurate information when creating an account.</p>
-
-        <h2>User Content</h2>
-        <p>You retain ownership of content you create. By sharing content publicly, you grant us a license to display it to other users. You agree not to post content that is:</p>
-        <ul>
-            <li>Illegal or promotes illegal activities</li>
-            <li>Harassing, abusive, or harmful</li>
-            <li>Infringing on intellectual property rights</li>
-            <li>Spam or misleading</li>
-        </ul>
-
-        <h2>Premium Subscriptions</h2>
-        <p>Premium features are available through in-app purchases. Subscriptions auto-renew unless cancelled at least 24 hours before the renewal date. Manage subscriptions in your device settings.</p>
-
-        <h2>Termination</h2>
-        <p>We may suspend or terminate accounts that violate these terms. You may delete your account at any time.</p>
-
-        <h2>Disclaimers</h2>
-        <p>Quobby is provided "as is" without warranties. We are not responsible for any loss of data or interruption of service.</p>
-
-        <h2>Changes to Terms</h2>
-        <p>We may update these terms. Continued use after changes constitutes acceptance of the new terms.</p>
-
-        <h2>Contact</h2>
-        <p>Questions? Contact us at <a href="mailto:HelpMeQuobby@gmail.com">HelpMeQuobby@gmail.com</a></p>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="terms.html" class="active">Terms</a></li>
+        <li><a href="https://apps.apple.com/ie/app/quobby/id6758044478" class="nav-cta" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download
+        </a></li>
+      </ul>
     </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <h1>Terms of Service</h1>
+    <p class="subtitle">Last updated: January 28, 2026</p>
+  </header>
+
+  <!-- Content -->
+  <main class="page-content">
+    <section class="policy-section">
+      <h2>1. Agreement to Terms</h2>
+      <p>By downloading, installing, or using Quobby ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.</p>
+      <p>Quobby is a flashcard and learning application that helps users create, study, and share educational content. These Terms govern your use of the App and any related services.</p>
+      <p>To access community features (browsing, downloading, or publishing shared decks), you must explicitly accept these Terms of Service. This acceptance is required to ensure all users understand and agree to our community standards.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>2. Eligibility</h2>
+      <p>This App is available to users of all ages. If you are under 18, you represent that you have your parent or guardian's permission to use the App. By using the App, you represent and warrant that you have the legal capacity to enter into these Terms.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>3. Account Registration</h2>
+      <p>To access certain features, you may need to create an account. You agree to:</p>
+      <ul>
+        <li>Provide accurate, current, and complete information</li>
+        <li>Maintain the security of your password and account</li>
+        <li>Accept responsibility for all activities under your account</li>
+        <li>Notify us immediately of any unauthorised access</li>
+      </ul>
+      <p>We reserve the right to suspend or terminate accounts that violate these Terms.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>4. Premium Subscription</h2>
+      <p>Quobby offers premium features through auto-renewable subscriptions.</p>
+      <p><strong>Subscription Terms:</strong></p>
+      <ul>
+        <li>Payment is charged to your Apple ID account upon purchase confirmation</li>
+        <li>Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period</li>
+        <li>Your account will be charged for renewal within 24 hours prior to the end of the current period</li>
+        <li>You can manage and cancel subscriptions in your Apple ID Account Settings</li>
+      </ul>
+      <p><strong>Premium Features Include:</strong></p>
+      <ul>
+        <li>Cloud sync across devices</li>
+        <li>Note templates (pre-designed layouts)</li>
+        <li>AI vocabulary generation</li>
+        <li>Unlimited flashcards and decks</li>
+        <li>Community deck downloads and publishing</li>
+        <li>Unlimited document scans</li>
+        <li>Ad-free experience</li>
+      </ul>
+      <p>Refunds are handled by Apple according to their refund policies.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>5. User Content</h2>
+      <p>You retain ownership of content you create ("User Content"), including flashcards, decks, and documents. By using the App, you grant us a non-exclusive, worldwide, royalty-free license to use, store, and display your User Content solely for the purpose of providing the App's services.</p>
+      <p>When you publish content to the community:</p>
+      <ul>
+        <li>You grant other users the right to download and use your published decks for personal learning</li>
+        <li>You represent that you have the right to share this content</li>
+        <li>You agree not to publish content that infringes on others' intellectual property rights</li>
+      </ul>
+      <p>You are solely responsible for your User Content and the consequences of sharing it.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>6. Zero Tolerance Policy for Objectionable Content</h2>
+      <p>Quobby maintains a <strong>ZERO TOLERANCE POLICY</strong> for objectionable content and abusive behaviour. This includes, but is not limited to:</p>
+      <ul>
+        <li>Sexually explicit or pornographic material</li>
+        <li>Content depicting violence, gore, or harm</li>
+        <li>Hate speech, discrimination, or harassment based on race, ethnicity, religion, gender, sexual orientation, disability, or any other protected characteristic</li>
+        <li>Bullying, threats, or intimidation of any kind</li>
+        <li>Content that promotes illegal activities</li>
+        <li>Spam, scams, or misleading content</li>
+        <li>Content that infringes on intellectual property rights</li>
+        <li>Malware, viruses, or harmful code</li>
+        <li>Any content harmful to minors</li>
+      </ul>
+      <p>Any user who uploads, shares, or distributes objectionable content will have their content immediately removed and their account permanently terminated without warning. We reserve the right to report illegal content to appropriate law enforcement authorities.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>7. Prohibited Conduct</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Use the App for any unlawful purpose</li>
+        <li>Upload content that is offensive, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable</li>
+        <li>Infringe on intellectual property rights of others</li>
+        <li>Attempt to gain unauthorised access to the App or its systems</li>
+        <li>Interfere with or disrupt the App's operation</li>
+        <li>Use automated systems or bots to access the App</li>
+        <li>Impersonate any person or entity</li>
+        <li>Upload malware, viruses, or harmful code</li>
+        <li>Collect user information without consent</li>
+        <li>Use the App to spam or send unsolicited messages</li>
+      </ul>
+      <p>Violation of these terms will result in immediate termination of your account and potential legal action.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>8. Content Moderation &amp; Account Restrictions</h2>
+      <p>To maintain a safe and positive community, Quobby enforces strict content moderation policies:</p>
+      <p><strong>Reporting &amp; Blocking:</strong></p>
+      <ul>
+        <li>Users may report decks or users for violating our policies</li>
+        <li>Users may block other users, which immediately removes their content from the blocker's feed</li>
+        <li>Blocking a user also notifies our moderation team for review</li>
+        <li>All reports are reviewed by our moderation team</li>
+      </ul>
+      <p><strong>24-Hour Response Commitment:</strong></p>
+      <ul>
+        <li>We commit to reviewing and acting on all content reports within 24 hours</li>
+        <li>Reported content that violates our policies will be removed promptly</li>
+        <li>Users who posted violating content will be notified and may face account action</li>
+      </ul>
+      <p><strong>User Ejection Policy:</strong></p>
+      <ul>
+        <li>First offence (minor violation): Warning issued, content removed</li>
+        <li>Second offence: Publishing privileges suspended for 30 days</li>
+        <li>Third offence or severe violation: Permanent account termination</li>
+        <li>Egregious violations (illegal content, severe harassment): Immediate permanent ban without warning</li>
+      </ul>
+      <p><strong>Warnings:</strong></p>
+      <ul>
+        <li>Users who violate our policies receive formal warnings</li>
+        <li>Warnings are recorded and visible in your account</li>
+        <li>Warnings do not expire and accumulate over time</li>
+      </ul>
+      <p><strong>Publishing Restrictions:</strong></p>
+      <ul>
+        <li>Users who violate content policies will have their publishing privileges disabled</li>
+        <li>When publishing is disabled, you retain other premium features</li>
+        <li>You will not be able to share decks publicly until the restriction is lifted</li>
+        <li>Reinstatement requires acknowledgement of the violation and commitment to comply</li>
+      </ul>
+      <p><strong>Content Removal:</strong></p>
+      <ul>
+        <li>We reserve the right to remove any content that violates these Terms immediately</li>
+        <li>Removed content cannot be restored</li>
+        <li>All published decks by banned users are permanently deleted</li>
+      </ul>
+      <p><strong>Appeal Process:</strong></p>
+      <ul>
+        <li>If you believe a restriction was applied in error, contact <a href="mailto:helpmequobby@gmail.com">helpmequobby@gmail.com</a></li>
+        <li>Include your account details and explanation</li>
+        <li>Appeals are reviewed within 5 business days</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>9. Intellectual Property</h2>
+      <p>The App, including its design, features, code, graphics, and content (excluding User Content), is owned by Quobby and protected by copyright, trademark, and other intellectual property laws.</p>
+      <p>You are granted a limited, non-exclusive, non-transferable license to use the App for personal, non-commercial purposes in accordance with these Terms.</p>
+      <p>You may not copy, modify, distribute, sell, or lease any part of the App without our written permission.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>10. Third-Party Services</h2>
+      <p>The App may integrate with third-party services including:</p>
+      <ul>
+        <li>Google AdMob for advertising (free users)</li>
+        <li>Supabase for cloud storage and authentication</li>
+        <li>Apple StoreKit for in-app purchases</li>
+        <li>External APIs for vocabulary and translation features</li>
+      </ul>
+      <p>Your use of these services is subject to their respective terms and privacy policies. We are not responsible for the practices of third-party services.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>11. Advertisements</h2>
+      <p>Free users may see advertisements provided by Google AdMob. By using the free version, you consent to receiving these advertisements. Premium subscribers enjoy an ad-free experience.</p>
+      <p>We may use your device's advertising identifier to show relevant ads. You can limit ad tracking in your device settings.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>12. Disclaimer of Warranties</h2>
+      <p>THE APP IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+      <p>We do not warrant that:</p>
+      <ul>
+        <li>The App will be uninterrupted or error-free</li>
+        <li>Defects will be corrected</li>
+        <li>The App is free of viruses or harmful components</li>
+        <li>The results from using the App will be accurate or reliable</li>
+      </ul>
+      <p>AI-generated vocabulary and translations are provided for educational purposes and may contain errors.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>13. Limitation of Liability</h2>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, QUOBBY SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.</p>
+      <p>Our total liability shall not exceed the amount you paid for the App in the twelve (12) months preceding the claim.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>14. Indemnification</h2>
+      <p>You agree to indemnify, defend, and hold harmless Quobby and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:</p>
+      <ul>
+        <li>Your use of the App</li>
+        <li>Your violation of these Terms</li>
+        <li>Your violation of any third-party rights</li>
+        <li>Your User Content</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>15. Modifications to Terms</h2>
+      <p>We reserve the right to modify these Terms at any time. We will notify users of significant changes through the App or via email.</p>
+      <p>Your continued use of the App after changes are posted constitutes acceptance of the modified Terms. If you do not agree to the changes, you should stop using the App.</p>
+      <p>If Terms are updated, you may be required to re-accept them before continuing to use community features.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>16. Termination</h2>
+      <p>We may terminate or suspend your access to the App immediately, without prior notice, for any reason, including breach of these Terms.</p>
+      <p>Upon termination:</p>
+      <ul>
+        <li>Your right to use the App will cease immediately</li>
+        <li>We may delete your account and User Content</li>
+        <li>All your published community decks will be removed</li>
+        <li>Provisions that by their nature should survive will remain in effect</li>
+      </ul>
+      <p>You may terminate your account at any time by deleting the App and contacting us to request data deletion.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>17. Governing Law</h2>
+      <p>These Terms shall be governed by and construed in accordance with the laws of the European Union and the applicable laws of the country where you reside, without regard to conflict of law principles.</p>
+      <p>Any disputes arising from these Terms shall be resolved through good-faith negotiation or, if necessary, through binding arbitration in accordance with applicable consumer protection laws.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>18. Apple App Store Terms</h2>
+      <p>This End-User License Agreement ("EULA") is between you and Quobby only, and not with Apple Inc. ("Apple"). Apple is not responsible for the App or its content.</p>
+      <p>You acknowledge that:</p>
+      <ul>
+        <li>This agreement is concluded between you and Quobby only, not with Apple</li>
+        <li>Quobby, not Apple, is solely responsible for the Licensed Application and its content</li>
+        <li>Apple has no obligation to furnish any maintenance and support services for the App</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>19. License Scope</h2>
+      <p>The license granted to you for Quobby is limited to a non-transferable license to use the App on any Apple-branded products that you own or control, as permitted by the Usage Rules set forth in the Apple Media Services Terms and Conditions.</p>
+      <p>The App may be accessed and used by other accounts associated with you via Family Sharing or volume purchasing programs.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>20. Maintenance and Support</h2>
+      <p>Quobby is solely responsible for providing maintenance and support services for the App, as specified in this EULA or as required under applicable law.</p>
+      <p>You acknowledge that Apple has no obligation whatsoever to furnish any maintenance and support services with respect to the App.</p>
+      <p>For support, contact: <a href="mailto:helpmequobby@gmail.com">helpmequobby@gmail.com</a></p>
+    </section>
+
+    <section class="policy-section">
+      <h2>21. Warranty</h2>
+      <p>Quobby is solely responsible for any product warranties, whether express or implied by law, to the extent not effectively disclaimed.</p>
+      <p>In the event of any failure of the App to conform to any applicable warranty:</p>
+      <ul>
+        <li>You may notify Apple, and Apple will refund the purchase price for the App to you</li>
+        <li>To the maximum extent permitted by applicable law, Apple will have no other warranty obligation whatsoever with respect to the App</li>
+      </ul>
+      <p>Any other claims, losses, liabilities, damages, costs, or expenses attributable to any failure to conform to any warranty will be Quobby's sole responsibility.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>22. Product Claims</h2>
+      <p>You acknowledge that Quobby, not Apple, is responsible for addressing any claims you or any third party may have relating to the App or your possession and/or use of the App, including but not limited to:</p>
+      <ul>
+        <li>Product liability claims</li>
+        <li>Any claim that the App fails to conform to any applicable legal or regulatory requirement</li>
+        <li>Claims arising under consumer protection, privacy, or similar legislation</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>23. Intellectual Property Claims</h2>
+      <p>In the event of any third-party claim that the App or your possession and use of the App infringes that third party's intellectual property rights, Quobby, not Apple, will be solely responsible for the investigation, defense, settlement, and discharge of any such intellectual property infringement claim.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>24. Legal Compliance</h2>
+      <p>You represent and warrant that:</p>
+      <ul>
+        <li>You are not located in a country that is subject to a U.S. Government embargo, or that has been designated by the U.S. Government as a "terrorist supporting" country</li>
+        <li>You are not listed on any U.S. Government list of prohibited or restricted parties</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>25. Third-Party Beneficiary</h2>
+      <p>You acknowledge and agree that Apple, and Apple's subsidiaries, are third-party beneficiaries of this EULA.</p>
+      <p>Upon your acceptance of the terms and conditions of this EULA, Apple will have the right (and will be deemed to have accepted the right) to enforce this EULA against you as a third-party beneficiary thereof.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>26. Third-Party Terms Compliance</h2>
+      <p>You must comply with applicable third-party terms of agreement when using the App. For example, if you use the App over a cellular data connection, you must not be in violation of your wireless data service agreement.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>27. Developer Contact Information</h2>
+      <p><strong>Quobby</strong></p>
+      <p>Email: <a href="mailto:helpmequobby@gmail.com">helpmequobby@gmail.com</a></p>
+      <p>For questions, complaints, or claims regarding the App, please contact us at the email address above.</p>
+      <p>We aim to respond to all inquiries within 48 hours.</p>
+    </section>
+
+    <div class="policy-footer">
+      By using Quobby, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/app-icon.png" alt="Quobby">
+        <span>Quobby</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Service</a></li>
+        <li><a href="mailto:helpmequobby@gmail.com">Contact</a></li>
+      </ul>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/quobby.official/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://apps.apple.com/ie/app/quobby/id6758044478" target="_blank" rel="noopener" aria-label="App Store">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Quobby. All rights reserved.
+    </div>
+  </footer>
 </body>
 </html>
