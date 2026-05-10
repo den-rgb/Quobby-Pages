@@ -45,7 +45,7 @@ function GameCover({ src, alt }: { src: string | null; alt: string }) {
       src={src}
       alt={alt}
       onError={() => setFailed(true)}
-      className="w-full h-full object-cover"
+      className="w-full h-full object-cover object-top"
     />
   );
 }
@@ -391,7 +391,7 @@ export default function TutorialsPage() {
                   href={`/tutorials/${t.id}`}
                   className="block bg-card border border-border rounded-2xl overflow-hidden transition-all hover:bg-card-hover hover:border-accent/10 hover:-translate-y-1 group relative"
                 >
-                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-white/[0.02]">
+                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/[0.02]">
                     <GameCover src={imgUrl} alt={subtitle} />
                   </div>
                   <div className="p-5">

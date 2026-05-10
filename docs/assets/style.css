@@ -35,6 +35,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -849,7 +850,7 @@ img {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 768px) {
+@media (max-width: 920px) {
   .nav-links {
     display: none;
     position: absolute;
@@ -933,6 +934,10 @@ img {
 @media (max-width: 480px) {
   .nav-inner {
     height: 56px;
+  }
+
+  .nav-links {
+    top: 56px;
   }
 
   .hero {
