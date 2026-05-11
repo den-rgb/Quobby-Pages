@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth';
-import { DEMO_CATEGORY_SLUGS, DEMO_TUTORIAL_LIST } from '@/lib/demo-tutorials';
+import { DEMO_CATEGORY_SLUGS, DEMO_TUTORIAL_LIST, DEMO_TUTORIALS } from '@/lib/demo-tutorials';
 import { createClient } from '@/lib/supabase/client';
 import type { Category, Tutorial } from '@/lib/types';
 import {
@@ -166,11 +166,34 @@ export default function TutorialsPage() {
     setForkingId(tutorial.id);
     const supabase = createClient();
 
-    const [{ data: steps }, { data: objects }, { data: variables }] = await Promise.all([
-      supabase.from('tutorial_steps').select('*').eq('tutorial_id', tutorial.id).order('sort_order'),
-      supabase.from('tutorial_objects').select('*').eq('tutorial_id', tutorial.id),
-      supabase.from('tutorial_variables').select('*').eq('tutorial_id', tutorial.id),
-    ]);
+    const demoData = DEMO_TUTORIALS[tutorial.id];
+    const isDemo = !!demoData;
+
+    let steps: Record<string, unknown>[] | null = null;
+    let objects: Record<string, unknown>[] | null = null;
+    let variables: Record<string, unknown>[] | null = null;
+
+    if (isDemo) {
+      steps = demoData.steps.map((s, i) => ({
+        id: crypto.randomUUID(),
+        tutorial_id: tutorial.id,
+        step_type: 'content' as const,
+        sort_order: i,
+        content_json: s,
+        logic_json: null,
+        position_x: 100,
+        position_y: 100 + i * 150,
+      }));
+    } else {
+      const [stepsRes, objectsRes, variablesRes] = await Promise.all([
+        supabase.from('tutorial_steps').select('*').eq('tutorial_id', tutorial.id).order('sort_order'),
+        supabase.from('tutorial_objects').select('*').eq('tutorial_id', tutorial.id),
+        supabase.from('tutorial_variables').select('*').eq('tutorial_id', tutorial.id),
+      ]);
+      steps = stepsRes.data;
+      objects = objectsRes.data;
+      variables = variablesRes.data;
+    }
 
     const newTutorialId = crypto.randomUUID();
 
@@ -182,6 +205,7 @@ export default function TutorialsPage() {
       title: `${tutorial.title} (Fork)`,
       description: tutorial.description,
       estimated_minutes: tutorial.estimated_minutes,
+      cover_image_url: tutorial.cover_image_url || null,
       status: 'draft',
       version: 1,
       forked_from: tutorial.id,
@@ -189,9 +213,9 @@ export default function TutorialsPage() {
 
     if (!tutErr && steps && steps.length > 0) {
       const stepIdMap = new Map<string, string>();
-      const newSteps = steps.map((s) => {
+      const newSteps = steps.map((s: Record<string, unknown>) => {
         const newId = crypto.randomUUID();
-        stepIdMap.set(s.id, newId);
+        stepIdMap.set(s.id as string, newId);
         return {
           id: newId,
           tutorial_id: newTutorialId,
@@ -205,29 +229,31 @@ export default function TutorialsPage() {
       });
       await supabase.from('tutorial_steps').insert(newSteps);
 
-      const oldStepIds = steps.map((s) => s.id);
-      const { data: connections } = await supabase
-        .from('tutorial_connections')
-        .select('*')
-        .in('from_step_id', oldStepIds);
+      if (!isDemo) {
+        const oldStepIds = steps.map((s: Record<string, unknown>) => s.id as string);
+        const { data: connections } = await supabase
+          .from('tutorial_connections')
+          .select('*')
+          .in('from_step_id', oldStepIds);
 
-      if (connections && connections.length > 0) {
-        const newConns = connections
-          .filter((c) => stepIdMap.has(c.from_step_id) && stepIdMap.has(c.to_step_id))
-          .map((c) => ({
-            id: crypto.randomUUID(),
-            from_step_id: stepIdMap.get(c.from_step_id)!,
-            to_step_id: stepIdMap.get(c.to_step_id)!,
-            condition_json: c.condition_json,
-          }));
-        if (newConns.length > 0) {
-          await supabase.from('tutorial_connections').insert(newConns);
+        if (connections && connections.length > 0) {
+          const newConns = connections
+            .filter((c) => stepIdMap.has(c.from_step_id) && stepIdMap.has(c.to_step_id))
+            .map((c) => ({
+              id: crypto.randomUUID(),
+              from_step_id: stepIdMap.get(c.from_step_id)!,
+              to_step_id: stepIdMap.get(c.to_step_id)!,
+              condition_json: c.condition_json,
+            }));
+          if (newConns.length > 0) {
+            await supabase.from('tutorial_connections').insert(newConns);
+          }
         }
       }
     }
 
     if (!tutErr && objects && objects.length > 0) {
-      const newObjs = objects.map((o) => ({
+      const newObjs = objects.map((o: Record<string, unknown>) => ({
         id: crypto.randomUUID(),
         tutorial_id: newTutorialId,
         name: o.name,
@@ -239,7 +265,7 @@ export default function TutorialsPage() {
     }
 
     if (!tutErr && variables && variables.length > 0) {
-      const newVars = variables.map((v) => ({
+      const newVars = variables.map((v: Record<string, unknown>) => ({
         id: crypto.randomUUID(),
         tutorial_id: newTutorialId,
         name: v.name,

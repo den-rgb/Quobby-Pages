@@ -1,9 +1,11 @@
 import {
   Download,
+  Film,
   GitFork,
   Layers,
   LayoutDashboard,
   Play,
+  Scissors,
   Search,
   Sparkles,
   Users,
@@ -41,10 +43,10 @@ const features = [
     color: 'rgba(90, 200, 250, 0.12)',
   },
   {
-    icon: Search,
-    title: 'Rich Media',
+    icon: Film,
+    title: 'Smart Video',
     description:
-      'Upload images and videos to each step. Embed diagrams, board layouts, and interactive elements to teach visually.',
+      'Upload videos up to 250 MB — or up to 1 GB with Premium. The built-in processor compresses oversized files. Premium users can split long videos into segments, each automatically becoming its own tutorial step.',
     color: 'rgba(255, 214, 10, 0.12)',
   },
   {
@@ -65,7 +67,7 @@ const steps = [
   {
     icon: LayoutDashboard,
     title: '2. Build the Tutorial',
-    description: 'Use the visual editor to create steps, add media, and set up logic.',
+    description: 'Use the visual editor to create steps, add images and videos, and set up logic. Long videos are automatically split and compressed.',
   },
   {
     icon: Sparkles,
@@ -146,6 +148,87 @@ export default function Home() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-20">
+        <div className="max-w-[1100px] mx-auto">
+          <div className="p-8 md:p-12 bg-gradient-to-br from-yellow-500/[0.04] to-accent/[0.04] border border-yellow-500/[0.1] rounded-3xl relative overflow-hidden">
+            <div className="absolute -top-1/2 right-[-20%] w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,rgba(255,214,10,0.04),transparent_70%)] pointer-events-none" />
+            <div className="flex flex-col md:flex-row items-center gap-8 relative">
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/15 rounded-full text-[0.7rem] font-semibold uppercase tracking-wider text-yellow-400 mb-4">
+                  Built-in video processor
+                </div>
+                <h2 className="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-foreground mb-3">
+                  Drop a video, we handle the rest
+                </h2>
+                <p className="text-foreground-muted leading-relaxed mb-5 max-w-lg">
+                  Record a 30-minute walkthrough and upload it as-is. The in-browser processor compresses it to fit, or splits it at timestamps you choose — each segment becomes a linked tutorial step automatically.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                      <Film className="w-3.5 h-3.5 text-yellow-400" />
+                    </div>
+                    Videos up to 1 GB
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <Scissors className="w-3.5 h-3.5 text-accent" />
+                    </div>
+                    Timeline-based splitting
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-green/10 flex items-center justify-center">
+                      <Sparkles className="w-3.5 h-3.5 text-green" />
+                    </div>
+                    Auto-linked steps
+                  </div>
+                </div>
+              </div>
+              <div className="w-full md:w-[280px] shrink-0">
+                <div className="bg-[#16162a] border border-white/10 rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center gap-2 text-xs text-foreground-muted">
+                    <Film className="w-3.5 h-3.5 text-accent" />
+                    <span className="font-medium text-foreground">Process Video</span>
+                  </div>
+                  <div className="flex gap-1 bg-white/10 rounded-lg p-0.5">
+                    <div className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-medium text-foreground-muted">
+                      Compress
+                    </div>
+                    <div className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-accent/20 rounded-md text-[10px] font-medium text-accent">
+                      Split &amp; Distribute
+                    </div>
+                  </div>
+                  <div className="relative h-6 bg-white/10 rounded-md overflow-hidden">
+                    <div className="absolute inset-y-0 left-0 w-[35%] bg-accent/15" />
+                    <div className="absolute inset-y-0 left-[35%] w-[40%] bg-green/15" />
+                    <div className="absolute inset-y-0 left-[75%] right-0 bg-accent/15" />
+                    <div className="absolute inset-y-0 w-px bg-red-400" style={{ left: '35%' }} />
+                    <div className="absolute inset-y-0 w-px bg-red-400" style={{ left: '75%' }} />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.04] rounded text-[10px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                      <span className="text-foreground-muted">0:00 – 2:45</span>
+                      <span className="text-foreground-faint ml-auto">→ Current step</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.04] rounded text-[10px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green" />
+                      <span className="text-foreground-muted">2:45 – 5:30</span>
+                      <span className="text-foreground-faint ml-auto">→ New step</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.04] rounded text-[10px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                      <span className="text-foreground-muted">5:30 – 8:12</span>
+                      <span className="text-foreground-faint ml-auto">→ New step</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

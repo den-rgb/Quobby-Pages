@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuth } from '@/lib/auth';
+import { videoRawMaxBytes, videoRawMaxLabel } from '@/lib/premium';
 import { useEditorStore } from '@/lib/store';
 import type {
   CodeBlock,
@@ -481,7 +483,6 @@ function ContentEditor({
 
 const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
-const VIDEO_RAW_MAX_BYTES = 500 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 
@@ -494,11 +495,14 @@ function MediaUploadSection({
   onChange: (media: MediaAttachment[]) => void;
   stepId: string;
 }) {
+  const { isPremium } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [processFile, setProcessFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const rawMax = videoRawMaxBytes(isPremium);
 
   const uploadFile = useCallback(async (file: File) => {
     setError(null);
@@ -515,8 +519,8 @@ function MediaUploadSection({
       return;
     }
 
-    if (isVideo && file.size > VIDEO_RAW_MAX_BYTES) {
-      setError(`Video exceeds ${VIDEO_RAW_MAX_BYTES / (1024 * 1024)} MB limit`);
+    if (isVideo && file.size > rawMax) {
+      setError(`Video exceeds ${videoRawMaxLabel(isPremium)} limit`);
       return;
     }
 
@@ -548,7 +552,7 @@ function MediaUploadSection({
     } finally {
       setUploading(false);
     }
-  }, [media, onChange]);
+  }, [media, onChange, rawMax, isPremium]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -617,7 +621,7 @@ function MediaUploadSection({
               Drop file or click to upload
             </p>
             <p className="text-[10px] text-foreground-faint mt-0.5">
-              Images up to 5 MB · Videos up to 500 MB
+              Images up to 5 MB · Videos up to {videoRawMaxLabel(isPremium)}
             </p>
           </>
         )}
@@ -631,6 +635,7 @@ function MediaUploadSection({
         <VideoProcessDialog
           file={processFile}
           currentStepId={stepId}
+          isPremium={isPremium}
           onClose={() => setProcessFile(null)}
           onComplete={() => setProcessFile(null)}
         />

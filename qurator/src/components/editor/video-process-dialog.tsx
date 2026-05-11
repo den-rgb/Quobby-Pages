@@ -1,5 +1,6 @@
 'use client';
 
+import { PremiumUpsell } from '@/components/premium-upsell';
 import { useEditorStore } from '@/lib/store';
 import type { MediaAttachment } from '@/lib/types';
 import {
@@ -8,6 +9,7 @@ import {
   splitVideo,
 } from '@/lib/video-processor';
 import {
+  Crown,
   Film,
   Loader2,
   Minimize2,
@@ -21,6 +23,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 interface Props {
   file: File;
   currentStepId: string;
+  isPremium: boolean;
   onClose: () => void;
   onComplete: () => void;
 }
@@ -34,6 +37,7 @@ function formatTime(seconds: number): string {
 export function VideoProcessDialog({
   file,
   currentStepId,
+  isPremium,
   onClose,
   onComplete,
 }: Props) {
@@ -50,6 +54,7 @@ export function VideoProcessDialog({
   const [loadingEngine, setLoadingEngine] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewFailed, setPreviewFailed] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
 
   useEffect(() => {
     return () => URL.revokeObjectURL(videoUrl);
@@ -284,7 +289,13 @@ export function VideoProcessDialog({
               Compress
             </button>
             <button
-              onClick={() => setMode('split')}
+              onClick={() => {
+                if (!isPremium) {
+                  setShowUpsell(true);
+                  return;
+                }
+                setMode('split');
+              }}
               disabled={processing}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${mode === 'split'
                 ? 'bg-accent/20 text-accent'
@@ -293,6 +304,7 @@ export function VideoProcessDialog({
             >
               <Scissors className="w-3.5 h-3.5" />
               Split &amp; Distribute
+              {!isPremium && <Crown className="w-3 h-3 text-yellow-400" />}
             </button>
           </div>
 
@@ -470,6 +482,13 @@ export function VideoProcessDialog({
           </div>
         </div>
       </div>
+
+      {showUpsell && (
+        <PremiumUpsell
+          feature="Video splitting"
+          onClose={() => setShowUpsell(false)}
+        />
+      )}
     </div>
   );
 }

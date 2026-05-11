@@ -1,15 +1,19 @@
 'use client';
 
+import { PremiumUpsell } from '@/components/premium-upsell';
 import { useAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
 import type { Tutorial } from '@/lib/types';
 import {
+  BarChart3,
   Bookmark,
   BookOpen,
   Clock,
+  Crown,
   Edit3,
   Flame,
   Loader2,
+  Lock,
   LogOut,
   Play,
   Plus,
@@ -182,7 +186,7 @@ function TutorialCard({
 }
 
 export default function ProfilePage() {
-  const { user, loading: authLoading, isAdmin, signIn, signOut } = useAuth();
+  const { user, loading: authLoading, isAdmin, isPremium, signIn, signOut } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<QuobbyProfile | null>(null);
   const [tutorials, setTutorials] = useState<TutorialWithGame[]>([]);
@@ -191,6 +195,49 @@ export default function ProfilePage() {
   const [loadingTutorials, setLoadingTutorials] = useState(true);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [showUpsell, setShowUpsell] = useState(false);
+
+  const fetchAll = useCallback(async (userId: string) => {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(
+        'id, display_name, avatar_emoji, name_color_hex, avatar_background_color_hex, is_premium, total_xp, level, current_streak, longest_streak, total_cards_studied, total_cards_created, decks_published, study_points, created_at'
+      )
+      .eq('id', userId)
+      .single();
+    if (error) console.error('Profile fetch failed:', error.message);
+    setProfile(data as QuobbyProfile | null);
+    setLoadingProfile(false);
+
+    const { data: tutData, error: tutErr } = await supabase
+      .from('tutorials')
+      .select('*, games(title, bgg_image_url)')
+      .eq('creator_id', userId)
+      .order('updated_at', { ascending: false });
+    if (tutErr) console.error('Tutorials fetch failed:', tutErr.message);
+    setTutorials((tutData as TutorialWithGame[]) ?? []);
+    setLoadingTutorials(false);
+
+    const { data: savedRows, error: savedErr } = await supabase
+      .from('saved_tutorials')
+      .select('tutorial_id')
+      .eq('user_id', userId);
+    if (savedErr || !savedRows || savedRows.length === 0) {
+      setSavedTutorials([]);
+      setLoadingSaved(false);
+      return;
+    }
+    const ids = savedRows.map((r) => r.tutorial_id);
+    const { data: tuts } = await supabase
+      .from('tutorials')
+      .select('*, games(title, bgg_image_url)')
+      .in('id', ids)
+      .eq('status', 'published');
+    setSavedTutorials((tuts as TutorialWithGame[]) ?? []);
+    setLoadingSaved(false);
+  }, []);
 
   useEffect(() => {
     if (authLoading || !user) {
@@ -200,56 +247,12 @@ export default function ProfilePage() {
       return;
     }
 
-    const supabase = createClient();
+    fetchAll(user.id);
 
-    async function fetchProfile() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(
-          'id, display_name, avatar_emoji, name_color_hex, avatar_background_color_hex, is_premium, total_xp, level, current_streak, longest_streak, total_cards_studied, total_cards_created, decks_published, study_points, created_at'
-        )
-        .eq('id', user!.id)
-        .single();
-      if (error) console.error('Profile fetch failed:', error.message);
-      setProfile(data as QuobbyProfile | null);
-      setLoadingProfile(false);
-    }
-
-    async function fetchTutorials() {
-      const { data, error } = await supabase
-        .from('tutorials')
-        .select('*, games(title, bgg_image_url)')
-        .eq('creator_id', user!.id)
-        .order('updated_at', { ascending: false });
-      if (error) console.error('Tutorials fetch failed:', error.message);
-      setTutorials((data as TutorialWithGame[]) ?? []);
-      setLoadingTutorials(false);
-    }
-
-    async function fetchSavedTutorials() {
-      const { data: savedRows, error: savedErr } = await supabase
-        .from('saved_tutorials')
-        .select('tutorial_id')
-        .eq('user_id', user!.id);
-      if (savedErr || !savedRows || savedRows.length === 0) {
-        setSavedTutorials([]);
-        setLoadingSaved(false);
-        return;
-      }
-      const ids = savedRows.map((r) => r.tutorial_id);
-      const { data: tuts } = await supabase
-        .from('tutorials')
-        .select('*, games(title, bgg_image_url)')
-        .in('id', ids)
-        .eq('status', 'published');
-      setSavedTutorials((tuts as TutorialWithGame[]) ?? []);
-      setLoadingSaved(false);
-    }
-
-    fetchProfile();
-    fetchTutorials();
-    fetchSavedTutorials();
-  }, [user, authLoading]);
+    const onFocus = () => fetchAll(user.id);
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user, authLoading, fetchAll]);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -329,7 +332,6 @@ export default function ProfilePage() {
   }
 
   const displayName = profile?.display_name ?? user.user_metadata?.display_name ?? 'Learner';
-  const isPremium = profile?.is_premium ?? false;
   const avatarEmoji = profile?.avatar_emoji ?? '🎓';
   const avatarBg = profile?.avatar_background_color_hex ?? '4CAF50';
   const nameColor = (isPremium || isAdmin) ? 'FFD700' : (profile?.name_color_hex ?? 'FFFFFF');
@@ -546,6 +548,102 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/* Tutorial Analytics */}
+        {!loadingTutorials && published.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <BarChart3 className="w-3.5 h-3.5 text-accent" />
+              <h2 className="text-xs font-semibold text-foreground-faint uppercase tracking-wider">
+                Tutorial Analytics
+              </h2>
+              {!isPremium && (
+                <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 bg-yellow-500/15 text-yellow-400 rounded-full font-semibold">
+                  <Crown className="w-2.5 h-2.5" />
+                  PRO
+                </span>
+              )}
+            </div>
+
+            <div className="relative">
+              {!isPremium && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0d0d1a]/70 backdrop-blur-sm rounded-2xl">
+                  <Lock className="w-6 h-6 text-yellow-400 mb-2" />
+                  <p className="text-xs text-foreground-muted mb-3">
+                    Upgrade to see your tutorial analytics
+                  </p>
+                  <button
+                    onClick={() => setShowUpsell(true)}
+                    className="px-4 py-2 text-xs font-semibold text-black bg-yellow-400 rounded-xl hover:bg-yellow-300 transition-colors"
+                  >
+                    Unlock Analytics
+                  </button>
+                </div>
+              )}
+
+              <div className={!isPremium ? 'select-none' : undefined}>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-center">
+                    <Play className="w-4 h-4 text-accent mx-auto mb-1.5" />
+                    <p className="text-lg font-bold text-foreground">
+                      {isPremium
+                        ? published.reduce((s, t) => s + (t.play_count ?? 0), 0).toLocaleString()
+                        : '---'}
+                    </p>
+                    <p className="text-[10px] text-foreground-faint">Total Plays</p>
+                  </div>
+                  <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-center">
+                    <Star className="w-4 h-4 text-yellow-400 mx-auto mb-1.5" />
+                    <p className="text-lg font-bold text-foreground">
+                      {isPremium
+                        ? (() => {
+                          const rated = published.filter((t) => t.rating_count > 0);
+                          if (rated.length === 0) return '—';
+                          return (rated.reduce((s, t) => s + t.rating_avg, 0) / rated.length).toFixed(1);
+                        })()
+                        : '---'}
+                    </p>
+                    <p className="text-[10px] text-foreground-faint">Avg Rating</p>
+                  </div>
+                  <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-center">
+                    <Users className="w-4 h-4 text-green mx-auto mb-1.5" />
+                    <p className="text-lg font-bold text-foreground">
+                      {isPremium
+                        ? published.reduce((s, t) => s + (t.rating_count ?? 0), 0).toLocaleString()
+                        : '---'}
+                    </p>
+                    <p className="text-[10px] text-foreground-faint">Total Ratings</p>
+                  </div>
+                </div>
+
+                {isPremium && (
+                  <div className="space-y-1.5">
+                    {published.map((t) => (
+                      <div
+                        key={t.id}
+                        className="flex items-center gap-3 px-3 py-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl"
+                      >
+                        <span className="text-xs text-foreground font-medium truncate flex-1 min-w-0">
+                          {t.title}
+                        </span>
+                        <span className="flex items-center gap-1 text-[11px] text-foreground-faint shrink-0">
+                          <Play className="w-3 h-3" />
+                          {t.play_count ?? 0}
+                        </span>
+                        {t.rating_count > 0 && (
+                          <span className="flex items-center gap-1 text-[11px] text-foreground-faint shrink-0">
+                            <Star className="w-3 h-3 text-yellow-400" />
+                            {t.rating_avg.toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Saved Tutorials */}
         <div>
           <div className="flex items-center gap-2 mb-3 px-1">
@@ -642,6 +740,13 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {showUpsell && (
+        <PremiumUpsell
+          feature="Tutorial analytics"
+          onClose={() => setShowUpsell(false)}
+        />
+      )}
     </div>
   );
 }

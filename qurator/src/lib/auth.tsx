@@ -17,6 +17,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isPremium: boolean;
   signIn: (provider?: OAuthProvider) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
   isAdmin: false,
+  isPremium: false,
   signIn: async () => { },
   signOut: async () => { },
 });
@@ -34,6 +36,7 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [premium, setPremium] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -53,6 +56,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      setPremium(false);
+      return;
+    }
+    const supabase = createClient();
+    supabase
+      .from('profiles')
+      .select('is_premium')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        setPremium(data?.is_premium ?? false);
+      });
+  }, [user]);
+
   const signIn = useCallback(async (provider: OAuthProvider = 'google') => {
     const supabase = createClient();
     const returnTo = window.location.pathname + window.location.search;
@@ -69,12 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
+    setPremium(false);
   }, []);
 
   const isAdmin = !!user && ADMIN_IDS.includes(user.id);
+  const isPremium = premium || isAdmin;
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, isPremium, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
