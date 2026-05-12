@@ -22,8 +22,6 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
 }
 
-const ADMIN_IDS = (process.env.NEXT_PUBLIC_ADMIN_USER_IDS ?? '').split(',').map((s) => s.trim()).filter(Boolean);
-
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
@@ -37,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [premium, setPremium] = useState(false);
+  const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -59,17 +58,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) {
       setPremium(false);
+      setAdmin(false);
       return;
     }
     const supabase = createClient();
     supabase
       .from('profiles')
-      .select('is_premium')
+      .select('subscription_tier')
       .eq('id', user.id)
       .single()
       .then(({ data }) => {
-        setPremium(data?.is_premium ?? false);
+        setPremium(data?.subscription_tier === 'premium');
       });
+
+    fetch('/api/me')
+      .then((r) => r.json())
+      .then((data) => setAdmin(!!data?.isAdmin))
+      .catch(() => setAdmin(false));
   }, [user]);
 
   const signIn = useCallback(async (provider: OAuthProvider = 'google') => {
@@ -89,9 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setPremium(false);
+    setAdmin(false);
   }, []);
 
-  const isAdmin = !!user && ADMIN_IDS.includes(user.id);
+  const isAdmin = admin;
   const isPremium = premium || isAdmin;
 
   return (

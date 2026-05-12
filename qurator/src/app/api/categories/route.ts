@@ -15,8 +15,7 @@ export async function GET() {
   );
 
   if (!res.ok) {
-    const body = await res.text();
-    return NextResponse.json({ error: body }, { status: res.status });
+    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: res.status });
   }
 
   const data = await res.json();

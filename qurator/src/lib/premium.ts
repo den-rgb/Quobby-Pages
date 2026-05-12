@@ -11,15 +11,53 @@ export function videoRawMaxLabel(isPremium: boolean): string {
 
 export const PREMIUM_FEATURES = [
   {
+    category: 'Qurator',
     title: 'Larger video uploads',
     description: 'Upload videos up to 1 GB (free users: 250 MB).',
   },
   {
+    category: 'Qurator',
     title: 'Video splitting',
     description: 'Split long videos into segments, each becoming its own tutorial step.',
   },
   {
+    category: 'Qurator',
     title: 'Tutorial analytics',
     description: 'See play counts, ratings, and trends for every tutorial you publish.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Unlimited decks & cards',
+    description: 'Create as many flashcard decks and cards as you need.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Cloud sync',
+    description: 'Sync your data across all your devices.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Unlimited vocabulary generation',
+    description: 'Auto-generate flashcards for language decks.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Unlimited document scans',
+    description: 'Scan and store unlimited documents with 50 MB uploads.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'No advertisements',
+    description: 'Distraction-free learning experience.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Profile customization',
+    description: 'Custom avatar and name colors.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Streak saves & shields',
+    description: '3 streak saves and 3 streak shields to protect your progress.',
   },
 ] as const;

@@ -284,9 +284,12 @@ export default function TutorialsPage() {
   const handleDeleteTutorial = useCallback(async (e: React.MouseEvent, tutorialId: string, title: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm(`Delete tutorial "${title}"?`)) return;
+    const reason = prompt(`Delete tutorial "${title}"?\n\nProvide a reason for removal (shown to the creator):`);
+    if (reason === null) return;
     try {
-      const res = await fetch(`/api/admin/tutorials?id=${tutorialId}`, { method: 'DELETE' });
+      const params = new URLSearchParams({ id: tutorialId });
+      if (reason.trim()) params.set('reason', reason.trim());
+      const res = await fetch(`/api/admin/tutorials?${params}`, { method: 'DELETE' });
       if (res.ok) {
         setTutorials((prev) => prev.filter((t) => t.id !== tutorialId));
       }

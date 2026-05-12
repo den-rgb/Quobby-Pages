@@ -3,6 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       title,
@@ -19,8 +26,6 @@ export async function POST(request: NextRequest) {
     if (!title || typeof title !== 'string') {
       return NextResponse.json({ error: 'title is required' }, { status: 400 });
     }
-
-    const supabase = await createClient();
 
     const { data, error } = await supabase.rpc('upsert_game', {
       p_title: title.trim(),

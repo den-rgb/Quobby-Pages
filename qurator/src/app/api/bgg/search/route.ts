@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -46,6 +47,9 @@ function bggHeaders(): Record<string, string> {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = rateLimit(request, { maxRequests: 20, windowMs: 60_000 });
+  if (limited) return limited;
+
   const query = request.nextUrl.searchParams.get('q');
   if (!query) {
     return NextResponse.json(
@@ -136,15 +140,25 @@ async function tryBggSearch(
   }
 }
 
+function sanitizeSparqlLiteral(input: string): string {
+  return input
+    .replace(/[\\"\n\r\t{}()]/g, '')
+    .slice(0, 100)
+    .trim();
+}
+
 async function tryWikidataSearch(
   query: string,
 ): Promise<NextResponse | null> {
   try {
+    const safe = sanitizeSparqlLiteral(query.toLowerCase());
+    if (!safe) return null;
+
     const sparql = `SELECT ?item ?bggId ?itemLabel ?image ?year WHERE {
       ?item wdt:P2339 ?bggId .
       ?item rdfs:label ?label .
       FILTER(LANG(?label) = "en")
-      FILTER(CONTAINS(LCASE(?label), "${query.toLowerCase().replace(/"/g, '')}"))
+      FILTER(CONTAINS(LCASE(?label), "${safe}"))
       OPTIONAL { ?item wdt:P18 ?image }
       OPTIONAL { ?item wdt:P577 ?date }
       BIND(YEAR(?date) AS ?year)

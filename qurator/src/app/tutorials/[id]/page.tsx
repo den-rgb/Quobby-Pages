@@ -5,16 +5,31 @@ import { useAuth } from '@/lib/auth';
 import { DEMO_TUTORIALS } from '@/lib/demo-tutorials';
 import { containsProfanity } from '@/lib/profanity';
 import { createClient } from '@/lib/supabase/client';
-import type { ContentStepPayload, InteractiveElement, TutorialStep } from '@/lib/types';
+import {
+  type BranchOption,
+  type TextPart,
+  type VariableState,
+  findFirstContentStep,
+  getNextContentStepId,
+  initVariableState,
+  interpolateVariables,
+  parseMarkdownLite,
+  resolveBranches,
+} from '@/lib/tutorial-navigation';
+import type { InteractiveElement, TutorialConnection, TutorialStep, TutorialVariable } from '@/lib/types';
 import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Check,
   CheckCircle2,
   Clock,
+  ExternalLink,
   Eye,
   Flag,
+  GitBranch,
   Lightbulb,
+  Link2,
   Loader2,
   MessageCircle,
   Package,
@@ -22,13 +37,15 @@ import {
   Send,
   Star,
   Trash2,
+  UserCheck,
+  UserPlus,
   Users,
   X,
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface Comment {
   id: string;
@@ -103,6 +120,60 @@ function InteractiveQuiz({
           Continue
         </button>
       )}
+    </div>
+  );
+}
+
+function SafeMarkdown({ parts }: { parts: TextPart[] }) {
+  return (
+    <>
+      {parts.map((p, i) => {
+        switch (p.type) {
+          case 'bold':
+            return <strong key={i} className="text-foreground font-semibold">{p.value}</strong>;
+          case 'italic':
+            return <em key={i}>{p.value}</em>;
+          case 'br':
+            return <br key={i} />;
+          default:
+            return <span key={i}>{p.value}</span>;
+        }
+      })}
+    </>
+  );
+}
+
+function BranchUI({
+  prompt,
+  branches,
+  onSelect,
+}: {
+  prompt: string;
+  branches: BranchOption[];
+  onSelect: (targetStepId: string, setsVariable?: { name: string; value: string | number | boolean }) => void;
+}) {
+  return (
+    <div className="mt-6 p-5 bg-white/[0.02] border border-green/20 rounded-xl">
+      <div className="flex items-center gap-2 mb-3">
+        <GitBranch className="w-4 h-4 text-green" />
+        <p className="text-foreground font-medium text-sm">{prompt}</p>
+      </div>
+      <div className="space-y-2">
+        {branches.map((branch, i) => (
+          <button
+            key={i}
+            onClick={() => onSelect(branch.targetStepId, branch.setsVariable)}
+            className="w-full text-left px-4 py-3 rounded-lg border border-border hover:border-green/50 hover:bg-green/5 transition-all text-sm text-foreground-secondary"
+          >
+            <span className="flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-green/10 border border-green/30 flex items-center justify-center text-[10px] font-bold text-green shrink-0">
+                {i + 1}
+              </span>
+              {branch.label}
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -464,14 +535,78 @@ export default function TutorialPlayerPage() {
   const tutorialId = params.id as string;
 
   const [tutorialData, setTutorialData] = useState<TutorialData | null>(null);
-  const [steps, setSteps] = useState<ContentStepPayload[]>([]);
+  const [allSteps, setAllSteps] = useState<TutorialStep[]>([]);
+  const [connections, setConnections] = useState<TutorialConnection[]>([]);
+  const [variables, setVariables] = useState<TutorialVariable[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [quizCompleted, setQuizCompleted] = useState<Set<number>>(new Set());
+  const [history, setHistory] = useState<string[]>([]);
+  const [varState, setVarState] = useState<VariableState>({});
+  const [quizCompleted, setQuizCompleted] = useState<Set<string>>(new Set());
   const [showReport, setShowReport] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [creatorProfile, setCreatorProfile] = useState<{ display_name: string; avatar_emoji: string; avatar_background_color_hex: string } | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  const contentSteps = useMemo(
+    () => allSteps.filter((s) => s.step_type === 'content'),
+    [allSteps]
+  );
+
+  const startStep = useMemo(
+    () => findFirstContentStep(allSteps, connections),
+    [allSteps, connections]
+  );
+
+  const currentStepId = history.length > 0 ? history[history.length - 1] : startStep?.id;
+  const currentFullStep = allSteps.find((s) => s.id === currentStepId && s.step_type === 'content');
+  const step = currentFullStep?.content_json ?? null;
+
+  const branches = useMemo(() => {
+    if (!currentFullStep) return null;
+    return resolveBranches(currentFullStep, allSteps, connections, varState);
+  }, [currentFullStep, allSteps, connections, varState]);
+
+  const autoTarget = branches?.autoTarget ?? null;
+
+  const nextStepId = useMemo(() => {
+    if (autoTarget) return autoTarget;
+    if (!currentFullStep) return null;
+    return getNextContentStepId(currentFullStep, allSteps, connections);
+  }, [currentFullStep, allSteps, connections, autoTarget]);
+
+  const hasBranching = branches !== null && branches.branches.length > 0;
+  const hasQuiz = !!step?.interactive;
+  const quizDone = currentStepId ? quizCompleted.has(currentStepId) : false;
+  const canAdvance = !hasQuiz || quizDone;
+  const isTerminal = !hasBranching && !nextStepId;
+  const isLastStep = isTerminal && canAdvance;
+
+  const navigateTo = useCallback((targetId: string, setsVariable?: { name: string; value: string | number | boolean }) => {
+    if (setsVariable) {
+      setVarState((prev) => ({ ...prev, [setsVariable.name]: setsVariable.value }));
+    }
+    setHistory((prev) => [...prev, targetId]);
+  }, []);
+
+  const goBack = useCallback(() => {
+    setHistory((prev) => prev.slice(0, -1));
+  }, []);
+
+  const restart = useCallback(() => {
+    setHistory([]);
+    setQuizCompleted(new Set());
+    setVarState(initVariableState(variables));
+  }, [variables]);
+
+  const handleNext = useCallback(() => {
+    if (nextStepId) navigateTo(nextStepId);
+  }, [nextStepId, navigateTo]);
 
   useEffect(() => {
     const playCountKey = `qurator-played-${tutorialId}`;
@@ -496,7 +631,21 @@ export default function TutorialPlayerPage() {
         creator_id: demoData.tutorial.creator_id,
         game: demoData.tutorial.game,
       });
-      setSteps(demoData.steps);
+
+      const demoSteps: TutorialStep[] = demoData.steps.map((s, i) => ({
+        id: `demo-step-${i}`,
+        tutorial_id: tutorialId,
+        step_type: 'content' as const,
+        sort_order: i,
+        content_json: s,
+        logic_json: null,
+        position_x: 0,
+        position_y: 0,
+      }));
+      setAllSteps(demoSteps);
+      setConnections([]);
+      setVariables([]);
+      setVarState({});
       setLoading(false);
       return;
     }
@@ -532,18 +681,47 @@ export default function TutorialPlayerPage() {
         game: tut.games as TutorialData['game'],
       });
 
+      const { data: creatorData } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_emoji, avatar_background_color_hex')
+        .eq('id', tut.creator_id)
+        .single();
+      if (creatorData) setCreatorProfile(creatorData);
+
+      const { count: fCount } = await supabase
+        .from('friendships')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', tut.creator_id);
+      setFollowerCount(fCount ?? 0);
+
       const { data: stepData } = await supabase
         .from('tutorial_steps')
         .select('*')
         .eq('tutorial_id', tutorialId)
-        .eq('step_type', 'content')
         .order('sort_order');
 
-      const contentSteps = (stepData as TutorialStep[] ?? [])
-        .map((s) => s.content_json)
-        .filter((c): c is ContentStepPayload => c !== null);
+      const fetchedSteps = (stepData as TutorialStep[]) ?? [];
+      setAllSteps(fetchedSteps);
 
-      setSteps(contentSteps);
+      const stepIds = fetchedSteps.map((s) => s.id);
+      let fetchedConnections: TutorialConnection[] = [];
+      if (stepIds.length > 0) {
+        const { data: connData } = await supabase
+          .from('tutorial_connections')
+          .select('*')
+          .in('from_step_id', stepIds);
+        fetchedConnections = (connData ?? []) as TutorialConnection[];
+      }
+      setConnections(fetchedConnections);
+
+      const { data: varData } = await supabase
+        .from('tutorial_variables')
+        .select('*')
+        .eq('tutorial_id', tutorialId);
+      const fetchedVars = (varData ?? []) as TutorialVariable[];
+      setVariables(fetchedVars);
+      setVarState(initVariableState(fetchedVars));
+
       setLoading(false);
     }
 
@@ -566,6 +744,49 @@ export default function TutorialPlayerPage() {
         }
       });
   }, [user, tutorialId]);
+
+  useEffect(() => {
+    if (!user || !tutorialData) return;
+    const supabase = createClient();
+    supabase
+      .from('friendships')
+      .select('follower_id')
+      .eq('follower_id', user.id)
+      .eq('following_id', tutorialData.creator_id)
+      .single()
+      .then(({ data }) => {
+        if (data) setIsFollowing(true);
+      });
+  }, [user, tutorialData]);
+
+  const toggleFollow = useCallback(async () => {
+    if (!user || !tutorialData || user.id === tutorialData.creator_id) return;
+    setFollowLoading(true);
+    const supabase = createClient();
+    if (isFollowing) {
+      await supabase
+        .from('friendships')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('following_id', tutorialData.creator_id);
+      setIsFollowing(false);
+      setFollowerCount((c) => Math.max(0, c - 1));
+    } else {
+      await supabase
+        .from('friendships')
+        .insert({ follower_id: user.id, following_id: tutorialData.creator_id });
+      const displayName = user.user_metadata?.display_name ?? user.email?.split('@')[0] ?? 'Someone';
+      await supabase.from('notifications').insert({
+        user_id: tutorialData.creator_id,
+        type: 'new_follower',
+        from_user_id: user.id,
+        message: `${displayName} started following you`,
+      });
+      setIsFollowing(true);
+      setFollowerCount((c) => c + 1);
+    }
+    setFollowLoading(false);
+  }, [user, tutorialData, isFollowing]);
 
   const handleRate = async (stars: number) => {
     if (!user) return;
@@ -590,7 +811,7 @@ export default function TutorialPlayerPage() {
     );
   }
 
-  if (notFound || !tutorialData || steps.length === 0) {
+  if (notFound || !tutorialData || contentSteps.length === 0) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center p-8">
@@ -610,20 +831,29 @@ export default function TutorialPlayerPage() {
   }
 
   const game = tutorialData.game;
-  const step = steps[currentStep];
-  const progress = ((currentStep + 1) / steps.length) * 100;
-  const hasQuiz = !!step?.interactive;
-  const quizDone = quizCompleted.has(currentStep);
-  const canAdvance = !hasQuiz || quizDone;
+  const visitedCount = history.length + 1;
+  const progress = (visitedCount / contentSteps.length) * 100;
 
   const handleQuizComplete = () => {
-    setQuizCompleted((prev) => new Set(prev).add(currentStep));
+    if (currentStepId) {
+      setQuizCompleted((prev) => new Set(prev).add(currentStepId));
+    }
   };
 
-  const bodySegments = (step?.body ?? '').split(/(\*\*.*?\*\*|\n)/g).filter(Boolean);
+  const bodyParts = step?.body
+    ? parseMarkdownLite(interpolateVariables(step.body, varState))
+    : [];
+
+  const tipParts = step?.tip
+    ? parseMarkdownLite(interpolateVariables(step.tip, varState))
+    : [];
+
+  const stepIndex = currentFullStep
+    ? contentSteps.findIndex((s) => s.id === currentFullStep.id)
+    : 0;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col" onClick={() => showShareMenu && setShowShareMenu(false)}>
       {/* Progress bar */}
       <div className="sticky top-16 z-40 bg-background/90 backdrop-blur-md border-b border-border">
         <div className="max-w-3xl mx-auto px-6 py-3 flex items-center gap-4">
@@ -637,13 +867,52 @@ export default function TutorialPlayerPage() {
             <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
               <div
                 className="h-full bg-accent rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
           </div>
           <span className="text-xs text-foreground-faint font-medium tabular-nums">
-            {currentStep + 1}/{steps.length}
+            {visitedCount}/{contentSteps.length}
           </span>
+          <div className="relative">
+            <button
+              onClick={() => setShowShareMenu((v) => !v)}
+              className="flex items-center gap-1 px-2.5 py-1 text-xs text-foreground-faint hover:text-accent transition-colors rounded-lg hover:bg-white/[0.03]"
+              title="Share tutorial"
+            >
+              {linkCopied ? <Check className="w-3.5 h-3.5 text-green" /> : <Link2 className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{linkCopied ? 'Copied!' : 'Share'}</span>
+            </button>
+            {showShareMenu && (
+              <div className="absolute right-0 top-full mt-1 w-56 bg-background-secondary border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    setLinkCopied(true);
+                    setShowShareMenu(false);
+                    setTimeout(() => setLinkCopied(false), 2000);
+                  }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2"
+                >
+                  <Link2 className="w-3.5 h-3.5 text-foreground-faint" />
+                  Copy link
+                </button>
+                <button
+                  onClick={() => {
+                    const embedCode = `<iframe src="${window.location.origin}/embed/${tutorialId}" width="100%" height="500" style="border:none;border-radius:12px;" allow="clipboard-write"></iframe>`;
+                    navigator.clipboard.writeText(embedCode);
+                    setLinkCopied(true);
+                    setShowShareMenu(false);
+                    setTimeout(() => setLinkCopied(false), 2000);
+                  }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2 border-t border-border"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground-faint" />
+                  Copy embed code
+                </button>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setShowReport(true)}
             className="flex items-center gap-1 px-2.5 py-1 text-xs text-foreground-faint hover:text-orange-400 transition-colors rounded-lg hover:bg-white/[0.03]"
@@ -681,6 +950,37 @@ export default function TutorialPlayerPage() {
               <p className="text-xs text-accent font-medium uppercase tracking-wider">
                 {game.title}
               </p>
+            )}
+            {creatorProfile && (
+              <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/[0.06]">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs border border-white/10"
+                  style={{ background: `#${creatorProfile.avatar_background_color_hex}` }}
+                >
+                  {creatorProfile.avatar_emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {creatorProfile.display_name}
+                  </p>
+                  <p className="text-[10px] text-foreground-faint">
+                    {followerCount} follower{followerCount !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                {user && user.id !== tutorialData.creator_id && (
+                  <button
+                    onClick={toggleFollow}
+                    disabled={followLoading}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${isFollowing
+                      ? 'bg-white/[0.06] text-foreground-muted hover:bg-red-500/10 hover:text-red-400'
+                      : 'bg-accent/15 text-accent hover:bg-accent/25'
+                      } disabled:opacity-50`}
+                  >
+                    {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+                    {isFollowing ? 'Following' : 'Follow'}
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
@@ -726,12 +1026,7 @@ export default function TutorialPlayerPage() {
           )}
 
           <div className="text-foreground-secondary leading-relaxed text-base">
-            {bodySegments.map((seg, i) => {
-              if (seg === '\n') return <br key={i} />;
-              const bold = seg.match(/^\*\*(.*)\*\*$/);
-              if (bold) return <strong key={i} className="text-foreground font-semibold">{bold[1]}</strong>;
-              return <span key={i}>{seg}</span>;
-            })}
+            <SafeMarkdown parts={bodyParts} />
           </div>
 
           {step?.code_block && (
@@ -759,69 +1054,69 @@ export default function TutorialPlayerPage() {
           {step?.tip && (
             <div className="mt-6 flex items-start gap-3 p-4 bg-accent-glow border border-accent/20 rounded-xl text-sm">
               <Lightbulb className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-              <p className="text-foreground-secondary">{step.tip}</p>
+              <p className="text-foreground-secondary">
+                <SafeMarkdown parts={tipParts} />
+              </p>
             </div>
           )}
 
           {hasQuiz && !quizDone && (
             <InteractiveQuiz
-              element={step.interactive!}
+              element={step!.interactive!}
               onComplete={handleQuizComplete}
+            />
+          )}
+
+          {hasBranching && canAdvance && (
+            <BranchUI
+              prompt={branches!.prompt}
+              branches={branches!.branches}
+              onSelect={navigateTo}
             />
           )}
 
           {/* Navigation */}
           <div className="flex items-center justify-between mt-12 pt-6 border-t border-border">
             <button
-              onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
-              disabled={currentStep === 0}
+              onClick={goBack}
+              disabled={history.length === 0}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
             </button>
 
-            {currentStep === steps.length - 1 ? (
-              <Link
-                href="/tutorials"
-                className="flex items-center gap-2 px-6 py-2.5 bg-green text-black text-sm font-semibold rounded-lg hover:bg-green/90 transition-colors"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                Done
-              </Link>
-            ) : (
+            {isTerminal ? (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={restart}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground-muted hover:text-foreground transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Restart
+                </button>
+                <Link
+                  href="/tutorials"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-green text-black text-sm font-semibold rounded-lg hover:bg-green/90 transition-colors"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Done
+                </Link>
+              </div>
+            ) : nextStepId ? (
               <button
-                onClick={() =>
-                  setCurrentStep((s) =>
-                    Math.min(steps.length - 1, s + 1)
-                  )
-                }
+                onClick={handleNext}
                 disabled={!canAdvance}
                 className="flex items-center gap-2 px-6 py-2.5 bg-accent text-black text-sm font-semibold rounded-lg hover:bg-accent-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
                 <ArrowRight className="w-4 h-4" />
               </button>
-            )}
+            ) : null}
           </div>
 
-          {currentStep === steps.length - 1 && (
-            <div className="mt-8 text-center">
-              <button
-                onClick={() => {
-                  setCurrentStep(0);
-                  setQuizCompleted(new Set());
-                }}
-                className="inline-flex items-center gap-2 text-sm text-foreground-muted hover:text-foreground transition-colors"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Restart tutorial
-              </button>
-            </div>
-          )}
-
           {/* Rating section — shown at end */}
-          {currentStep === steps.length - 1 && (
+          {isLastStep && (
             <div className="mt-10 p-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl text-center">
               <h3 className="text-sm font-semibold text-foreground mb-2">
                 {ratingSubmitted ? 'Thanks for rating!' : 'How was this tutorial?'}
@@ -840,7 +1135,7 @@ export default function TutorialPlayerPage() {
           )}
 
           {/* Comments — shown at end */}
-          {currentStep === steps.length - 1 && (
+          {isLastStep && (
             <div className="mt-8 pt-8 border-t border-border">
               <CommentsSection tutorialId={tutorialId} creatorId={tutorialData.creator_id} />
             </div>
@@ -852,7 +1147,7 @@ export default function TutorialPlayerPage() {
         <ReportDialog
           tutorialId={tutorialId}
           creatorId={tutorialData.creator_id}
-          stepNumber={currentStep + 1}
+          stepNumber={stepIndex + 1}
           stepHeading={step?.heading ?? ''}
           onClose={() => setShowReport(false)}
         />

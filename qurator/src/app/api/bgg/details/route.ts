@@ -70,9 +70,9 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(results);
-  } catch (err) {
+  } catch {
     return NextResponse.json(
-      { error: 'Failed to reach BGG API', detail: String(err) },
+      { error: 'Failed to reach BGG API' },
       { status: 502 }
     );
   }

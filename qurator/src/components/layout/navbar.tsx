@@ -1,8 +1,9 @@
 'use client';
 
+import { PremiumUpsell } from '@/components/premium-upsell';
 import { useAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
-import { Download, Gamepad2, HelpCircle, LogOut, Menu, User, X } from 'lucide-react';
+import { Crown, Download, Gamepad2, HelpCircle, LogOut, Menu, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -15,13 +16,14 @@ interface NavProfile {
   display_name: string | null;
   avatar_emoji: string;
   avatar_background_color_hex: string;
-  is_premium: boolean;
+  subscription_tier: string | null;
 }
 
 function UserMenu() {
-  const { user, loading, isAdmin, signIn, signOut } = useAuth();
+  const { user, loading, isAdmin, isPremium: authPremium, signIn, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profile, setProfile] = useState<NavProfile | null>(null);
+  const [showUpsell, setShowUpsell] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
@@ -43,7 +45,7 @@ function UserMenu() {
     const supabase = createClient();
     supabase
       .from('profiles')
-      .select('display_name, avatar_emoji, avatar_background_color_hex, is_premium')
+      .select('display_name, avatar_emoji, avatar_background_color_hex, subscription_tier')
       .eq('id', user.id)
       .single()
       .then(({ data }) => {
@@ -107,7 +109,7 @@ function UserMenu() {
   }
 
   const displayName = profile?.display_name ?? user.user_metadata?.display_name ?? user.email?.split('@')[0] ?? 'User';
-  const isPremium = profile?.is_premium ?? false;
+  const isPremium = profile?.subscription_tier === 'premium';
   const avatarEmoji = profile?.avatar_emoji ?? '🎓';
   const avatarBg = profile?.avatar_background_color_hex ?? '4CAF50';
 
@@ -156,6 +158,18 @@ function UserMenu() {
             <User className="w-3.5 h-3.5" />
             Profile
           </Link>
+          {!authPremium && !isAdmin && (
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setShowUpsell(true);
+              }}
+              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-yellow-400 hover:bg-yellow-400/10 transition-colors"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              Get Premium
+            </button>
+          )}
           <button
             onClick={() => {
               signOut();
@@ -168,99 +182,125 @@ function UserMenu() {
           </button>
         </div>
       )}
+
+      {showUpsell && (
+        <PremiumUpsell onClose={() => setShowUpsell(false)} />
+      )}
     </div>
   );
 }
 
 export function Navbar() {
   const pathname = usePathname();
+  const { isPremium, isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
 
   const isEditor = pathname.startsWith('/create/');
 
   if (isEditor) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-6 backdrop-blur-xl bg-background/80 border-b border-border">
-      <div className="max-w-[1100px] mx-auto flex items-center justify-between h-16">
-        <Link href="/" className="flex items-center gap-3 no-underline">
-          <Gamepad2 className="w-8 h-8 text-accent" />
-          <span className="text-lg font-bold text-foreground tracking-tight">
-            Qurator
-          </span>
-        </Link>
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 backdrop-blur-xl bg-background/80 border-b border-border">
+        <div className="max-w-[1100px] mx-auto flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-3 no-underline">
+            <Gamepad2 className="w-8 h-8 text-accent" />
+            <span className="text-lg font-bold text-foreground tracking-tight">
+              Qurator
+            </span>
+          </Link>
 
-        <button
-          className="md:hidden p-2"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? (
-            <X className="w-5 h-5 text-foreground" />
-          ) : (
-            <Menu className="w-5 h-5 text-foreground" />
-          )}
-        </button>
+          <button
+            className="md:hidden p-2"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            {open ? (
+              <X className="w-5 h-5 text-foreground" />
+            ) : (
+              <Menu className="w-5 h-5 text-foreground" />
+            )}
+          </button>
 
-        <ul
-          className={`${open ? 'flex' : 'hidden'
-            } md:flex items-center gap-2 list-none absolute md:static top-16 left-0 right-0 md:top-auto flex-col md:flex-row bg-background/98 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-b md:border-0 border-border p-4 md:p-0`}
-        >
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${pathname === link.href
-                  ? 'text-foreground bg-white/5'
-                  : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
-                  }`}
+          <ul
+            className={`${open ? 'flex' : 'hidden'
+              } md:flex items-center gap-2 list-none absolute md:static top-16 left-0 right-0 md:top-auto flex-col md:flex-row bg-background/98 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-b md:border-0 border-border p-4 md:p-0`}
+          >
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${pathname === link.href
+                    ? 'text-foreground bg-white/5'
+                    : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
+                    }`}
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            {!isPremium && !isAdmin && (
+              <li>
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    setShowUpsell(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-sm font-semibold bg-yellow-400/15 text-yellow-400 border border-yellow-400/20 hover:bg-yellow-400/25 hover:-translate-y-0.5 transition-all"
+                >
+                  <Crown className="w-3.5 h-3.5" />
+                  Get Premium
+                </button>
+              </li>
+            )}
+            <li className="relative group">
+              <a
+                href="https://www.quobby.com"
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-sm font-semibold bg-green/15 text-green border border-green/20 hover:bg-green/25 hover:-translate-y-0.5 transition-all"
                 onClick={() => setOpen(false)}
               >
-                {link.label}
+                <Download className="w-3.5 h-3.5" />
+                Get Quobby
+              </a>
+              <span className="hidden md:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-green/10 border border-green/15 rounded-lg text-[0.7rem] font-medium text-green whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Follow Qurator tutorials in the app!
+              </span>
+            </li>
+            <li>
+              <a
+                href="https://www.quobby.com/support"
+                target="_blank"
+                rel="noopener"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted hover:text-foreground hover:bg-white/5 transition-all"
+                onClick={() => setOpen(false)}
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                Help
+              </a>
+            </li>
+            <li>
+              <Link
+                href="/create"
+                className="inline-flex items-center gap-2 px-5 py-2 bg-accent text-black font-semibold rounded-[10px] text-sm transition-all hover:bg-accent-light hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(139,0,81,0.3)]"
+                onClick={() => setOpen(false)}
+              >
+                Start Creating
               </Link>
             </li>
-          ))}
-          <li className="relative group">
-            <a
-              href="https://www.quobby.com"
-              target="_blank"
-              rel="noopener"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-sm font-semibold bg-green/15 text-green border border-green/20 hover:bg-green/25 hover:-translate-y-0.5 transition-all"
-              onClick={() => setOpen(false)}
-            >
-              <Download className="w-3.5 h-3.5" />
-              Get Quobby
-            </a>
-            <span className="hidden md:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-green/10 border border-green/15 rounded-lg text-[0.7rem] font-medium text-green whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              Follow Qurator tutorials in the app!
-            </span>
-          </li>
-          <li>
-            <a
-              href="https://www.quobby.com/support"
-              target="_blank"
-              rel="noopener"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted hover:text-foreground hover:bg-white/5 transition-all"
-              onClick={() => setOpen(false)}
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-              Help
-            </a>
-          </li>
-          <li>
-            <Link
-              href="/create"
-              className="inline-flex items-center gap-2 px-5 py-2 bg-accent text-black font-semibold rounded-[10px] text-sm transition-all hover:bg-accent-light hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(139,0,81,0.3)]"
-              onClick={() => setOpen(false)}
-            >
-              Start Creating
-            </Link>
-          </li>
-          <li className="md:ml-2">
-            <UserMenu />
-          </li>
-        </ul>
-      </div>
-    </nav>
+            <li className="md:ml-2">
+              <UserMenu />
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      {showUpsell && (
+        <PremiumUpsell onClose={() => setShowUpsell(false)} />
+      )}
+    </>
   );
 }

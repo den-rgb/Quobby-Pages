@@ -5,10 +5,13 @@ import { useAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
 import type { Tutorial } from '@/lib/types';
 import {
+  AlertTriangle,
   BarChart3,
+  Bell,
   Bookmark,
   BookOpen,
   Clock,
+  CreditCard,
   Crown,
   Edit3,
   Flame,
@@ -20,7 +23,9 @@ import {
   Star,
   Trash2,
   Trophy,
+  UserPlus,
   Users,
+  X,
   Zap,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -33,7 +38,6 @@ interface QuobbyProfile {
   avatar_emoji: string;
   name_color_hex: string;
   avatar_background_color_hex: string;
-  is_premium: boolean;
   total_xp: number;
   level: number;
   current_streak: number;
@@ -196,6 +200,23 @@ export default function ProfilePage() {
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showUpsell, setShowUpsell] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [removalNotice, setRemovalNotice] = useState<{ id: string; tutorial_title: string; reason: string; created_at: string } | null>(null);
+  const [notifications, setNotifications] = useState<{ id: string; type: string; message: string; is_read: boolean; created_at: string; from_user: { display_name: string; avatar_emoji: string; avatar_background_color_hex: string } | null }[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleManageSubscription = useCallback(async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+    } catch { /* ignore */ }
+    setPortalLoading(false);
+  }, []);
 
   const fetchAll = useCallback(async (userId: string) => {
     const supabase = createClient();
@@ -203,7 +224,7 @@ export default function ProfilePage() {
     const { data, error } = await supabase
       .from('profiles')
       .select(
-        'id, display_name, avatar_emoji, name_color_hex, avatar_background_color_hex, is_premium, total_xp, level, current_streak, longest_streak, total_cards_studied, total_cards_created, decks_published, study_points, created_at'
+        'id, display_name, avatar_emoji, name_color_hex, avatar_background_color_hex, total_xp, level, current_streak, longest_streak, total_cards_studied, total_cards_created, decks_published, study_points, created_at'
       )
       .eq('id', userId)
       .single();
@@ -219,6 +240,31 @@ export default function ProfilePage() {
     if (tutErr) console.error('Tutorials fetch failed:', tutErr.message);
     setTutorials((tutData as TutorialWithGame[]) ?? []);
     setLoadingTutorials(false);
+
+    const { data: notices } = await supabase
+      .from('tutorial_removal_notices')
+      .select('id, tutorial_title, reason, created_at')
+      .eq('user_id', userId)
+      .eq('acknowledged', false)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (notices && notices.length > 0) {
+      setRemovalNotice(notices[0]);
+    }
+
+    const { data: notifData } = await supabase
+      .from('notifications')
+      .select('id, type, message, is_read, created_at, from_user:profiles!notifications_from_user_id_fkey(display_name, avatar_emoji, avatar_background_color_hex)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (notifData) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setNotifications(notifData.map((n: any) => ({
+        ...n,
+        from_user: Array.isArray(n.from_user) ? n.from_user[0] ?? null : n.from_user ?? null,
+      })));
+    }
 
     const { data: savedRows, error: savedErr } = await supabase
       .from('saved_tutorials')
@@ -298,6 +344,29 @@ export default function ProfilePage() {
     [user]
   );
 
+  const acknowledgeRemoval = useCallback(async () => {
+    if (!removalNotice) return;
+    const supabase = createClient();
+    await supabase
+      .from('tutorial_removal_notices')
+      .update({ acknowledged: true })
+      .eq('id', removalNotice.id);
+    setRemovalNotice(null);
+  }, [removalNotice]);
+
+  const markAllNotificationsRead = useCallback(async () => {
+    if (!user) return;
+    const supabase = createClient();
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+  }, [user]);
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -346,6 +415,47 @@ export default function ProfilePage() {
 
   return (
     <div className="px-6 py-12">
+      {removalNotice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#1a1a2e] border border-red-500/30 rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-foreground">
+                  Tutorial Removed
+                </h3>
+                <p className="text-xs text-foreground-faint mt-0.5">
+                  {new Date(removalNotice.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <button
+                onClick={acknowledgeRemoval}
+                className="p-1 text-foreground-faint hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-foreground-muted mb-2">
+              Your tutorial <strong className="text-foreground">&ldquo;{removalNotice.tutorial_title}&rdquo;</strong> was removed by a moderator.
+            </p>
+            <div className="p-3 bg-red-500/[0.08] border border-red-500/20 rounded-xl mb-5">
+              <p className="text-xs font-medium text-red-400 mb-1">Reason</p>
+              <p className="text-sm text-foreground-muted">{removalNotice.reason}</p>
+            </div>
+            <p className="text-xs text-foreground-faint mb-5">
+              Please review our Community Guidelines. If you believe this was a mistake, contact support.
+            </p>
+            <button
+              onClick={acknowledgeRemoval}
+              className="w-full py-2.5 bg-accent text-black font-semibold text-sm rounded-xl hover:bg-accent-light transition-colors"
+            >
+              I Understand
+            </button>
+          </div>
+        </div>
+      )}
       <div className="max-w-[800px] mx-auto space-y-6">
         {/* Profile Header */}
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl">
@@ -406,6 +516,115 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+
+        {/* Notifications */}
+        <div className="p-5 bg-white/[0.03] border border-white/[0.06] rounded-2xl">
+          <button
+            onClick={() => {
+              setShowNotifications((v) => !v);
+              if (!showNotifications && unreadCount > 0) markAllNotificationsRead();
+            }}
+            className="w-full flex items-center gap-3"
+          >
+            <div className="relative">
+              <Bell className="w-5 h-5 text-foreground-muted" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-accent text-black text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </div>
+            <span className="text-sm font-medium text-foreground flex-1 text-left">
+              Notifications
+            </span>
+            <span className="text-xs text-foreground-faint">
+              {notifications.length === 0 ? 'None' : `${notifications.length}`}
+            </span>
+          </button>
+
+          {showNotifications && (
+            <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="text-xs text-foreground-faint text-center py-4">
+                  No notifications yet. You&apos;ll see them when someone follows you.
+                </p>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${n.is_read ? 'bg-transparent' : 'bg-accent/[0.04]'}`}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-xs border border-white/10 shrink-0"
+                      style={{ background: `#${n.from_user?.avatar_background_color_hex ?? '4CAF50'}` }}
+                    >
+                      {n.from_user?.avatar_emoji ?? '🎓'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-foreground-secondary truncate">
+                        {n.type === 'new_follower' ? (
+                          <><strong className="text-foreground">{n.from_user?.display_name ?? 'Someone'}</strong> started following you</>
+                        ) : (
+                          n.message
+                        )}
+                      </p>
+                      <p className="text-[10px] text-foreground-faint mt-0.5">
+                        {new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                    {n.type === 'new_follower' && (
+                      <UserPlus className="w-3.5 h-3.5 text-accent shrink-0" />
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Premium CTA / Manage Subscription */}
+        {!isPremium && !isAdmin ? (
+          <button
+            onClick={() => setShowUpsell(true)}
+            className="w-full p-4 bg-yellow-400/[0.06] border border-yellow-400/20 rounded-2xl flex items-center gap-4 hover:bg-yellow-400/10 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-yellow-400/15 flex items-center justify-center shrink-0">
+              <Crown className="w-5 h-5 text-yellow-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-yellow-400">
+                Upgrade to Premium
+              </p>
+              <p className="text-[11px] text-foreground-faint">
+                Larger video uploads, video splitting, and tutorial analytics.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-yellow-400 shrink-0">
+              Learn More
+            </span>
+          </button>
+        ) : isPremium && !isAdmin ? (
+          <button
+            onClick={handleManageSubscription}
+            disabled={portalLoading}
+            className="w-full p-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center gap-4 hover:bg-white/[0.05] transition-colors text-left disabled:opacity-60"
+          >
+            <div className="w-10 h-10 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
+              <CreditCard className="w-5 h-5 text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                Manage Subscription
+              </p>
+              <p className="text-[11px] text-foreground-faint">
+                Update payment method, change plan, or cancel.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-accent shrink-0">
+              {portalLoading ? 'Opening…' : 'Manage'}
+            </span>
+          </button>
+        ) : null}
 
         {/* Level Progress */}
         {profile && (

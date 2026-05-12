@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');
+  const reason = request.nextUrl.searchParams.get('reason');
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
   const supabase = await createClient();
@@ -10,6 +11,12 @@ export async function DELETE(request: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const { data: tutorial } = await supabase
+    .from('tutorials')
+    .select('title, creator_id')
+    .eq('id', id)
+    .single();
 
   const { data: steps } = await supabase
     .from('tutorial_steps')
@@ -38,5 +45,14 @@ export async function DELETE(request: NextRequest) {
     const status = error.message?.includes('Forbidden') ? 403 : 500;
     return NextResponse.json({ error: error.message }, { status });
   }
+
+  if (tutorial?.creator_id && reason) {
+    await supabase.from('tutorial_removal_notices').insert({
+      user_id: tutorial.creator_id,
+      tutorial_title: tutorial.title ?? 'Untitled',
+      reason,
+    });
+  }
+
   return NextResponse.json({ ok: true });
 }

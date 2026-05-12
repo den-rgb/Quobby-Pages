@@ -1,5 +1,6 @@
+import { rateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const WIKIDATA_SPARQL = 'https://query.wikidata.org/sparql';
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
@@ -9,9 +10,17 @@ const UA = 'Qurator/1.0 (board game tutorial platform)';
 const BING_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const limited = rateLimit(request, { maxRequests: 10, windowMs: 60_000 });
+  if (limited) return limited;
+
   try {
     const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { data: games, error } = await supabase
       .from('games')

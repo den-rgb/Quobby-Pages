@@ -2,13 +2,18 @@
 
 import { BoardView } from '@/components/board-view';
 import { useEditorStore } from '@/lib/store';
-import type {
-  InteractiveElement,
-  LogicCondition,
-  TutorialConnection,
-  TutorialStep,
-  TutorialVariable,
-} from '@/lib/types';
+import {
+  type BranchOption,
+  type TextPart,
+  type VariableState,
+  findFirstContentStep,
+  getNextContentStepId,
+  initVariableState,
+  interpolateVariables,
+  parseMarkdownLite,
+  resolveBranches,
+} from '@/lib/tutorial-navigation';
+import type { InteractiveElement } from '@/lib/types';
 import {
   ArrowLeft,
   ArrowRight,
@@ -22,167 +27,23 @@ import {
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-type VariableState = Record<string, string | number | boolean>;
-
-interface BranchOption {
-  label: string;
-  targetStepId: string;
-  setsVariable?: { name: string; value: string | number | boolean };
-}
-
-interface BranchResult {
-  prompt: string;
-  branches: BranchOption[];
-  autoTarget?: string;
-}
-
-function initVariableState(variables: TutorialVariable[]): VariableState {
-  const state: VariableState = {};
-  for (const v of variables) {
-    if (v.variable_type === 'number') {
-      state[v.name] = v.default_value ? Number(v.default_value) : 0;
-    } else if (v.variable_type === 'boolean') {
-      state[v.name] = v.default_value === 'true';
-    } else {
-      state[v.name] = v.default_value ?? '';
-    }
-  }
-  return state;
-}
-
-function evaluateCondition(
-  cond: LogicCondition,
-  state: VariableState
-): boolean {
-  const actual = state[cond.variable];
-  if (actual === undefined) return false;
-  const expected = typeof actual === 'number' ? Number(cond.value) : cond.value;
-  switch (cond.operator) {
-    case 'eq': return actual == expected;
-    case 'neq': return actual != expected;
-    case 'gt': return actual > expected;
-    case 'lt': return actual < expected;
-    case 'gte': return actual >= expected;
-    case 'lte': return actual <= expected;
-    default: return false;
-  }
-}
-
-function interpolateVariables(text: string, state: VariableState): string {
-  return text.replace(/\{\{(\w+)\}\}/g, (_, name) => {
-    const val = state[name];
-    return val !== undefined ? String(val) : `{{${name}}}`;
-  });
-}
-
-function getOutgoingConnections(
-  stepId: string,
-  connections: TutorialConnection[]
-): TutorialConnection[] {
-  return connections.filter((c) => c.from_step_id === stepId);
-}
-
-function findFirstContentStep(
-  steps: TutorialStep[],
-  connections: TutorialConnection[]
-): TutorialStep | undefined {
-  const targetIds = new Set(connections.map((c) => c.to_step_id));
-  const roots = steps.filter(
-    (s) => s.step_type === 'content' && !targetIds.has(s.id)
+function SafeMarkdown({ parts }: { parts: TextPart[] }) {
+  return (
+    <>
+      {parts.map((p, i) => {
+        switch (p.type) {
+          case 'bold':
+            return <strong key={i} className="text-foreground font-semibold">{p.value}</strong>;
+          case 'italic':
+            return <em key={i}>{p.value}</em>;
+          case 'br':
+            return <br key={i} />;
+          default:
+            return <span key={i}>{p.value}</span>;
+        }
+      })}
+    </>
   );
-  if (roots.length > 0) return roots[0];
-  const contentSteps = steps.filter((s) => s.step_type === 'content');
-  return contentSteps.sort((a, b) => a.sort_order - b.sort_order)[0];
-}
-
-function resolveBranches(
-  currentStep: TutorialStep,
-  steps: TutorialStep[],
-  connections: TutorialConnection[],
-  variableState: VariableState
-): BranchResult | null {
-  const outgoing = getOutgoingConnections(currentStep.id, connections);
-  if (outgoing.length === 0) return null;
-
-  for (const conn of outgoing) {
-    const target = steps.find((s) => s.id === conn.to_step_id);
-    if (!target || target.step_type !== 'logic') continue;
-
-    const logic = target.logic_json;
-    if (!logic || logic.conditions.length === 0) continue;
-
-    const allHaveConditions = logic.conditions.every(
-      (e) => e.condition.variable !== ''
-    );
-
-    if (allHaveConditions) {
-      for (const entry of logic.conditions) {
-        if (evaluateCondition(entry.condition, variableState)) {
-          return {
-            prompt: logic.prompt || 'Choose a path',
-            branches: [],
-            autoTarget: entry.target_step_id,
-          };
-        }
-      }
-      if (logic.default_target_step_id) {
-        return {
-          prompt: logic.prompt || 'Choose a path',
-          branches: [],
-          autoTarget: logic.default_target_step_id,
-        };
-      }
-    }
-
-    const branches: BranchOption[] = [];
-
-    for (const entry of logic.conditions) {
-      branches.push({
-        label: entry.label || `Option ${branches.length + 1}`,
-        targetStepId: entry.target_step_id,
-        setsVariable: entry.sets_variable,
-      });
-    }
-
-    if (logic.default_target_step_id && logic.default_label) {
-      branches.push({
-        label: logic.default_label,
-        targetStepId: logic.default_target_step_id,
-      });
-    }
-
-    if (branches.length > 0) {
-      return { prompt: logic.prompt || 'Choose a path', branches };
-    }
-  }
-
-  return null;
-}
-
-function getNextContentStepId(
-  currentStep: TutorialStep,
-  steps: TutorialStep[],
-  connections: TutorialConnection[]
-): string | null {
-  const outgoing = getOutgoingConnections(currentStep.id, connections);
-  for (const conn of outgoing) {
-    const target = steps.find((s) => s.id === conn.to_step_id);
-    if (target?.step_type === 'content') return target.id;
-    if (target?.step_type === 'logic') {
-      const logic = target.logic_json;
-      if (logic?.default_target_step_id && !logic.default_label) {
-        return logic.default_target_step_id;
-      }
-      if (!logic?.default_target_step_id) {
-        const logicOutgoing = getOutgoingConnections(target.id, connections);
-        for (const lConn of logicOutgoing) {
-          const lTarget = steps.find((s) => s.id === lConn.to_step_id);
-          if (lTarget?.step_type === 'content') return lTarget.id;
-        }
-      }
-    }
-  }
-  return null;
 }
 
 function QuizPreview({
@@ -327,25 +188,14 @@ export function TutorialPreview() {
   const canAdvance = !hasQuiz || quizCompleted;
   const isTerminal = !hasBranching && !nextStepId;
 
-  const bodyHtml = useMemo(() => {
-    if (!content?.body) return '';
-    const interpolated = interpolateVariables(content.body, varState);
-    return interpolated
-      .replace(
-        /\*\*(.*?)\*\*/g,
-        '<strong class="text-foreground font-semibold">$1</strong>'
-      )
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br/>');
+  const bodyParts = useMemo(() => {
+    if (!content?.body) return [];
+    return parseMarkdownLite(interpolateVariables(content.body, varState));
   }, [content?.body, varState]);
 
-  const tipHtml = useMemo(() => {
-    if (!content?.tip) return '';
-    const interpolated = interpolateVariables(content.tip, varState);
-    return interpolated
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br/>');
+  const tipParts = useMemo(() => {
+    if (!content?.tip) return [];
+    return parseMarkdownLite(interpolateVariables(content.tip, varState));
   }, [content?.tip, varState]);
 
   const handleQuizComplete = useCallback(() => {
@@ -462,10 +312,9 @@ export function TutorialPreview() {
               </div>
             )}
 
-            <div
-              className="text-foreground-secondary leading-relaxed text-xs"
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
-            />
+            <div className="text-foreground-secondary leading-relaxed text-xs">
+              <SafeMarkdown parts={bodyParts} />
+            </div>
 
             {content?.code_block && (
               <div className="mt-3 rounded-xl overflow-hidden border border-white/[0.08]">
@@ -492,10 +341,9 @@ export function TutorialPreview() {
             {content?.tip && (
               <div className="mt-3 flex items-start gap-2 p-2.5 bg-accent-glow border border-accent/20 rounded-xl text-[11px]">
                 <Lightbulb className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
-                <p
-                  className="text-foreground-secondary"
-                  dangerouslySetInnerHTML={{ __html: tipHtml }}
-                />
+                <p className="text-foreground-secondary">
+                  <SafeMarkdown parts={tipParts} />
+                </p>
               </div>
             )}
 
