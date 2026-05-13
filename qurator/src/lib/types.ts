@@ -17,12 +17,20 @@ export interface Category {
   created_at: string;
 }
 
+export interface MediaCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface MediaAttachment {
   id: string;
   url: string;
   type: 'image' | 'video';
   filename: string;
   size_bytes: number;
+  crop?: MediaCrop;
 }
 
 export interface Game {

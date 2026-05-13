@@ -7,13 +7,17 @@ import type { Category, Tutorial } from '@/lib/types';
 import {
   Bookmark,
   BookmarkCheck,
+  Check,
   Clock,
+  Code2,
   Eye,
   Gamepad2,
   GitFork,
+  Link2,
   Loader2,
   MessageCircle,
   Search,
+  Share2,
   Star,
   Trash2,
   Users
@@ -83,14 +87,29 @@ export default function TutorialsPage() {
   const [loading, setLoading] = useState(true);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [forkingId, setForkingId] = useState<string | null>(null);
+  const [shareMenuId, setShareMenuId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'highest_rated'>('popular');
+  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'highest_rated' | 'following'>('popular');
+  const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch('/api/categories', { cache: 'no-store' }).then((r) => r.json()).then(setCategories).catch(() => { });
   }, []);
+
+  useEffect(() => {
+    if (!user) { setFollowedIds(new Set()); return; }
+    const supabase = createClient();
+    supabase
+      .from('friendships')
+      .select('following_id')
+      .eq('follower_id', user.id)
+      .then(({ data }) => {
+        setFollowedIds(new Set((data ?? []).map((d: { following_id: string }) => d.following_id)));
+      });
+  }, [user]);
 
   useEffect(() => {
     setLoading(true);
@@ -296,6 +315,19 @@ export default function TutorialsPage() {
     } catch { /* silent */ }
   }, []);
 
+  const handleShare = useCallback((e: React.MouseEvent, tutorialId: string, type: 'link' | 'embed') => {
+    e.preventDefault();
+    e.stopPropagation();
+    const origin = window.location.origin;
+    const text = type === 'link'
+      ? `${origin}/tutorials/${tutorialId}`
+      : `<iframe src="${origin}/embed/${tutorialId}" width="100%" height="500" style="border:none;border-radius:12px;" allow="clipboard-write"></iframe>`;
+    navigator.clipboard.writeText(text);
+    setCopiedId(tutorialId);
+    setShareMenuId(null);
+    setTimeout(() => setCopiedId(null), 2000);
+  }, []);
+
   const selectedCategorySlug = categories.find((c) => c.id === selectedCategoryId)?.slug;
 
   const allTutorials = [
@@ -316,6 +348,7 @@ export default function TutorialsPage() {
 
   const filtered = allTutorials.filter(
     (t) => {
+      if (sortBy === 'following' && !followedIds.has(t.creator_id)) return false;
       if (!query) return true;
       const gameTitle = (t as TutorialWithGame).games?.title ?? t.game?.title ?? '';
       return (
@@ -326,7 +359,7 @@ export default function TutorialsPage() {
   );
 
   return (
-    <div className="px-6 py-12">
+    <div className="px-6 py-12" onClick={() => shareMenuId && setShareMenuId(null)}>
       <div className="max-w-[1100px] mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-[clamp(2rem,5vw,3rem)] font-extrabold text-foreground tracking-tight mb-3">
@@ -369,7 +402,7 @@ export default function TutorialsPage() {
             />
           </div>
           <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
-            {([['popular', 'Popular'], ['newest', 'Newest'], ['highest_rated', 'Top Rated']] as const).map(([key, label]) => (
+            {([['popular', 'Popular'], ['newest', 'Newest'], ['highest_rated', 'Top Rated'], ...(user ? [['following', 'Following'] as const] : [])] as const).map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => setSortBy(key)}
@@ -469,38 +502,72 @@ export default function TutorialsPage() {
                       )}
                     </div>
                     <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 text-xs text-foreground-faint">
-                      <span>{creatorEmoji}</span>
-                      <span className="flex-1">{creatorName}</span>
-                      {user && (
-                        <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/profile/${t.creator_id}`); }}
+                        className="flex items-center gap-1.5 px-2 py-1 -ml-2 rounded-lg hover:bg-white/[0.06] hover:text-accent transition-all group"
+                      >
+                        <span>{creatorEmoji}</span>
+                        <span className="group-hover:underline">{creatorName}</span>
+                      </button>
+                      <span className="flex-1" />
+                      <div className="flex items-center gap-1">
+                        <div className="relative">
                           <button
-                            onClick={(e) => toggleSave(e, t.id)}
-                            className={`p-1.5 rounded-md transition-colors ${isSaved ? 'text-accent' : 'text-foreground-faint hover:text-foreground'}`}
-                            title={isSaved ? 'Remove from saved' : 'Save for later'}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShareMenuId(shareMenuId === t.id ? null : t.id); }}
+                            className={`p-1.5 rounded-md transition-colors ${copiedId === t.id ? 'text-green' : 'text-foreground-faint hover:text-foreground'}`}
+                            title="Share tutorial"
                           >
-                            {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                            {copiedId === t.id ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                           </button>
-                          {t.creator_id !== user.id && (
-                            <button
-                              onClick={(e) => handleFork(e, tw)}
-                              disabled={forkingId === t.id}
-                              className="p-1.5 rounded-md text-foreground-faint hover:text-foreground transition-colors disabled:opacity-50"
-                              title="Fork this tutorial"
-                            >
-                              {forkingId === t.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitFork className="w-4 h-4" />}
-                            </button>
-                          )}
-                          {isAdmin && (
-                            <button
-                              onClick={(e) => handleDeleteTutorial(e, t.id, t.title)}
-                              className="p-1.5 rounded-md text-foreground-faint hover:text-red-400 transition-colors"
-                              title="Delete tutorial (admin)"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                          {shareMenuId === t.id && (
+                            <div className="absolute right-0 bottom-full mb-1 w-48 bg-background-secondary border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+                              <button
+                                onClick={(e) => handleShare(e, t.id, 'link')}
+                                className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2"
+                              >
+                                <Link2 className="w-3.5 h-3.5" /> Copy link
+                              </button>
+                              <button
+                                onClick={(e) => handleShare(e, t.id, 'embed')}
+                                className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2 border-t border-border"
+                              >
+                                <Code2 className="w-3.5 h-3.5" />
+                                <span>Copy embed code<br /><span className="text-[10px] text-foreground-faint">For websites &amp; blogs</span></span>
+                              </button>
+                            </div>
                           )}
                         </div>
-                      )}
+                        {user && (
+                          <>
+                            <button
+                              onClick={(e) => toggleSave(e, t.id)}
+                              className={`p-1.5 rounded-md transition-colors ${isSaved ? 'text-accent' : 'text-foreground-faint hover:text-foreground'}`}
+                              title={isSaved ? 'Remove from saved' : 'Save for later'}
+                            >
+                              {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                            </button>
+                            {t.creator_id !== user.id && (
+                              <button
+                                onClick={(e) => handleFork(e, tw)}
+                                disabled={forkingId === t.id}
+                                className="p-1.5 rounded-md text-foreground-faint hover:text-foreground transition-colors disabled:opacity-50"
+                                title="Fork this tutorial"
+                              >
+                                {forkingId === t.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitFork className="w-4 h-4" />}
+                              </button>
+                            )}
+                            {isAdmin && (
+                              <button
+                                onClick={(e) => handleDeleteTutorial(e, t.id, t.title)}
+                                className="p-1.5 rounded-md text-foreground-faint hover:text-red-400 transition-colors"
+                                title="Delete tutorial (admin)"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>

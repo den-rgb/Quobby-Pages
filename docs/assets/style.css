@@ -379,48 +379,81 @@ img {
   margin: 0 auto;
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.feature-card {
-  padding: 32px;
+.feature-item {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: all var(--transition);
+  overflow: hidden;
 }
 
-.feature-card:hover {
+.feature-item:hover {
   background: var(--bg-card-hover);
   border-color: rgba(139, 0, 81, 0.1);
-  transform: translateY(-4px);
+}
+
+.feature-item summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.feature-item summary::-webkit-details-marker {
+  display: none;
 }
 
 .feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 20px;
+  font-size: 1.3rem;
+  flex-shrink: 0;
 }
 
-.feature-card h3 {
-  font-size: 1.15rem;
+.feature-item summary h3 {
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin: 0;
+  flex: 1;
 }
 
-.feature-card p {
+.feature-chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.feature-item[open] .feature-chevron {
+  transform: rotate(180deg);
+}
+
+.feature-body {
+  padding: 0 24px 18px;
+  margin-left: 56px;
+}
+
+.feature-body p {
   font-size: 0.95rem;
   color: var(--text-muted);
   line-height: 1.6;
+  margin: 0;
 }
 
 /* ===== Qurator Nav Tooltip ===== */
@@ -884,8 +917,8 @@ img {
     display: none;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
+  .features-list {
+    max-width: 100%;
   }
 
   .hero {

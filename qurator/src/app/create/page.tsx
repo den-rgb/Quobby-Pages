@@ -283,7 +283,7 @@ export default function CreatePage() {
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat)}
-                      className="flex flex-col items-center justify-center gap-2 p-6 bg-card border border-border rounded-xl hover:bg-card-hover hover:border-accent/20 hover:-translate-y-0.5 transition-all text-center"
+                      className="flex flex-col items-center justify-center gap-2 p-6 bg-card border border-border rounded-xl hover:bg-card-hover hover:border-accent/20 hover:-translate-y-0.5 transition-all text-center cursor-pointer"
                     >
                       <Icon className="w-7 h-7 text-accent" />
                       <span className="text-sm font-semibold text-foreground">{cat.name}</span>

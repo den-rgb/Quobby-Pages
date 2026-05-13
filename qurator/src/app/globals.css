@@ -29,6 +29,21 @@ body {
   color: var(--color-foreground);
 }
 
+button,
+[role="button"],
+a,
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+select,
+summary {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* React Flow overrides to match dark theme */
 .react-flow__background {
   background: var(--color-background-secondary) !important;

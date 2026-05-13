@@ -8,6 +8,7 @@ import {
   Panel,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
   type Edge,
   type Node,
   type NodeTypes,
@@ -45,6 +46,7 @@ function FlowEditorInner({
     removeStep,
   } = useEditorStore();
 
+  const { screenToFlowPosition } = useReactFlow();
   const clipboardStepId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -170,6 +172,29 @@ function FlowEditorInner({
     selectStep(step.id);
   }, [steps.length, addLogicStep, selectStep]);
 
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      const type = event.dataTransfer.getData('application/qurator-step-type');
+      if (!type) return;
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      const step =
+        type === 'content'
+          ? addContentStep(position.x, position.y)
+          : addLogicStep(position.x, position.y);
+      selectStep(step.id);
+    },
+    [screenToFlowPosition, addContentStep, addLogicStep, selectStep]
+  );
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -179,6 +204,8 @@ function FlowEditorInner({
       onConnect={onConnect}
       onPaneClick={onPaneClick}
       onNodeDoubleClick={handleNodeDoubleClick}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
       nodeTypes={nodeTypes}
       fitView
       proOptions={{ hideAttribution: true }}
@@ -213,14 +240,24 @@ function FlowEditorInner({
       <Panel position="top-left" className="flex gap-2">
         <button
           onClick={handleAddContentStep}
-          className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-sm font-medium text-foreground hover:bg-card-hover hover:border-accent/20 transition-all"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.setData('application/qurator-step-type', 'content');
+            e.dataTransfer.effectAllowed = 'move';
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-sm font-medium text-foreground hover:bg-card-hover hover:border-accent/20 transition-all cursor-grab active:cursor-grabbing"
         >
           <FileText className="w-4 h-4 text-accent" />
           Add Content Step
         </button>
         <button
           onClick={handleAddLogicStep}
-          className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-sm font-medium text-foreground hover:bg-card-hover hover:border-green/20 transition-all"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.setData('application/qurator-step-type', 'logic');
+            e.dataTransfer.effectAllowed = 'move';
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-sm font-medium text-foreground hover:bg-card-hover hover:border-green/20 transition-all cursor-grab active:cursor-grabbing"
         >
           <GitBranch className="w-4 h-4 text-green" />
           Add Logic Step

@@ -80,18 +80,18 @@ export function OnboardingOverlay({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-background-secondary border border-border rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md bg-background-secondary border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col" style={{ minHeight: '340px' }}>
         {/* Progress dots */}
-        <div className="px-6 pt-5 flex items-center justify-between">
+        <div className="px-6 pt-5 flex items-center justify-between shrink-0">
           <div className="flex gap-1">
             {STEPS.map((_, i) => (
               <div
                 key={i}
                 className={`h-1 rounded-full transition-all ${i === stepIndex
-                    ? 'w-6 bg-accent'
-                    : i < stepIndex
-                      ? 'w-3 bg-accent/40'
-                      : 'w-3 bg-white/[0.08]'
+                  ? 'w-6 bg-accent'
+                  : i < stepIndex
+                    ? 'w-3 bg-accent/40'
+                    : 'w-3 bg-white/[0.08]'
                   }`}
               />
             ))}
@@ -105,7 +105,7 @@ export function OnboardingOverlay({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Content */}
-        <div className="px-6 py-8 text-center">
+        <div className="px-6 py-8 text-center flex-1 flex flex-col items-center justify-center">
           <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-border flex items-center justify-center mx-auto mb-5">
             <current.icon className={`w-7 h-7 ${current.iconColor}`} />
           </div>
@@ -118,7 +118,7 @@ export function OnboardingOverlay({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Actions */}
-        <div className="px-6 pb-5 flex items-center justify-between">
+        <div className="px-6 pb-5 flex items-center justify-between shrink-0">
           <button
             onClick={onClose}
             className="text-xs text-foreground-faint hover:text-foreground transition-colors"

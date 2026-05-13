@@ -4,8 +4,10 @@ import { useAuth } from '@/lib/auth';
 import { complexityFromWeight, searchBGG } from '@/lib/bgg';
 import { loadTutorial, saveTutorial } from '@/lib/persistence';
 import { useEditorStore } from '@/lib/store';
+import { validateTutorialGraph, type GraphIssue } from '@/lib/tutorial-navigation';
 import type { BGGSearchResult, Category, Game } from '@/lib/types';
 import {
+  AlertTriangle,
   ArrowLeft,
   Book,
   Box,
@@ -51,8 +53,10 @@ export function EditorShell() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const { user, signIn } = useAuth();
-  const { tutorial, game, category, steps, setTutorial, setGame, setCategory, isDirty } =
+  const { tutorial, game, category, steps, connections, setTutorial, setGame, setCategory, isDirty } =
     useEditorStore();
+  const [publishIssues, setPublishIssues] = useState<GraphIssue[]>([]);
+  const [showPublishIssues, setShowPublishIssues] = useState(false);
   const [showGameSwitch, setShowGameSwitch] = useState(false);
   const [gameQuery, setGameQuery] = useState('');
   const [gameResults, setGameResults] = useState<BGGSearchResult[]>([]);
@@ -217,28 +221,28 @@ export function EditorShell() {
   }, []);
 
   const sidebarWidth =
-    activeSidebar === 'preview' ? 'w-[520px]' : 'w-[420px]';
+    activeSidebar === 'preview' ? 'w-full sm:w-[520px]' : 'w-full sm:w-[420px]';
 
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Editor toolbar */}
-      <header className="h-14 border-b border-border bg-background/90 backdrop-blur-md flex items-center px-4 gap-4 shrink-0 z-30">
+      <header className="h-14 border-b border-border bg-background/90 backdrop-blur-md flex items-center px-2 sm:px-4 gap-1 sm:gap-3 shrink-0 z-30 overflow-x-auto">
         <Link
           href="/create"
-          className="text-foreground-muted hover:text-foreground transition-colors"
+          className="text-foreground-muted hover:text-foreground transition-colors shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
 
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0">
           <Gamepad2 className="w-4 h-4 text-accent shrink-0" />
-          <span className="text-sm font-medium text-foreground truncate">
+          <span className="text-sm font-medium text-foreground truncate max-w-[80px] sm:max-w-none">
             {tutorial?.title ?? 'Untitled Tutorial'}
           </span>
           {game && category?.slug === 'board-games' && (
             <button
               onClick={() => setShowGameSwitch(true)}
-              className="flex items-center gap-1 text-xs text-foreground-faint hover:text-accent transition-colors truncate"
+              className="hidden sm:flex items-center gap-1 text-xs text-foreground-faint hover:text-accent transition-colors truncate cursor-pointer"
               title="Change game"
             >
               &middot; {game.title}
@@ -246,42 +250,42 @@ export function EditorShell() {
             </button>
           )}
           {category && category.slug !== 'board-games' && (
-            <span className="text-xs text-foreground-faint truncate">
+            <span className="hidden sm:inline text-xs text-foreground-faint truncate">
               &middot; {category.name}
             </span>
           )}
         </div>
 
-        <div className="flex-1" />
+        <div className="flex-1 min-w-1" />
 
-        <div className="flex items-center gap-1 bg-white/[0.03] rounded-lg p-0.5">
+        <div className="flex items-center gap-0.5 bg-white/[0.03] rounded-lg p-0.5 shrink-0">
           {sidebarButtons.map((btn) => (
             <button
               key={btn.id}
               onClick={() => toggleSidebar(btn.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeSidebar === btn.id
+              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeSidebar === btn.id
                 ? 'bg-accent text-black'
                 : 'text-foreground-muted hover:text-foreground hover:bg-white/[0.05]'
                 }`}
             >
               <btn.icon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{btn.label}</span>
+              <span className="hidden md:inline">{btn.label}</span>
             </button>
           ))}
         </div>
 
         <button
           onClick={() => setShowOnboarding(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-foreground-muted hover:text-foreground hover:bg-white/[0.05] rounded-md transition-all"
+          className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-foreground-muted hover:text-foreground hover:bg-white/[0.05] rounded-md transition-all shrink-0 cursor-pointer"
           title="Show tutorial guide"
         >
           <Book className="w-3.5 h-3.5" />
         </button>
 
-        <div className="flex-1" />
+        <div className="flex-1 min-w-1" />
 
         <button
-          className="flex items-center gap-2 px-4 py-1.5 bg-white/[0.06] border border-border text-foreground text-sm font-medium rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-white/[0.06] border border-border text-foreground text-sm font-medium rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 shrink-0 cursor-pointer"
           disabled={saveStatus === 'saving'}
           onClick={async () => {
             if (!user) {
@@ -304,10 +308,10 @@ export function EditorShell() {
           {saveStatus === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
           {saveStatus === 'saved' && <Check className="w-4 h-4" />}
           {(saveStatus === 'idle' || saveStatus === 'error') && <Save className="w-4 h-4" />}
-          {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Error' : `Save${isDirty ? ' *' : ''}`}
+          <span className="hidden sm:inline">{saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Error' : `Save${isDirty ? ' *' : ''}`}</span>
         </button>
         <button
-          className={`flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 ${tutorial?.status === 'published'
+          className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 shrink-0 cursor-pointer ${tutorial?.status === 'published'
             ? 'bg-yellow-500/15 text-yellow-400 hover:bg-yellow-500/25'
             : 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
             }`}
@@ -319,6 +323,14 @@ export function EditorShell() {
             }
             if (!tutorial) return;
             const newStatus = tutorial.status === 'published' ? 'draft' : 'published';
+            if (newStatus === 'published') {
+              const issues = validateTutorialGraph(steps, connections);
+              if (issues.length > 0) {
+                setPublishIssues(issues);
+                setShowPublishIssues(true);
+                return;
+              }
+            }
             const confirmed = tutorial.status === 'published'
               ? confirm('Unpublish this tutorial? It will no longer be visible to others.')
               : confirm('Publish this tutorial? It will be visible to all users.');
@@ -339,7 +351,7 @@ export function EditorShell() {
           }}
         >
           <Globe className="w-4 h-4" />
-          {tutorial?.status === 'published' ? 'Unpublish' : 'Publish'}
+          <span className="hidden sm:inline">{tutorial?.status === 'published' ? 'Unpublish' : 'Publish'}</span>
         </button>
         {saveStatus === 'error' && saveError && (
           <span className="text-[10px] text-red-400 max-w-[200px] truncate" title={saveError}>
@@ -358,7 +370,7 @@ export function EditorShell() {
         {/* Sidebar panel */}
         {activeSidebar && (
           <div
-            className={`${sidebarWidth} shrink-0 border-l border-border bg-background flex flex-col h-full overflow-hidden transition-all`}
+            className={`${sidebarWidth} shrink-0 border-l border-border bg-background flex flex-col h-full overflow-hidden transition-all absolute sm:relative right-0 top-0 z-20`}
           >
             {/* Sidebar header */}
             <div className="h-11 px-4 flex items-center justify-between border-b border-border shrink-0">
@@ -391,6 +403,73 @@ export function EditorShell() {
             sessionStorage.setItem('qurator-onboarding-dismissed', '1');
           }}
         />
+      )}
+
+      {showPublishIssues && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-background border border-border rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="text-sm font-semibold text-foreground">Disconnected Steps</h2>
+              <button
+                onClick={() => setShowPublishIssues(false)}
+                className="text-foreground-faint hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              <p className="text-xs text-foreground-muted">
+                Some steps are not connected. Users may not be able to reach them.
+              </p>
+              <div className="max-h-[200px] overflow-y-auto space-y-2">
+                {publishIssues.map((issue) => (
+                  <div key={`${issue.stepId}-${issue.issue}`} className="flex items-start gap-2 p-2 bg-orange-500/5 border border-orange-500/20 rounded-lg">
+                    <AlertTriangle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-medium text-foreground">{issue.stepTitle}</p>
+                      <p className="text-[10px] text-foreground-muted">
+                        {issue.issue === 'no_incoming' && 'No incoming connection — unreachable'}
+                        {issue.issue === 'no_outgoing' && 'No outgoing connection — dead end'}
+                        {issue.issue === 'logic_no_incoming' && 'Logic block has no incoming connection'}
+                        {issue.issue === 'logic_no_outgoing' && 'Logic block has no outgoing connection'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setShowPublishIssues(false)}
+                  className="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-accent text-black hover:bg-accent-light transition-colors"
+                >
+                  Fix Issues
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowPublishIssues(false);
+                    if (!tutorial || !user) return;
+                    setTutorial({ ...tutorial, status: 'published' });
+                    setSaveStatus('saving');
+                    setSaveError(null);
+                    const result = await saveTutorial(user.id);
+                    if (result.error) {
+                      setTutorial({ ...tutorial, status: tutorial.status });
+                      setSaveStatus('error');
+                      setSaveError(result.error);
+                      setTimeout(() => setSaveStatus('idle'), 3000);
+                    } else {
+                      setSaveStatus('saved');
+                      setTimeout(() => setSaveStatus('idle'), 2000);
+                    }
+                  }}
+                  className="px-4 py-2 text-sm font-medium rounded-lg border border-border text-foreground-muted hover:text-foreground hover:border-foreground-faint transition-colors"
+                >
+                  Publish Anyway
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {showGameSwitch && (

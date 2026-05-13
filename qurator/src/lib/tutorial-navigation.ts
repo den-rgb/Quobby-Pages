@@ -189,3 +189,52 @@ export function getNextContentStepId(
   }
   return null;
 }
+
+export interface GraphIssue {
+  stepId: string;
+  stepTitle: string;
+  issue: 'no_outgoing' | 'no_incoming' | 'logic_no_outgoing' | 'logic_no_incoming';
+}
+
+export function validateTutorialGraph(
+  steps: TutorialStep[],
+  connections: TutorialConnection[]
+): GraphIssue[] {
+  const issues: GraphIssue[] = [];
+  const contentSteps = steps.filter((s) => s.step_type === 'content');
+  const logicSteps = steps.filter((s) => s.step_type === 'logic');
+
+  if (contentSteps.length < 2) return issues;
+
+  const firstStep = findFirstContentStep(steps, connections);
+  const firstId = firstStep?.id;
+
+  for (const step of contentSteps) {
+    const title = step.content_json?.heading || `Step ${step.sort_order + 1}`;
+    const outgoing = getOutgoingConnections(step.id, connections);
+    const incoming = connections.filter((c) => c.to_step_id === step.id);
+
+    if (incoming.length === 0 && step.id !== firstId) {
+      issues.push({ stepId: step.id, stepTitle: title, issue: 'no_incoming' });
+    }
+
+    if (outgoing.length === 0 && incoming.length === 0 && step.id !== firstId) {
+      issues.push({ stepId: step.id, stepTitle: title, issue: 'no_outgoing' });
+    }
+  }
+
+  for (const step of logicSteps) {
+    const title = step.logic_json?.prompt || `Logic ${step.sort_order + 1}`;
+    const outgoing = getOutgoingConnections(step.id, connections);
+    const incoming = connections.filter((c) => c.to_step_id === step.id);
+
+    if (outgoing.length === 0) {
+      issues.push({ stepId: step.id, stepTitle: title, issue: 'logic_no_outgoing' });
+    }
+    if (incoming.length === 0) {
+      issues.push({ stepId: step.id, stepTitle: title, issue: 'logic_no_incoming' });
+    }
+  }
+
+  return issues;
+}

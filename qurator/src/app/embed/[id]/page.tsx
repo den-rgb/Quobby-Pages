@@ -69,7 +69,12 @@ function EmbedQuiz({
         {element.options?.map((opt, i) => (
           <button
             key={i}
-            onClick={() => !isAnswered && setSelected(i)}
+            onClick={() => {
+              if (!isAnswered) {
+                setSelected(i);
+                onComplete();
+              }
+            }}
             disabled={isAnswered}
             className={`w-full text-left px-2.5 py-1.5 rounded-lg border transition-all text-[11px] ${isAnswered && i === selected
               ? opt.correct
@@ -92,14 +97,6 @@ function EmbedQuiz({
         <p className={`mt-2 text-[10px] p-2 rounded-lg ${isCorrect ? 'bg-green/10 text-green' : 'bg-orange-500/10 text-orange-400'}`}>
           {isCorrect ? 'Correct! ' : 'Not quite. '}{element.explanation}
         </p>
-      )}
-      {isAnswered && (
-        <button
-          onClick={onComplete}
-          className="mt-2 px-3 py-1 bg-accent text-black text-[10px] font-semibold rounded-lg"
-        >
-          Continue
-        </button>
       )}
     </div>
   );
@@ -223,7 +220,13 @@ export default function EmbedTutorialPage() {
         position_y: 0,
       }));
       setAllSteps(demoSteps);
-      setConnections([]);
+      const demoConnections: TutorialConnection[] = demoSteps.slice(0, -1).map((step, i) => ({
+        id: `demo-conn-${i}`,
+        from_step_id: step.id,
+        to_step_id: demoSteps[i + 1].id,
+        condition_json: null,
+      }));
+      setConnections(demoConnections);
       setVariables([]);
       setVarState({});
       setLoading(false);
@@ -280,6 +283,12 @@ export default function EmbedTutorialPage() {
     fetchTutorial();
   }, [tutorialId]);
 
+  const handleQuizComplete = useCallback(() => {
+    if (currentStepId) {
+      setQuizCompleted((prev) => new Set(prev).add(currentStepId));
+    }
+  }, [currentStepId]);
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center">
@@ -303,12 +312,6 @@ export default function EmbedTutorialPage() {
 
   const visitedCount = history.length + 1;
   const progress = (visitedCount / contentSteps.length) * 100;
-
-  const handleQuizComplete = () => {
-    if (currentStepId) {
-      setQuizCompleted((prev) => new Set(prev).add(currentStepId));
-    }
-  };
 
   const bodyParts = step?.body
     ? parseMarkdownLite(interpolateVariables(step.body, varState))
@@ -379,6 +382,17 @@ export default function EmbedTutorialPage() {
             {step.media.map((m) =>
               m.type === 'video' ? (
                 <video key={m.id} src={m.url} controls className="w-full rounded-lg max-h-32" />
+              ) : m.crop ? (
+                <div key={m.id} className="w-full rounded-lg overflow-hidden max-h-32">
+                  <img
+                    src={m.url}
+                    alt={m.filename}
+                    className="w-full object-cover"
+                    style={{
+                      clipPath: `inset(${m.crop.y}% ${100 - m.crop.x - m.crop.width}% ${100 - m.crop.y - m.crop.height}% ${m.crop.x}%)`,
+                    }}
+                  />
+                </div>
               ) : (
                 <img key={m.id} src={m.url} alt={m.filename} className="w-full rounded-lg object-cover max-h-32" />
               )
@@ -420,7 +434,7 @@ export default function EmbedTutorialPage() {
           </div>
         )}
 
-        {hasQuiz && !quizDone && (
+        {hasQuiz && (
           <EmbedQuiz element={step!.interactive!} onComplete={handleQuizComplete} />
         )}
 

@@ -77,7 +77,10 @@ function InteractiveQuiz({
           <button
             key={i}
             onClick={() => {
-              if (!isAnswered) setSelected(i);
+              if (!isAnswered) {
+                setSelected(i);
+                onComplete();
+              }
             }}
             disabled={isAnswered}
             className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${isAnswered && i === selected
@@ -111,14 +114,6 @@ function InteractiveQuiz({
           {isCorrect ? 'Correct! ' : 'Not quite. '}
           {element.explanation}
         </div>
-      )}
-      {isAnswered && (
-        <button
-          onClick={onComplete}
-          className="mt-4 px-4 py-2 bg-accent text-black text-sm font-semibold rounded-lg hover:bg-accent-light transition-colors"
-        >
-          Continue
-        </button>
       )}
     </div>
   );
@@ -643,7 +638,13 @@ export default function TutorialPlayerPage() {
         position_y: 0,
       }));
       setAllSteps(demoSteps);
-      setConnections([]);
+      const demoConnections: TutorialConnection[] = demoSteps.slice(0, -1).map((step, i) => ({
+        id: `demo-conn-${i}`,
+        from_step_id: step.id,
+        to_step_id: demoSteps[i + 1].id,
+        condition_json: null,
+      }));
+      setConnections(demoConnections);
       setVariables([]);
       setVarState({});
       setLoading(false);
@@ -755,7 +756,7 @@ export default function TutorialPlayerPage() {
       .eq('following_id', tutorialData.creator_id)
       .single()
       .then(({ data }) => {
-        if (data) setIsFollowing(true);
+        setIsFollowing(!!data);
       });
   }, [user, tutorialData]);
 
@@ -787,6 +788,12 @@ export default function TutorialPlayerPage() {
     }
     setFollowLoading(false);
   }, [user, tutorialData, isFollowing]);
+
+  const handleQuizComplete = useCallback(() => {
+    if (currentStepId) {
+      setQuizCompleted((prev) => new Set(prev).add(currentStepId));
+    }
+  }, [currentStepId]);
 
   const handleRate = async (stars: number) => {
     if (!user) return;
@@ -833,12 +840,6 @@ export default function TutorialPlayerPage() {
   const game = tutorialData.game;
   const visitedCount = history.length + 1;
   const progress = (visitedCount / contentSteps.length) * 100;
-
-  const handleQuizComplete = () => {
-    if (currentStepId) {
-      setQuizCompleted((prev) => new Set(prev).add(currentStepId));
-    }
-  };
 
   const bodyParts = step?.body
     ? parseMarkdownLite(interpolateVariables(step.body, varState))
@@ -908,7 +909,7 @@ export default function TutorialPlayerPage() {
                   className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2 border-t border-border"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-foreground-faint" />
-                  Copy embed code
+                  <span>Copy embed code<br /><span className="text-[10px] text-foreground-faint">For websites &amp; blogs</span></span>
                 </button>
               </div>
             )}
@@ -1013,6 +1014,17 @@ export default function TutorialPlayerPage() {
                     controls
                     className="w-full rounded-xl"
                   />
+                ) : m.crop ? (
+                  <div key={m.id} className="w-full rounded-xl overflow-hidden max-h-96">
+                    <img
+                      src={m.url}
+                      alt={m.filename}
+                      className="w-full object-cover"
+                      style={{
+                        clipPath: `inset(${m.crop.y}% ${100 - m.crop.x - m.crop.width}% ${100 - m.crop.y - m.crop.height}% ${m.crop.x}%)`,
+                      }}
+                    />
+                  </div>
                 ) : (
                   <img
                     key={m.id}
@@ -1060,7 +1072,7 @@ export default function TutorialPlayerPage() {
             </div>
           )}
 
-          {hasQuiz && !quizDone && (
+          {hasQuiz && (
             <InteractiveQuiz
               element={step!.interactive!}
               onComplete={handleQuizComplete}

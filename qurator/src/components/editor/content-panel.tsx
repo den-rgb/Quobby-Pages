@@ -10,12 +10,14 @@ import type {
   LogicCondition,
   LogicStepPayload,
   MediaAttachment,
+  MediaCrop,
 } from '@/lib/types';
 import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Code,
+  Crop,
   ExternalLink,
   FileText,
   Film,
@@ -29,11 +31,14 @@ import {
   Plus,
   Trash2,
   Upload,
+  X,
   XCircle,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import ReactCrop, { type Crop as CropType } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const VideoProcessDialog = dynamic(
   () =>
@@ -500,6 +505,8 @@ function MediaUploadSection({
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [processFile, setProcessFile] = useState<File | null>(null);
+  const [cropTarget, setCropTarget] = useState<MediaAttachment | null>(null);
+  const [crop, setCrop] = useState<CropType>({ unit: '%', x: 10, y: 10, width: 80, height: 80 });
   const inputRef = useRef<HTMLInputElement>(null);
 
   const rawMax = videoRawMaxBytes(isPremium);
@@ -585,6 +592,21 @@ function MediaUploadSection({
               <span className="text-[10px] text-foreground-faint shrink-0">
                 {(m.size_bytes / (1024 * 1024)).toFixed(1)} MB
               </span>
+              {m.type === 'image' && (
+                <button
+                  onClick={() => {
+                    const existing = m.crop;
+                    setCrop(existing
+                      ? { unit: '%', x: existing.x, y: existing.y, width: existing.width, height: existing.height }
+                      : { unit: '%', x: 10, y: 10, width: 80, height: 80 });
+                    setCropTarget(m);
+                  }}
+                  className="text-foreground-faint hover:text-accent transition-colors shrink-0"
+                  title="Crop image"
+                >
+                  <Crop className="w-3 h-3" />
+                </button>
+              )}
               <button onClick={() => removeMedia(m.id)} className="text-foreground-faint hover:text-red-400 transition-colors shrink-0">
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -639,6 +661,58 @@ function MediaUploadSection({
           onClose={() => setProcessFile(null)}
           onComplete={() => setProcessFile(null)}
         />
+      )}
+
+      {cropTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-background border border-border rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">Crop Image</h3>
+              <button onClick={() => setCropTarget(null)} className="text-foreground-faint hover:text-foreground transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4 flex items-center justify-center max-h-[60vh] overflow-auto">
+              <ReactCrop crop={crop} onChange={(c) => setCrop(c)} aspect={undefined}>
+                <img src={cropTarget.url} alt="Crop preview" style={{ maxHeight: '50vh', maxWidth: '100%' }} />
+              </ReactCrop>
+            </div>
+            <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border">
+              <button
+                onClick={() => {
+                  onChange(media.map((m) =>
+                    m.id === cropTarget.id
+                      ? { ...m, crop: undefined }
+                      : m
+                  ));
+                  setCropTarget(null);
+                }}
+                className="px-3 py-1.5 text-xs text-foreground-muted hover:text-foreground transition-colors"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  const mediaCrop: MediaCrop = {
+                    x: crop.x,
+                    y: crop.y,
+                    width: crop.width,
+                    height: crop.height,
+                  };
+                  onChange(media.map((m) =>
+                    m.id === cropTarget.id
+                      ? { ...m, crop: mediaCrop }
+                      : m
+                  ));
+                  setCropTarget(null);
+                }}
+                className="px-4 py-1.5 bg-accent text-black text-xs font-semibold rounded-lg hover:bg-accent-light transition-colors"
+              >
+                Apply Crop
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

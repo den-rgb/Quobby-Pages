@@ -118,7 +118,7 @@ export default function Home() {
       </section>
 
       <section className="px-6 py-20" id="features">
-        <div className="max-w-[1100px] mx-auto">
+        <div className="max-w-[700px] mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold text-foreground tracking-tight mb-3">
               Everything you need to teach &amp; learn
@@ -128,25 +128,38 @@ export default function Home() {
               tutorials.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="space-y-3">
             {features.map((f) => (
-              <div
+              <details
                 key={f.title}
-                className="p-8 bg-card border border-border rounded-2xl transition-all hover:bg-card-hover hover:border-accent/10 hover:-translate-y-1"
+                className="group bg-card border border-border rounded-2xl transition-all hover:bg-card-hover hover:border-accent/10 overflow-hidden"
               >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                  style={{ background: f.color }}
-                >
-                  <f.icon className="w-6 h-6 text-foreground" />
+                <summary className="flex items-center gap-4 px-6 py-5 list-none [&::-webkit-details-marker]:hidden">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: f.color }}
+                  >
+                    <f.icon className="w-5 h-5 text-foreground" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground flex-1">
+                    {f.title}
+                  </h3>
+                  <svg
+                    className="w-5 h-5 text-foreground-faint transition-transform duration-200 group-open:rotate-180 shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="px-6 pb-5 pt-0 ml-14">
+                  <p className="text-sm text-foreground-muted leading-relaxed">
+                    {f.description}
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  {f.title}
-                </h3>
-                <p className="text-sm text-foreground-muted leading-relaxed">
-                  {f.description}
-                </p>
-              </div>
+              </details>
             ))}
           </div>
         </div>

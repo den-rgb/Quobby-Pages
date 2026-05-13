@@ -51,6 +51,7 @@ interface QuobbyProfile {
 
 interface TutorialWithGame extends Tutorial {
   games?: { title: string; bgg_image_url: string | null } | null;
+  categories?: { name: string; slug: string; icon: string | null } | null;
 }
 
 function xpCostForLevel(level: number): number {
@@ -199,6 +200,8 @@ export default function ProfilePage() {
   const [loadingTutorials, setLoadingTutorials] = useState(true);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [tutorialSort, setTutorialSort] = useState<'recent' | 'name' | 'plays' | 'rating'>('recent');
   const [showUpsell, setShowUpsell] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [removalNotice, setRemovalNotice] = useState<{ id: string; tutorial_title: string; reason: string; created_at: string } | null>(null);
@@ -234,7 +237,7 @@ export default function ProfilePage() {
 
     const { data: tutData, error: tutErr } = await supabase
       .from('tutorials')
-      .select('*, games(title, bgg_image_url)')
+      .select('*, games(title, bgg_image_url), categories(name, slug, icon)')
       .eq('creator_id', userId)
       .order('updated_at', { ascending: false });
     if (tutErr) console.error('Tutorials fetch failed:', tutErr.message);
@@ -410,8 +413,26 @@ export default function ProfilePage() {
   const xpAtLevelStart = cumulativeXpToEnterLevel(level);
   const xpNeeded = xpCostForLevel(level) - (totalXp - xpAtLevelStart);
 
-  const published = tutorials.filter((t) => t.status === 'published');
-  const drafts = tutorials.filter((t) => t.status === 'draft');
+  const uniqueCategories = tutorials.reduce<{ name: string; slug: string }[]>((acc, t) => {
+    if (t.categories?.name && !acc.some((c) => c.slug === t.categories!.slug)) {
+      acc.push({ name: t.categories.name, slug: t.categories.slug });
+    }
+    return acc;
+  }, []);
+
+  const filtered = categoryFilter
+    ? tutorials.filter((t) => t.categories?.slug === categoryFilter)
+    : tutorials;
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (tutorialSort === 'name') return a.title.localeCompare(b.title);
+    if (tutorialSort === 'plays') return b.play_count - a.play_count;
+    if (tutorialSort === 'rating') return b.rating_avg - a.rating_avg;
+    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+  });
+
+  const published = sorted.filter((t) => t.status === 'published');
+  const drafts = sorted.filter((t) => t.status === 'draft');
 
   return (
     <div className="px-6 py-12">
@@ -703,14 +724,46 @@ export default function ProfilePage() {
                 </span>
               )}
             </h2>
-            <Link
-              href="/create"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/15 text-accent text-xs font-medium rounded-lg hover:bg-accent/25 transition-colors"
-            >
-              <Plus className="w-3 h-3" />
-              New Tutorial
-            </Link>
+            <div className="flex items-center gap-2">
+              <select
+                value={tutorialSort}
+                onChange={(e) => setTutorialSort(e.target.value as typeof tutorialSort)}
+                className="bg-white/[0.05] border border-white/[0.08] rounded-lg px-2 py-1 text-[10px] text-foreground-muted focus:outline-none focus:border-accent/30"
+              >
+                <option value="recent">Recent</option>
+                <option value="name">Name</option>
+                <option value="plays">Plays</option>
+                <option value="rating">Rating</option>
+              </select>
+              <Link
+                href="/create"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/15 text-accent text-xs font-medium rounded-lg hover:bg-accent/25 transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+                New Tutorial
+              </Link>
+            </div>
           </div>
+
+          {uniqueCategories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3 px-1">
+              <button
+                onClick={() => setCategoryFilter(null)}
+                className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors ${!categoryFilter ? 'bg-accent/15 text-accent border-accent/30' : 'bg-white/[0.03] text-foreground-faint border-white/[0.08] hover:border-white/[0.15]'}`}
+              >
+                All
+              </button>
+              {uniqueCategories.map((cat) => (
+                <button
+                  key={cat.slug}
+                  onClick={() => setCategoryFilter(categoryFilter === cat.slug ? null : cat.slug)}
+                  className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors ${categoryFilter === cat.slug ? 'bg-accent/15 text-accent border-accent/30' : 'bg-white/[0.03] text-foreground-faint border-white/[0.08] hover:border-white/[0.15]'}`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           {loadingTutorials ? (
             <div className="flex items-center justify-center py-12">
