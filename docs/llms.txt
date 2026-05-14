@@ -1,0 +1,54 @@
+# Quobby — Smart Flashcards & Study Tools
+
+> Quobby is a free mobile study companion app available on iOS, featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, group study sessions, and gamification.
+
+## What is Quobby?
+
+Quobby (https://www.quobby.com) is an all-in-one study app designed to make learning fun and effective. It combines multiple study tools into a single app with gamification, social features, and accessibility support.
+
+## Key Features
+
+- **Flashcards & Spaced Repetition**: Create flashcards with text, images, voice recordings, and example sentences. Study with flip cards, multiple-choice quizzes, or typing practice. Spaced repetition algorithm optimises review intervals.
+- **Language Learning**: AI-powered vocabulary generation in 21+ languages with auto-translate and text-to-speech.
+- **Document Scanner**: Scan textbooks and worksheets with word-level OCR precision. Auto-generate flashcards from scanned text using AI.
+- **Handwritten Notes**: Create notes with pen, pencil, marker, and highlighter tools. Use templates, shapes, rulers, and themed backgrounds. Export as image or PDF.
+- **Habit Tracker**: Build study habits with daily tracking, streaks, and calendar views.
+- **Focus Timer**: Pomodoro and Full Block mode with app blocking. Track on Lock Screen and Dynamic Island via Live Activity (iOS).
+- **Group Study**: Challenge friends in real-time sessions with a 6-digit code. Private Sessions and Classroom Quizzes with live leaderboards and Teacher Mode.
+- **Mind Maps**: Visualise and organise knowledge with interactive mind maps.
+- **Gamification**: XP, levels, 25 achievements, global leaderboards, daily challenges, and daily prize boxes with themes, avatars, frames, and boosts.
+- **Import**: Import from Anki, Quizlet, or CSV/JSON files.
+- **Community Decks**: Browse, download, rate, and share flashcard decks with learners worldwide.
+- **Dyslexia Support**: Dyslexia fonts, bionic reading, reading tints, syllable hints, reading ruler, and calm study mode.
+- **Available in 7 Languages**: English, Chinese, French, German, Spanish, Polish, and Ukrainian.
+
+## Who Should Use Quobby?
+
+- Students preparing for exams
+- Language learners building vocabulary
+- Teachers creating classroom quizzes
+- Anyone building study habits
+- Learners who benefit from accessibility features (dyslexia support, reading aids)
+
+## Also by Quobby: Qurator
+
+Qurator (https://qurator.quobby.com) is a free, community-driven platform for creating and following interactive, step-by-step tutorials on any topic — board games, cooking, DIY, software, music, sports, and science. Anyone can create tutorials using a visual drag-and-drop flow editor with branching logic, quizzes, video support, and embeddable players.
+
+- Browse tutorials: https://qurator.quobby.com/tutorials
+- Create a tutorial: https://qurator.quobby.com/create
+
+## Platforms
+
+- iOS: https://apps.apple.com/ie/app/quobby/id6758044478
+
+- Website: https://www.quobby.com
+- Qurator: https://qurator.quobby.com
+
+## Pricing
+
+Free to download and use. Premium subscription unlocks cloud sync, unlimited decks, AI generation, document scanning, and more.
+
+## Contact
+
+Email: helpmequobby@gmail.com
+Instagram: https://www.instagram.com/quobby.official/

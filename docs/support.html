@@ -9,6 +9,24 @@
     content="Quobby Support. Get help, find answers to frequently asked questions, or contact our team.">
   <meta name="theme-color" content="#0a0a14">
 
+  <!-- Open Graph -->
+  <meta property="og:title" content="Support - Quobby">
+  <meta property="og:description"
+    content="Get help with Quobby. Find answers to frequently asked questions about flashcards, spaced repetition, premium features, and more.">
+  <meta property="og:image" content="https://www.quobby.com/assets/app-icon.png">
+  <meta property="og:url" content="https://www.quobby.com/support.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Quobby">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Support - Quobby">
+  <meta name="twitter:description"
+    content="Get help with Quobby. Find answers to frequently asked questions about flashcards, spaced repetition, premium features, and more.">
+  <meta name="twitter:image" content="https://www.quobby.com/assets/app-icon.png">
+
+  <link rel="canonical" href="https://www.quobby.com/support.html">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,6 +34,80 @@
   <link rel="icon" type="image/png" href="assets/app-icon.png">
   <link rel="apple-touch-icon" href="assets/app-icon.png">
   <link rel="stylesheet" href="assets/style.css">
+
+  <!-- Structured Data: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I create flashcards?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tap the + button on the Flashcards tab, create a deck first, then add cards to your deck. You can customise colours, fonts, and add example sentences."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the Daily Prize Box?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open a free prize box every 24 hours from the sidebar. You can win Study Points, XP boosts, shop unlocks (themes, avatars, frames), and feature boosts like scan pages or streak shields."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I change the app language?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Quobby is available in 7 languages: English, Chinese, French, German, Spanish, Polish, and Ukrainian. Go to Profile → App Language to switch."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is Premium?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Premium unlocks cloud sync across devices, unlimited decks and cards, auto vocabulary generation, community deck publishing, document scanning, auto document-to-flashcards, auto mind map generation, profile customisation, and streak protection."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does spaced repetition work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Quobby uses a smart algorithm that shows you cards at optimal intervals. Cards you know well appear less frequently, while difficult cards appear more often to maximise learning efficiency."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I share my decks?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Premium users can publish decks to the community. Go to a deck, tap the share icon, and choose 'Publish to Community'. Others can then download and learn from your deck."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my data backed up?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Premium users get automatic cloud sync. Your flashcards, habits, and progress are securely stored and synced across all your devices. Free users' data is stored locally on their device."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does data sync between iOS and Android?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Premium users can sync flashcard decks, habits, scanned documents, and note metadata between iOS and Android. However, handwritten note drawings use platform-specific rendering engines, so drawn content created on one platform will not appear on the other."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
@@ -128,8 +220,7 @@
         </button>
         <div class="faq-answer">
           <p>Open a free prize box every 24 hours from the sidebar. You can win Study Points, XP boosts, shop unlocks
-            (themes, avatars, frames), and feature boosts like scan pages or streak shields. Free users can also watch
-            an optional ad once per day for an extra prize box.</p>
+            (themes, avatars, frames), and feature boosts like scan pages or streak shields.</p>
         </div>
       </div>
 
@@ -171,9 +262,11 @@
           </svg>
         </button>
         <div class="faq-answer">
-          <p>Premium unlocks cloud sync across devices, note templates, unlimited decks and cards, AI vocabulary
-            generation, community deck downloads, document scanning, smart focus blocker, and removes all
-            advertisements.</p>
+          <p>Premium unlocks cloud sync across devices, note templates, unlimited decks and cards, auto
+            vocabulary and sentence generation, community deck publishing, document scanning, auto
+            document-to-flashcards,
+            auto mind map generation, profile customisation, and streak
+            protection.</p>
         </div>
       </div>
 

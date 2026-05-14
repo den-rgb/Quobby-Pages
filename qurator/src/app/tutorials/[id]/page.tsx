@@ -9,6 +9,7 @@ import {
   type BranchOption,
   type TextPart,
   type VariableState,
+  countForwardSteps,
   findFirstContentStep,
   getNextContentStepId,
   initVariableState,
@@ -16,7 +17,7 @@ import {
   parseMarkdownLite,
   resolveBranches,
 } from '@/lib/tutorial-navigation';
-import type { InteractiveElement, TutorialConnection, TutorialStep, TutorialVariable } from '@/lib/types';
+import { type InteractiveElement, type TutorialConnection, type TutorialStep, type TutorialVariable, buildEmbedUrl } from '@/lib/types';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -128,6 +129,8 @@ function SafeMarkdown({ parts }: { parts: TextPart[] }) {
             return <strong key={i} className="text-foreground font-semibold">{p.value}</strong>;
           case 'italic':
             return <em key={i}>{p.value}</em>;
+          case 'color':
+            return <span key={i} className="[&_strong]:text-inherit" style={{ color: p.color }}><SafeMarkdown parts={p.children} /></span>;
           case 'br':
             return <br key={i} />;
           default:
@@ -164,7 +167,7 @@ function BranchUI({
               <span className="w-6 h-6 rounded-full bg-green/10 border border-green/30 flex items-center justify-center text-[10px] font-bold text-green shrink-0">
                 {i + 1}
               </span>
-              {branch.label}
+              <span><SafeMarkdown parts={parseMarkdownLite(branch.label)} /></span>
             </span>
           </button>
         ))}
@@ -582,6 +585,17 @@ export default function TutorialPlayerPage() {
   const isTerminal = !hasBranching && !nextStepId;
   const isLastStep = isTerminal && canAdvance;
 
+  const forwardSteps = useMemo(
+    () => currentFullStep ? countForwardSteps(currentFullStep, allSteps, connections, varState) : 0,
+    [currentFullStep, allSteps, connections, varState]
+  );
+
+  const uniqueVisited = useMemo(() => {
+    const ids = new Set(history);
+    if (startStep?.id) ids.add(startStep.id);
+    return ids;
+  }, [history, startStep]);
+
   const navigateTo = useCallback((targetId: string, setsVariable?: { name: string; value: string | number | boolean }) => {
     if (setsVariable) {
       setVarState((prev) => ({ ...prev, [setsVariable.name]: setsVariable.value }));
@@ -648,6 +662,24 @@ export default function TutorialPlayerPage() {
       setVariables([]);
       setVarState({});
       setLoading(false);
+
+      const supabaseForProfile = createClient();
+      supabaseForProfile
+        .from('profiles')
+        .select('display_name, avatar_emoji, avatar_background_color_hex')
+        .eq('id', demoData.tutorial.creator_id)
+        .single()
+        .then(({ data }) => {
+          if (data) setCreatorProfile(data);
+        });
+      supabaseForProfile
+        .from('friendships')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', demoData.tutorial.creator_id)
+        .then(({ count }) => {
+          setFollowerCount(count ?? 0);
+        });
+
       return;
     }
 
@@ -839,7 +871,9 @@ export default function TutorialPlayerPage() {
 
   const game = tutorialData.game;
   const visitedCount = history.length + 1;
-  const progress = (visitedCount / contentSteps.length) * 100;
+  const dynamicTotal = visitedCount + forwardSteps;
+  const progress = (visitedCount / dynamicTotal) * 100;
+  const unvisitedCount = contentSteps.length - uniqueVisited.size;
 
   const bodyParts = step?.body
     ? parseMarkdownLite(interpolateVariables(step.body, varState))
@@ -873,8 +907,11 @@ export default function TutorialPlayerPage() {
             </div>
           </div>
           <span className="text-xs text-foreground-faint font-medium tabular-nums">
-            {visitedCount}/{contentSteps.length}
+            {visitedCount}/{dynamicTotal}
           </span>
+          {isLastStep && unvisitedCount > 0 && (
+            <span className="text-[10px] text-foreground-faint/60 whitespace-nowrap">+{unvisitedCount} more</span>
+          )}
           <div className="relative">
             <button
               onClick={() => setShowShareMenu((v) => !v)}
@@ -1007,7 +1044,15 @@ export default function TutorialPlayerPage() {
           {step?.media && step.media.length > 0 && (
             <div className="space-y-4 mb-6">
               {step.media.map((m) =>
-                m.type === 'video' ? (
+                m.video_url ? (
+                  <iframe
+                    key={m.id}
+                    src={buildEmbedUrl(m.url, m.video_start, m.video_end)}
+                    className="w-full rounded-xl aspect-video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : m.type === 'video' ? (
                   <video
                     key={m.id}
                     src={m.url}

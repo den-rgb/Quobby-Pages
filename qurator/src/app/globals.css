@@ -18,6 +18,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground-secondary);
@@ -68,6 +73,12 @@ button:disabled {
 
 .react-flow__controls button:hover {
   background: var(--color-card-hover) !important;
+}
+
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-foreground-faint);
+  pointer-events: none;
 }
 
 @keyframes float {

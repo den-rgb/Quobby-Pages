@@ -13,7 +13,7 @@ import {
   parseMarkdownLite,
   resolveBranches,
 } from '@/lib/tutorial-navigation';
-import type { InteractiveElement } from '@/lib/types';
+import { type InteractiveElement, buildEmbedUrl } from '@/lib/types';
 import {
   ArrowLeft,
   ArrowRight,
@@ -36,6 +36,8 @@ function SafeMarkdown({ parts }: { parts: TextPart[] }) {
             return <strong key={i} className="text-foreground font-semibold">{p.value}</strong>;
           case 'italic':
             return <em key={i}>{p.value}</em>;
+          case 'color':
+            return <span key={i} className="[&_strong]:text-inherit" style={{ color: p.color }}><SafeMarkdown parts={p.children} /></span>;
           case 'br':
             return <br key={i} />;
           default:
@@ -138,7 +140,7 @@ function BranchPreview({
               <span className="w-5 h-5 rounded-full bg-green/10 border border-green/30 flex items-center justify-center text-[9px] font-bold text-green shrink-0">
                 {i + 1}
               </span>
-              {branch.label}
+              <span><SafeMarkdown parts={parseMarkdownLite(branch.label)} /></span>
             </span>
           </button>
         ))}
@@ -221,6 +223,12 @@ export function TutorialPreview() {
     setVarState(initVariableState(variables));
   }, [variables]);
 
+  const nextStepTitle = useMemo(() => {
+    if (!nextStepId) return null;
+    const ns = steps.find((s) => s.id === nextStepId);
+    return ns?.content_json?.heading || null;
+  }, [nextStepId, steps]);
+
   const handleNext = useCallback(() => {
     if (nextStepId) navigateTo(nextStepId);
   }, [nextStepId, navigateTo]);
@@ -293,7 +301,15 @@ export function TutorialPreview() {
             {content?.media && content.media.length > 0 && (
               <div className="space-y-2 mb-3">
                 {content.media.map((m) =>
-                  m.type === 'video' ? (
+                  m.video_url ? (
+                    <iframe
+                      key={m.id}
+                      src={buildEmbedUrl(m.url, m.video_start, m.video_end)}
+                      className="w-full rounded-xl aspect-video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : m.type === 'video' ? (
                     <video
                       key={m.id}
                       src={m.url}
@@ -388,7 +404,14 @@ export function TutorialPreview() {
                 disabled={!canAdvance}
                 className="flex items-center gap-1 px-3 py-1 bg-accent text-black text-[11px] font-semibold rounded-lg hover:bg-accent-light disabled:opacity-40 transition-colors"
               >
-                Next
+                <span className="flex flex-col items-end">
+                  <span>Next</span>
+                  {nextStepTitle && (
+                    <span className="text-[9px] font-normal opacity-70 max-w-[120px] truncate">
+                      {nextStepTitle}
+                    </span>
+                  )}
+                </span>
                 <ArrowRight className="w-3 h-3" />
               </button>
             ) : null}

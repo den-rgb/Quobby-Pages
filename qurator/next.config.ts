@@ -18,7 +18,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https:",
       "font-src 'self'",
       "connect-src 'self' https://*.supabase.co https://api.stripe.com https://boardgamegeek.com https://query.wikidata.org https://commons.wikimedia.org https://en.wikipedia.org https://www.bing.com",
-      "frame-src https://js.stripe.com",
+      "frame-src https://js.stripe.com https://www.youtube.com https://youtube.com https://player.vimeo.com https://www.dailymotion.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

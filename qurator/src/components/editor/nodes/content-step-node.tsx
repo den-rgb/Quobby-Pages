@@ -1,5 +1,6 @@
 'use client';
 
+import { stripMarkdown } from '@/lib/tutorial-navigation';
 import type { TutorialStep } from '@/lib/types';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { FileText, HelpCircle, Trash2 } from 'lucide-react';
@@ -17,8 +18,8 @@ export function ContentStepNode({ data }: NodeProps) {
   return (
     <div
       className={`min-w-[220px] max-w-[280px] rounded-xl border-2 transition-all ${isSelected
-          ? 'border-accent shadow-[0_0_20px_rgba(161,48,107,0.3)]'
-          : 'border-border hover:border-accent/30'
+        ? 'border-accent shadow-[0_0_20px_rgba(161,48,107,0.3)]'
+        : 'border-border hover:border-accent/30'
         } bg-background-secondary`}
     >
       <Handle
@@ -51,7 +52,7 @@ export function ContentStepNode({ data }: NodeProps) {
         </h4>
         {content?.body && (
           <p className="text-xs text-foreground-muted line-clamp-2">
-            {content.body}
+            {stripMarkdown(content.body)}
           </p>
         )}
         {content?.interactive && (

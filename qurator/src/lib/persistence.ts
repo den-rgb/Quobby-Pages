@@ -2,6 +2,7 @@ import { useEditorStore } from './store';
 import { createClient } from './supabase/client';
 import type {
   Category,
+  ContentStepPayload,
   Game,
   Tutorial,
   TutorialConnection,
@@ -9,6 +10,38 @@ import type {
   TutorialStep,
   TutorialVariable,
 } from './types';
+
+function estimateReadTime(steps: TutorialStep[]): number {
+  const WORDS_PER_MIN = 200;
+  const SECS_PER_IMAGE = 10;
+  const SECS_PER_VIDEO = 30;
+  const SECS_PER_INTERACTIVE = 15;
+  const SECS_PER_CODE_BLOCK = 20;
+  const SECS_PER_BOARD = 15;
+
+  let totalSeconds = 0;
+
+  for (const step of steps) {
+    if (step.step_type !== 'content' || !step.content_json) continue;
+    const c = step.content_json as ContentStepPayload;
+
+    const text = [c.heading, c.body, c.tip].filter(Boolean).join(' ');
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    totalSeconds += (wordCount / WORDS_PER_MIN) * 60;
+
+    if (c.image_url) totalSeconds += SECS_PER_IMAGE;
+    if (c.media) {
+      for (const m of c.media) {
+        totalSeconds += m.video_url ? SECS_PER_VIDEO : SECS_PER_IMAGE;
+      }
+    }
+    if (c.interactive) totalSeconds += SECS_PER_INTERACTIVE;
+    if (c.code_block) totalSeconds += SECS_PER_CODE_BLOCK;
+    if (c.board_view) totalSeconds += SECS_PER_BOARD;
+  }
+
+  return Math.max(1, Math.round(totalSeconds / 60));
+}
 
 export async function saveTutorial(userId: string): Promise<{ error?: string }> {
   const supabase = createClient();
@@ -71,7 +104,7 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
       creator_id: userId,
       title: tutorial.title,
       description: tutorial.description,
-      estimated_minutes: tutorial.estimated_minutes,
+      estimated_minutes: estimateReadTime(steps),
       status: tutorial.status,
       version: tutorial.version,
       forked_from: tutorial.forked_from,

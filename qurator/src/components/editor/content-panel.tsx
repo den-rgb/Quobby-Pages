@@ -13,6 +13,7 @@ import type {
   MediaCrop,
 } from '@/lib/types';
 import {
+  Bold,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -25,10 +26,13 @@ import {
   Grid3X3,
   HelpCircle,
   Image as ImageIcon,
+  Italic,
   Lightbulb,
+  Link2,
   Package,
   Pencil,
   Plus,
+  Scissors,
   Trash2,
   Upload,
   X,
@@ -48,6 +52,14 @@ const VideoProcessDialog = dynamic(
   { ssr: false },
 );
 
+const LinkSplitDialog = dynamic(
+  () =>
+    import('./link-split-dialog').then((m) => ({
+      default: m.LinkSplitDialog,
+    })),
+  { ssr: false },
+);
+
 export function ContentPanel() {
   const {
     steps,
@@ -57,12 +69,6 @@ export function ContentPanel() {
     updateStepContent,
     updateStepLogic,
   } = useEditorStore();
-
-  useEffect(() => {
-    if (!selectedStepId && steps.length > 0) {
-      selectStep(steps[0].id);
-    }
-  }, [selectedStepId, steps, selectStep]);
 
   const selectedStep = steps.find((s) => s.id === selectedStepId);
   const stepIndex = steps.findIndex((s) => s.id === selectedStepId);
@@ -169,6 +175,242 @@ export function ContentPanel() {
   );
 }
 
+const BODY_COLORS = [
+  { hex: '#FF5733', label: 'Red' },
+  { hex: '#FF9500', label: 'Orange' },
+  { hex: '#FFDC00', label: 'Yellow' },
+  { hex: '#2ECC40', label: 'Green' },
+  { hex: '#0074D9', label: 'Blue' },
+  { hex: '#B10DC9', label: 'Purple' },
+  { hex: '#FF69B4', label: 'Pink' },
+  { hex: '#FFFFFF', label: 'White' },
+];
+
+function markdownToHtml(text: string): string {
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const colorRe = /\{c:(#[0-9a-fA-F]{3,8})\}((?:(?!\{c:)[\s\S])*?)\{\/c\}/g;
+  let prev;
+  do {
+    prev = html;
+    html = html.replace(colorRe, '<span data-color="$1" style="color:$1">$2</span>');
+  } while (html !== prev);
+  html = html.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*([\s\S]+?)\*/g, '<em>$1</em>');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+const colorSplitRe = /(\{c:#[0-9a-fA-F]{3,8}\}(?:(?!\{c:)[\s\S])*?\{\/c\})/;
+const colorWrapRe = /\{c:(#[0-9a-fA-F]{3,8})\}((?:(?!\{c:)[\s\S])*?)\{\/c\}/;
+
+function wrapInline(text: string, marker: string): string {
+  if (!text.includes('{c:')) {
+    return text.split('\n').map((l) => l ? `${marker}${l}${marker}` : '').join('\n');
+  }
+  return text.split(colorSplitRe).map((seg) => {
+    const cm = seg.match(colorWrapRe);
+    if (cm) {
+      const bold = cm[2].split('\n').map((l: string) => l ? `${marker}${l}${marker}` : '').join('\n');
+      return `{c:${cm[1]}}${bold}{/c}`;
+    }
+    if (!seg) return '';
+    return seg.split('\n').map((l) => l ? `${marker}${l}${marker}` : '').join('\n');
+  }).join('');
+}
+
+function htmlToMarkdown(html: string): string {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+
+  function walk(node: Node): string {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.textContent ?? '';
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return '';
+    const el = node as HTMLElement;
+    const tag = el.tagName.toLowerCase();
+    const children = Array.from(el.childNodes).map(walk).join('');
+
+    if (tag === 'strong' || tag === 'b') {
+      if (!children) return '';
+      return wrapInline(children, '**');
+    }
+    if (tag === 'em' || tag === 'i') {
+      if (!children) return '';
+      return wrapInline(children, '*');
+    }
+    if (tag === 'span' && el.dataset.color) return `{c:${el.dataset.color}}${children}{/c}`;
+    if (tag === 'br') {
+      let node: Node = el;
+      while (node.parentNode) {
+        if (node !== node.parentNode.lastChild) return '\n';
+        node = node.parentNode;
+      }
+      return '';
+    }
+    if (tag === 'div' || tag === 'p') {
+      const prev = el.previousSibling;
+      const prefix = prev ? '\n' : '';
+      return prefix + children;
+    }
+    return children;
+  }
+
+  return Array.from(div.childNodes).map(walk).join('');
+}
+
+function BodyEditor({
+  bodyRef,
+  lastBodyRef,
+  value,
+  onChange,
+  label = 'Body',
+  placeholder = 'Step content...',
+  hint = 'Select text, then use the toolbar for bold, italic, or colour.',
+  compact = false,
+}: {
+  bodyRef: React.RefObject<HTMLDivElement | null>;
+  lastBodyRef: React.MutableRefObject<string>;
+  value: string;
+  onChange: (v: string) => void;
+  label?: string;
+  placeholder?: string;
+  hint?: string;
+  compact?: boolean;
+}) {
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    if (lastBodyRef.current !== value) {
+      lastBodyRef.current = value;
+      el.innerHTML = markdownToHtml(value);
+    }
+  }, [value, bodyRef, lastBodyRef]);
+
+  const handleInput = useCallback(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    const md = htmlToMarkdown(el.innerHTML);
+    lastBodyRef.current = md;
+    onChange(md);
+  }, [bodyRef, lastBodyRef, onChange]);
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
+  }, []);
+
+  const applyBold = useCallback(() => {
+    bodyRef.current?.focus();
+    document.execCommand('bold');
+    handleInput();
+  }, [bodyRef, handleInput]);
+
+  const applyItalic = useCallback(() => {
+    bodyRef.current?.focus();
+    document.execCommand('italic');
+    handleInput();
+  }, [bodyRef, handleInput]);
+
+  const applyColor = useCallback((hex: string) => {
+    const el = bodyRef.current;
+    if (!el) return;
+    el.focus();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    const fragment = range.extractContents();
+    fragment.querySelectorAll('span[data-color]').forEach((inner) => {
+      const parent = inner.parentNode;
+      if (!parent) return;
+      while (inner.firstChild) parent.insertBefore(inner.firstChild, inner);
+      parent.removeChild(inner);
+    });
+    const span = document.createElement('span');
+    span.dataset.color = hex;
+    span.style.color = hex;
+    span.appendChild(fragment);
+    range.insertNode(span);
+    sel.collapseToEnd();
+    handleInput();
+  }, [bodyRef, handleInput]);
+
+  const clearColors = useCallback(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    el.querySelectorAll('span[data-color]').forEach((span) => {
+      const parent = span.parentNode;
+      if (!parent) return;
+      while (span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+    });
+    handleInput();
+  }, [bodyRef, handleInput]);
+
+  return (
+    <div>
+      <label className="block text-xs font-medium text-foreground-muted mb-1">
+        {label}
+      </label>
+      <div className="flex items-center gap-1 mb-1.5">
+        <button
+          type="button"
+          title="Bold"
+          onClick={applyBold}
+          className="w-6 h-6 flex items-center justify-center rounded border border-border text-foreground-muted hover:text-foreground hover:border-accent/30 transition-colors"
+        >
+          <Bold className="w-3.5 h-3.5" />
+        </button>
+        <button
+          type="button"
+          title="Italic"
+          onClick={applyItalic}
+          className="w-6 h-6 flex items-center justify-center rounded border border-border text-foreground-muted hover:text-foreground hover:border-accent/30 transition-colors"
+        >
+          <Italic className="w-3.5 h-3.5" />
+        </button>
+        <span className="w-px h-4 bg-border mx-0.5" />
+        {BODY_COLORS.map((c) => (
+          <button
+            key={c.hex}
+            type="button"
+            title={c.label}
+            onClick={() => applyColor(c.hex)}
+            className="w-5 h-5 rounded-full border border-white/20 hover:scale-125 transition-transform"
+            style={{ background: c.hex }}
+          />
+        ))}
+        <button
+          type="button"
+          title="Remove colour"
+          onClick={clearColors}
+          className="ml-1 px-1.5 py-0.5 text-[9px] text-foreground-faint hover:text-foreground border border-border rounded transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+      <div
+        ref={bodyRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onPaste={handlePaste}
+        className={`w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/30 transition-colors leading-relaxed whitespace-pre-wrap break-words overflow-y-auto ${compact ? 'min-h-[2.5rem]' : 'min-h-[9rem]'}`}
+        data-placeholder={placeholder}
+      />
+      {hint && (
+        <p className="text-[10px] text-foreground-faint mt-0.5">
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function ContentEditor({
   step,
   updateStepContent,
@@ -179,6 +421,8 @@ function ContentEditor({
   const category = useEditorStore((s) => s.category);
   const isBoardGames = category?.slug === 'board-games';
   const content = step.content_json ?? { heading: '', body: '' };
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const lastBodyRef = useRef('');
 
   const updateField = (field: keyof ContentStepPayload, value: unknown) => {
     updateStepContent(step.id, { ...content, [field]: value });
@@ -232,21 +476,12 @@ function ContentEditor({
         />
       </div>
 
-      <div>
-        <label className="block text-xs font-medium text-foreground-muted mb-1">
-          Body
-        </label>
-        <textarea
-          value={content.body ?? ''}
-          onChange={(e) => updateField('body', e.target.value)}
-          rows={6}
-          className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm text-foreground placeholder:text-foreground-faint focus:outline-none focus:border-accent/30 transition-colors resize-y font-mono leading-relaxed"
-          placeholder="Step content... Use **bold** for emphasis."
-        />
-        <p className="text-[10px] text-foreground-faint mt-0.5">
-          Supports **bold** markdown.
-        </p>
-      </div>
+      <BodyEditor
+        bodyRef={bodyRef}
+        lastBodyRef={lastBodyRef}
+        value={content.body ?? ''}
+        onChange={(v) => updateField('body', v)}
+      />
 
       <div>
         <label className="flex items-center gap-1.5 text-xs font-medium text-foreground-muted mb-1">
@@ -491,6 +726,35 @@ const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 
+function parseVideoEmbed(url: string): { embedUrl: string; provider: string } | null {
+  try {
+    const u = new URL(url);
+    // YouTube
+    let ytId: string | null = null;
+    if (u.hostname === 'youtu.be') {
+      ytId = u.pathname.slice(1).split('/')[0];
+    } else if (u.hostname.includes('youtube.com')) {
+      ytId = u.searchParams.get('v');
+      if (!ytId) {
+        const pathMatch = u.pathname.match(/^\/(shorts|embed|live|v)\/([^/?]+)/);
+        if (pathMatch) ytId = pathMatch[2];
+      }
+    }
+    if (ytId) return { embedUrl: `https://www.youtube.com/embed/${ytId}`, provider: 'YouTube' };
+    // Vimeo
+    const vimeoMatch = u.hostname.includes('vimeo.com') && u.pathname.match(/\/(\d+)/);
+    if (vimeoMatch) return { embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`, provider: 'Vimeo' };
+    // Dailymotion
+    const dmMatch = u.hostname.includes('dailymotion.com') && u.pathname.match(/\/video\/(\w+)/);
+    if (dmMatch) return { embedUrl: `https://www.dailymotion.com/embed/video/${dmMatch[1]}`, provider: 'Dailymotion' };
+    // Direct video link (mp4/webm)
+    if (/\.(mp4|webm)(\?|$)/i.test(u.pathname)) return { embedUrl: url, provider: 'Direct' };
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function MediaUploadSection({
   media,
   onChange,
@@ -507,6 +771,9 @@ function MediaUploadSection({
   const [processFile, setProcessFile] = useState<File | null>(null);
   const [cropTarget, setCropTarget] = useState<MediaAttachment | null>(null);
   const [crop, setCrop] = useState<CropType>({ unit: '%', x: 10, y: 10, width: 80, height: 80 });
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkSplitTarget, setLinkSplitTarget] = useState<MediaAttachment | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const rawMax = videoRawMaxBytes(isPremium);
@@ -583,15 +850,21 @@ function MediaUploadSection({
         <div className="space-y-1.5 mb-3">
           {media.map((m) => (
             <div key={m.id} className="flex items-center gap-2 px-2.5 py-1.5 bg-white/[0.02] border border-border rounded-lg">
-              {m.type === 'video' ? (
+              {m.video_url ? (
+                <Link2 className="w-3.5 h-3.5 text-accent shrink-0" />
+              ) : m.type === 'video' ? (
                 <Film className="w-3.5 h-3.5 text-accent shrink-0" />
               ) : (
                 <ImageIcon className="w-3.5 h-3.5 text-accent shrink-0" />
               )}
               <span className="text-xs text-foreground truncate flex-1">{m.filename}</span>
-              <span className="text-[10px] text-foreground-faint shrink-0">
-                {(m.size_bytes / (1024 * 1024)).toFixed(1)} MB
-              </span>
+              {m.video_url ? (
+                <span className="text-[10px] text-foreground-faint shrink-0">Link</span>
+              ) : (
+                <span className="text-[10px] text-foreground-faint shrink-0">
+                  {(m.size_bytes / (1024 * 1024)).toFixed(1)} MB
+                </span>
+              )}
               {m.type === 'image' && (
                 <button
                   onClick={() => {
@@ -605,6 +878,15 @@ function MediaUploadSection({
                   title="Crop image"
                 >
                   <Crop className="w-3 h-3" />
+                </button>
+              )}
+              {m.video_url && isPremium && (
+                <button
+                  onClick={() => setLinkSplitTarget(m)}
+                  className="text-foreground-faint hover:text-accent transition-colors shrink-0"
+                  title="Split video by timestamps (premium)"
+                >
+                  <Scissors className="w-3 h-3" />
                 </button>
               )}
               <button onClick={() => removeMedia(m.id)} className="text-foreground-faint hover:text-red-400 transition-colors shrink-0">
@@ -649,8 +931,76 @@ function MediaUploadSection({
         )}
       </div>
 
-      {error && (
-        <p className="text-[10px] text-red-400 mt-1.5">{error}</p>
+      <div className="mt-2">
+        {!showLinkInput ? (
+          <button
+            onClick={() => setShowLinkInput(true)}
+            className="flex items-center gap-1.5 text-[10px] text-accent hover:text-accent-light transition-colors"
+          >
+            <Link2 className="w-3 h-3" />
+            Add video link (YouTube, Vimeo, etc.)
+          </button>
+        ) : (
+          <div className="space-y-2 p-3 bg-white/[0.02] border border-border rounded-xl">
+            <label className="block text-[10px] font-medium text-foreground-faint">
+              Video URL
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                className="flex-1 px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground placeholder:text-foreground-faint focus:outline-none focus:border-accent/30"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+              <button
+                onClick={() => {
+                  try {
+                    setError(null);
+                    const parsed = parseVideoEmbed(linkUrl.trim());
+                    if (!parsed) {
+                      setError('Unsupported video URL. Supported: YouTube, Vimeo, Dailymotion, or direct .mp4/.webm links.');
+                      return;
+                    }
+                    const attachment: MediaAttachment = {
+                      id: crypto.randomUUID(),
+                      url: parsed.embedUrl,
+                      type: 'video',
+                      filename: `${parsed.provider} video`,
+                      size_bytes: 0,
+                      ...(parsed.provider !== 'Direct' && { video_url: linkUrl.trim() }),
+                    };
+                    onChange([...media, attachment]);
+                    setLinkUrl('');
+                    setShowLinkInput(false);
+                  } catch (err) {
+                    setError((err as Error).message || 'Failed to add video link');
+                  }
+                }}
+                disabled={!linkUrl.trim()}
+                className="px-3 py-1.5 bg-accent text-black text-xs font-semibold rounded-lg hover:bg-accent-light transition-colors disabled:opacity-30"
+              >
+                Add
+              </button>
+            </div>
+            <p className="text-[10px] text-foreground-faint">
+              YouTube, Vimeo, Dailymotion, or direct .mp4/.webm links
+            </p>
+            {error && (
+              <p className="text-xs text-red-400">{error}</p>
+            )}
+            <button
+              onClick={() => { setShowLinkInput(false); setLinkUrl(''); setError(null); }}
+              className="text-[10px] text-foreground-faint hover:text-foreground transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+
+      {!showLinkInput && error && (
+        <p className="text-xs text-red-400 mt-1.5">{error}</p>
       )}
 
       {processFile && (
@@ -660,6 +1010,14 @@ function MediaUploadSection({
           isPremium={isPremium}
           onClose={() => setProcessFile(null)}
           onComplete={() => setProcessFile(null)}
+        />
+      )}
+
+      {linkSplitTarget && (
+        <LinkSplitDialog
+          media={linkSplitTarget}
+          currentStepId={stepId}
+          onClose={() => setLinkSplitTarget(null)}
         />
       )}
 
@@ -838,6 +1196,9 @@ function LogicEditor({
   variables: { id: string; name: string; variable_type: string }[];
   updateStepLogic: (id: string, logic: LogicStepPayload) => void;
 }) {
+  const promptRef = useRef<HTMLDivElement>(null);
+  const lastPromptRef = useRef('');
+
   const logic: LogicStepPayload = {
     prompt: '',
     conditions: [],
@@ -914,21 +1275,16 @@ function LogicEditor({
         </p>
       </div>
 
-      <div>
-        <label className="block text-xs font-medium text-foreground mb-1">
-          Prompt Title
-        </label>
-        <input
-          type="text"
-          value={logic.prompt ?? ''}
-          onChange={(e) => update({ prompt: e.target.value })}
-          className="w-full px-2.5 py-2 bg-card border border-border rounded-xl text-xs text-foreground placeholder:text-foreground-faint focus:outline-none focus:border-green/30 transition-colors"
-          placeholder="e.g. How many players?"
-        />
-        <p className="text-[10px] text-foreground-faint mt-1">
-          Shown to the player when they reach this decision point.
-        </p>
-      </div>
+      <BodyEditor
+        bodyRef={promptRef}
+        lastBodyRef={lastPromptRef}
+        value={logic.prompt ?? ''}
+        onChange={(v) => update({ prompt: v })}
+        label="Prompt Title"
+        placeholder="e.g. How many players?"
+        hint="Shown to the player when they reach this decision point."
+        compact
+      />
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">

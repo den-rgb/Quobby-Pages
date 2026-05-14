@@ -212,7 +212,7 @@ export function Navbar() {
           </Link>
 
           <button
-            className="md:hidden p-2"
+            className="lg:hidden p-2"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
@@ -225,7 +225,7 @@ export function Navbar() {
 
           <ul
             className={`${open ? 'flex' : 'hidden'
-              } md:flex items-center gap-2 list-none absolute md:static top-16 left-0 right-0 md:top-auto flex-col md:flex-row bg-background/98 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-b md:border-0 border-border p-4 md:p-0`}
+              } lg:flex items-center gap-2 list-none absolute lg:static top-16 left-0 right-0 lg:top-auto flex-col lg:flex-row bg-background/98 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none border-b lg:border-0 border-border p-4 lg:p-0`}
           >
             {links.map((link) => (
               <li key={link.href}>
@@ -266,7 +266,7 @@ export function Navbar() {
                 <Download className="w-3.5 h-3.5" />
                 Get Quobby
               </a>
-              <span className="hidden md:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-green/10 border border-green/15 rounded-lg text-[0.7rem] font-medium text-green whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <span className="hidden lg:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-green/10 border border-green/15 rounded-lg text-[0.7rem] font-medium text-green whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 Follow Qurator tutorials in the app!
               </span>
             </li>
@@ -291,7 +291,7 @@ export function Navbar() {
                 Start Creating
               </Link>
             </li>
-            <li className="md:ml-2">
+            <li className="lg:ml-2">
               <UserMenu />
             </li>
           </ul>

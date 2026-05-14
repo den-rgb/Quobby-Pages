@@ -18,7 +18,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { FileText, GitBranch, Plus } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ContentStepNode } from './nodes/content-step-node';
 import { LogicStepNode } from './nodes/logic-step-node';
 
@@ -48,11 +48,19 @@ function FlowEditorInner({
 
   const { screenToFlowPosition } = useReactFlow();
   const clipboardStepId = useRef<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
       if (!mod) return;
+
+      const el = document.activeElement;
+      const isTextInput =
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement ||
+        (el instanceof HTMLElement && el.isContentEditable);
+      if (isTextInput) return;
 
       if (e.key === 'c' && selectedStepId) {
         clipboardStepId.current = selectedStepId;
@@ -68,6 +76,17 @@ function FlowEditorInner({
     return () => window.removeEventListener('keydown', handler);
   }, [selectedStepId, duplicateStep, selectStep]);
 
+  const confirmAndDeleteStep = useCallback((stepId: string) => {
+    const step = steps.find((s) => s.id === stepId);
+    if (!step) return;
+    const hasContent =
+      step.step_type === 'content'
+        ? (!!step.content_json?.heading && step.content_json.heading !== 'New Step') || !!step.content_json?.body
+        : !!step.logic_json?.prompt || (step.logic_json?.conditions?.length ?? 0) > 0;
+    if (hasContent && !confirm('Delete this step? This cannot be undone.')) return;
+    removeStep(stepId);
+  }, [steps, removeStep]);
+
   const nodes: Node[] = useMemo(
     () =>
       steps.map((step) => ({
@@ -77,13 +96,13 @@ function FlowEditorInner({
         data: {
           step,
           isSelected: selectedStepId === step.id,
-          onDelete: () => removeStep(step.id),
+          onDelete: () => confirmAndDeleteStep(step.id),
         },
         selected: selectedStepId === step.id,
         draggable: true,
         connectable: true,
       })),
-    [steps, selectedStepId, removeStep]
+    [steps, selectedStepId, confirmAndDeleteStep]
   );
 
   const edges: Edge[] = useMemo(
@@ -93,16 +112,20 @@ function FlowEditorInner({
         source: conn.from_step_id,
         target: conn.to_step_id,
         animated: true,
+        selectable: true,
+        selected: selectedEdgeId === conn.id,
+        interactionWidth: 20,
         style: {
-          stroke: 'rgba(161, 48, 107, 0.6)',
-          strokeWidth: 2,
+          stroke: selectedEdgeId === conn.id ? 'rgba(255, 100, 150, 0.9)' : 'rgba(161, 48, 107, 0.6)',
+          strokeWidth: selectedEdgeId === conn.id ? 3 : 2,
         },
       })),
-    [connections]
+    [connections, selectedEdgeId]
   );
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
+      let newSelection: string | null | undefined;
       for (const change of changes) {
         if (change.type === 'position' && change.position && !change.dragging) {
           updateStep(change.id, {
@@ -110,20 +133,22 @@ function FlowEditorInner({
             position_y: change.position.y,
           });
         }
-        if (change.type === 'select' && change.selected) {
-          selectStep(change.id);
-        }
-        if (change.type === 'select' && !change.selected) {
-          if (selectedStepId === change.id) {
-            selectStep(null);
+        if (change.type === 'select') {
+          if (change.selected) {
+            newSelection = change.id;
+          } else if (selectedStepId === change.id && newSelection === undefined) {
+            newSelection = null;
           }
         }
         if (change.type === 'remove') {
-          removeStep(change.id);
+          confirmAndDeleteStep(change.id);
         }
       }
+      if (newSelection !== undefined) {
+        selectStep(newSelection);
+      }
     },
-    [updateStep, selectStep, removeStep, selectedStepId]
+    [updateStep, selectStep, confirmAndDeleteStep, selectedStepId]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
@@ -131,10 +156,14 @@ function FlowEditorInner({
       for (const change of changes) {
         if (change.type === 'remove') {
           removeConnection(change.id);
+          if (selectedEdgeId === change.id) setSelectedEdgeId(null);
+        }
+        if (change.type === 'select') {
+          setSelectedEdgeId(change.selected ? change.id : null);
         }
       }
     },
-    [removeConnection]
+    [removeConnection, selectedEdgeId]
   );
 
   const onConnect: OnConnect = useCallback(
@@ -148,6 +177,7 @@ function FlowEditorInner({
 
   const onPaneClick = useCallback(() => {
     selectStep(null);
+    setSelectedEdgeId(null);
   }, [selectStep]);
 
   const handleNodeDoubleClick = useCallback(
@@ -158,19 +188,25 @@ function FlowEditorInner({
     [selectStep, onNodeDoubleClick]
   );
 
+  const getNewNodePosition = useCallback(() => {
+    if (steps.length === 0) return { x: 250, y: 80 };
+    const lastStep = steps[steps.length - 1];
+    const x = Math.round((lastStep.position_x + 300) / 20) * 20;
+    const y = Math.round(lastStep.position_y / 20) * 20;
+    return { x, y };
+  }, [steps]);
+
   const handleAddContentStep = useCallback(() => {
-    const x = 250;
-    const y = 80 + steps.length * 180;
+    const { x, y } = getNewNodePosition();
     const step = addContentStep(x, y);
     selectStep(step.id);
-  }, [steps.length, addContentStep, selectStep]);
+  }, [getNewNodePosition, addContentStep, selectStep]);
 
   const handleAddLogicStep = useCallback(() => {
-    const x = 250;
-    const y = 80 + steps.length * 180;
+    const { x, y } = getNewNodePosition();
     const step = addLogicStep(x, y);
     selectStep(step.id);
-  }, [steps.length, addLogicStep, selectStep]);
+  }, [getNewNodePosition, addLogicStep, selectStep]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -208,9 +244,12 @@ function FlowEditorInner({
       onDrop={onDrop}
       nodeTypes={nodeTypes}
       fitView
+      deleteKeyCode={['Backspace', 'Delete']}
       proOptions={{ hideAttribution: true }}
       defaultEdgeOptions={{
         animated: true,
+        selectable: true,
+        interactionWidth: 20,
         style: { stroke: 'rgba(161, 48, 107, 0.6)', strokeWidth: 2 },
       }}
       connectionLineStyle={{

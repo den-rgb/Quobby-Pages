@@ -35,7 +35,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -44,7 +44,7 @@ body {
   color: var(--text-secondary);
   line-height: 1.7;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -211,6 +211,7 @@ img {
   padding: 160px 24px 100px;
   text-align: center;
   position: relative;
+  overflow: hidden;
 }
 
 .hero-inner {
@@ -318,7 +319,7 @@ img {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
+  width: min(600px, 100%);
   height: 400px;
   background: radial-gradient(ellipse, rgba(139, 0, 81, 0.08) 0%, transparent 70%);
   pointer-events: none;
@@ -352,6 +353,7 @@ img {
 /* ===== Features Section ===== */
 .features {
   padding: 80px 24px;
+  overflow: hidden;
 }
 
 .features-inner {
@@ -467,6 +469,7 @@ img {
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   white-space: nowrap;
+  max-width: 90vw;
   padding: 6px 14px;
   background: rgba(184, 255, 107, 0.1);
   border: 1px solid rgba(184, 255, 107, 0.15);
@@ -497,6 +500,7 @@ img {
 /* ===== CTA Section ===== */
 .cta-section {
   padding: 80px 24px;
+  overflow: hidden;
 }
 
 .cta-box {
@@ -983,6 +987,16 @@ img {
 
   .page-content {
     padding: 0 16px 60px;
+  }
+
+  .feature-item summary {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .feature-body {
+    padding: 0 16px 14px;
+    margin-left: 52px;
   }
 }
 

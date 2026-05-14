@@ -12,10 +12,21 @@
   <!-- Open Graph -->
   <meta property="og:title" content="Quobby - Smart Flashcards & Study Tools">
   <meta property="og:description"
-    content="The all-in-one study companion. Flashcards with spaced repetition, AI vocabulary generation, document scanning, handwritten notes, habit tracking, focus timer, group study sessions, and rewards — in 7 languages.">
+    content="The all-in-one study companion. Flashcards with spaced repetition, auto vocabulary generation, document scanning, handwritten notes, habit tracking, focus timer, group study sessions, and rewards — in 7 languages.">
   <meta property="og:image" content="https://www.quobby.com/assets/app-icon.png">
   <meta property="og:url" content="https://www.quobby.com">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Quobby">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Quobby - Smart Flashcards & Study Tools">
+  <meta name="twitter:description"
+    content="The all-in-one study companion. Flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, and group study sessions.">
+  <meta name="twitter:image" content="https://www.quobby.com/assets/app-icon.png">
+
+  <link rel="canonical" href="https://www.quobby.com/">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,6 +39,45 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="assets/style.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Quobby",
+    "url": "https://www.quobby.com",
+    "logo": "https://www.quobby.com/assets/app-icon.png",
+    "description": "Quobby is the all-in-one study companion that makes learning fun and effective.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "helpmequobby@gmail.com",
+      "contactType": "customer support"
+    },
+    "sameAs": [
+      "https://www.instagram.com/quobby.official/",
+      "https://apps.apple.com/ie/app/quobby/id6758044478"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    "name": "Quobby",
+    "operatingSystem": "iOS",
+    "applicationCategory": "EducationalApplication",
+    "description": "Smart flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, focus timer, group study sessions, and gamification. Available in 7 languages.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.quobby.com",
+    "image": "https://www.quobby.com/assets/app-icon.png",
+    "featureList": "Flashcards, Spaced Repetition, Document Scanner, Handwritten Notes, Habit Tracker, Focus Timer, Group Study, Mind Maps, Gamification, Dyslexia Support"
+  }
+  </script>
 </head>
 
 <body>
@@ -120,10 +170,11 @@
       <div class="features-list">
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(255, 149, 0, 0.12);"><span>&#x1F4DA;</span></div>
+            <div class="feature-icon" style="background: rgba(255, 149, 0, 0.12);">
+              <span>&#x1F4DA;</span>
+            </div>
             <h3>Flashcards &amp; Spaced Repetition</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -135,10 +186,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(139, 0, 81, 0.15);"><span>&#x1F30D;</span></div>
+            <div class="feature-icon" style="background: rgba(139, 0, 81, 0.15);">
+              <span>&#x1F30D;</span>
+            </div>
             <h3>Language Learning &amp; Auto-Translation</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -149,10 +201,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(184, 255, 107, 0.12);"><span>&#x1F916;</span></div>
+            <div class="feature-icon" style="background: rgba(184, 255, 107, 0.12);">
+              <span>&#x1F916;</span>
+            </div>
             <h3>Smart Vocabulary Generation</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -163,10 +216,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(255, 59, 48, 0.12);"><span>&#x1F30D;</span></div>
+            <div class="feature-icon" style="background: rgba(255, 59, 48, 0.12);">
+              <span>&#x1F30D;</span>
+            </div>
             <h3>Community Decks</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -177,24 +231,27 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(255, 149, 0, 0.12);"><span>&#x1F4F7;</span></div>
-            <h3>Document Scanner</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <div class="feature-icon" style="background: rgba(255, 149, 0, 0.12);">
+              <span>&#x1F4F7;</span>
+            </div>
+            <h3>Document Scanner &amp; AI Flashcards</h3>
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
           <div class="feature-body">
-            <p>Scan textbooks, worksheets, and lecture notes. Extract text with word-level precision for editing and
-              highlighting. See your edits overlaid directly on the original scanned pages.</p>
+            <p>Scan textbooks, worksheets, and lecture notes. Extract text with word-level precision, then auto-generate
+              flashcards from the scanned text using AI. See your edits overlaid directly on the original scanned pages.
+            </p>
           </div>
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(52, 199, 89, 0.12);"><span>&#x1F4DD;</span></div>
+            <div class="feature-icon" style="background: rgba(52, 199, 89, 0.12);">
+              <span>&#x1F4DD;</span>
+            </div>
             <h3>Handwritten Notes</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -205,10 +262,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(90, 200, 250, 0.12);"><span>&#x2705;</span></div>
+            <div class="feature-icon" style="background: rgba(90, 200, 250, 0.12);">
+              <span>&#x2705;</span>
+            </div>
             <h3>Habit Tracker</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -219,10 +277,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(255, 69, 58, 0.12);"><span>&#x1F6AB;</span></div>
+            <div class="feature-icon" style="background: rgba(255, 69, 58, 0.12);">
+              <span>&#x1F6AB;</span>
+            </div>
             <h3>Focus Timer</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -234,10 +293,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(255, 214, 10, 0.12);"><span>&#x1F3C6;</span></div>
+            <div class="feature-icon" style="background: rgba(255, 214, 10, 0.12);">
+              <span>&#x1F3C6;</span>
+            </div>
             <h3>Gamification &amp; Rewards</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -248,10 +308,11 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(88, 86, 214, 0.12);"><span>&#x1F465;</span></div>
+            <div class="feature-icon" style="background: rgba(88, 86, 214, 0.12);">
+              <span>&#x1F465;</span>
+            </div>
             <h3>Group Study</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -262,16 +323,78 @@
         </details>
         <details class="feature-item">
           <summary>
-            <div class="feature-icon" style="background: rgba(175, 82, 222, 0.12);"><span>&#x2601;&#xFE0F;</span></div>
-            <h3>Premium Features</h3>
-            <svg class="feature-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
+            <div class="feature-icon" style="background: rgba(156, 39, 176, 0.12);">
+              <span>&#x1F9E0;</span>
+            </div>
+            <h3>Mind Maps</h3>
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
           <div class="feature-body">
-            <p>Cloud sync across devices, unlimited decks and cards, unlimited vocabulary generation, document scanning,
-              community deck publishing, profile customisation, and ad-free experience.</p>
+            <p>Visualize and organize your knowledge with interactive mind maps. Create nodes, connect ideas, and boost
+              your memory with a visual learning experience.</p>
+          </div>
+        </details>
+        <details class="feature-item">
+          <summary>
+            <div class="feature-icon" style="background: rgba(33, 150, 243, 0.12);">
+              <span>&#x1F4E5;</span>
+            </div>
+            <h3>Import Flashcards</h3>
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="feature-body">
+            <p>Bring your study material from Anki, Quizlet, or any CSV/JSON file into Quobby instantly. No need to
+              start from scratch — import your existing decks in seconds.</p>
+          </div>
+        </details>
+        <details class="feature-item">
+          <summary>
+            <div class="feature-icon" style="background: rgba(0, 188, 212, 0.12);">
+              <span>&#x1F441;&#xFE0F;</span>
+            </div>
+            <h3>Dyslexia-Friendly Mode</h3>
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="feature-body">
+            <p>Full accessibility suite with dyslexia fonts, bionic reading, reading tints, syllable hints, reading
+              ruler, and calm study mode. Study comfortably with tools designed for every learner.</p>
+          </div>
+        </details>
+        <details class="feature-item">
+          <summary>
+            <div class="feature-icon" style="background: rgba(33, 150, 243, 0.15);">
+              <span>&#x1F310;</span>
+            </div>
+            <h3>Available in 7 Languages</h3>
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="feature-body">
+            <p>English, Chinese, French, German, Spanish, Polish, and Ukrainian. Full app interface translation with
+              1,300+ strings per language. All UI elements fully localised.</p>
+          </div>
+        </details>
+        <details class="feature-item">
+          <summary>
+            <div class="feature-icon" style="background: rgba(175, 82, 222, 0.12);">
+              <span>&#x2601;&#xFE0F;</span>
+            </div>
+            <h3>Premium Features</h3>
+            <svg class="feature-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="feature-body">
+            <p>Cloud sync across devices, unlimited decks and cards, auto vocabulary generation, auto mind map
+              generation, auto document-to-flashcards, community deck publishing, profile customisation, and streak
+              protection.</p>
           </div>
         </details>
       </div>

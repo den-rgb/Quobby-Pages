@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth';
-import { DEMO_CATEGORY_SLUGS, DEMO_TUTORIAL_LIST, DEMO_TUTORIALS } from '@/lib/demo-tutorials';
+import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST, DEMO_TUTORIALS } from '@/lib/demo-tutorials';
 import { createClient } from '@/lib/supabase/client';
 import type { Category, Tutorial } from '@/lib/types';
 import {
@@ -94,9 +94,19 @@ export default function TutorialsPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'highest_rated' | 'following'>('popular');
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+  const [demoCreatorProfile, setDemoCreatorProfile] = useState<{ display_name: string; avatar_emoji: string } | null>(null);
 
   useEffect(() => {
     fetch('/api/categories', { cache: 'no-store' }).then((r) => r.json()).then(setCategories).catch(() => { });
+    const supabase = createClient();
+    supabase
+      .from('profiles')
+      .select('display_name, avatar_emoji')
+      .eq('id', DEMO_CREATOR_ID)
+      .single()
+      .then(({ data }) => {
+        if (data) setDemoCreatorProfile(data);
+      });
   }, []);
 
   useEffect(() => {
@@ -440,8 +450,9 @@ export default function TutorialsPage() {
               const complexity = tw.games?.complexity ?? t.game?.complexity;
               const minPlayers = tw.games?.min_players ?? t.game?.min_players;
               const maxPlayers = tw.games?.max_players ?? t.game?.max_players;
-              const creatorName = tw.profiles?.display_name ?? t.creator?.display_name ?? 'Anonymous';
-              const creatorEmoji = tw.profiles?.avatar_emoji ?? t.creator?.avatar_emoji ?? '🎓';
+              const isDemo = !tw.profiles && t.creator_id === DEMO_CREATOR_ID;
+              const creatorName = tw.profiles?.display_name ?? (isDemo ? demoCreatorProfile?.display_name : null) ?? t.creator?.display_name ?? 'Anonymous';
+              const creatorEmoji = tw.profiles?.avatar_emoji ?? (isDemo ? demoCreatorProfile?.avatar_emoji : null) ?? t.creator?.avatar_emoji ?? '🎓';
               const commentCount = commentCounts[t.id] ?? 0;
               const isSaved = savedIds.has(t.id);
 

@@ -31,6 +31,27 @@ export interface MediaAttachment {
   filename: string;
   size_bytes: number;
   crop?: MediaCrop;
+  video_url?: string;
+  video_start?: number;
+  video_end?: number;
+}
+
+export function buildEmbedUrl(baseUrl: string, start?: number, end?: number): string {
+  if (start === undefined && end === undefined) return baseUrl;
+  try {
+    const u = new URL(baseUrl);
+    if (u.hostname.includes('youtube.com')) {
+      if (start !== undefined) u.searchParams.set('start', String(Math.floor(start)));
+      if (end !== undefined) u.searchParams.set('end', String(Math.floor(end)));
+    } else if (u.hostname.includes('vimeo.com')) {
+      if (start !== undefined) u.hash = `t=${Math.floor(start)}s`;
+    } else if (u.hostname.includes('dailymotion.com')) {
+      if (start !== undefined) u.searchParams.set('start', String(Math.floor(start)));
+    }
+    return u.toString();
+  } catch {
+    return baseUrl;
+  }
 }
 
 export interface Game {

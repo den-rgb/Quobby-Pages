@@ -4,6 +4,7 @@ import {
   GitFork,
   Layers,
   LayoutDashboard,
+  Link2,
   Play,
   Scissors,
   Search,
@@ -46,7 +47,7 @@ const features = [
     icon: Film,
     title: 'Smart Video',
     description:
-      'Upload videos up to 250 MB — or up to 1 GB with Premium. The built-in processor compresses oversized files. Premium users can split long videos into segments, each automatically becoming its own tutorial step.',
+      'Upload video files up to 1 GB, or paste a YouTube, Vimeo, or direct video link. The built-in processor compresses oversized uploads. Premium users can split long videos into segments, each automatically becoming its own tutorial step.',
     color: 'rgba(255, 214, 10, 0.12)',
   },
   {
@@ -67,7 +68,7 @@ const steps = [
   {
     icon: LayoutDashboard,
     title: '2. Build the Tutorial',
-    description: 'Use the visual editor to create steps, add images and videos, and set up logic. Long videos are automatically split and compressed.',
+    description: 'Use the visual editor to create steps, add images, videos, or video links, and set up logic. Long videos are automatically split and compressed.',
   },
   {
     icon: Sparkles,
@@ -175,10 +176,10 @@ export default function Home() {
                   Built-in video processor
                 </div>
                 <h2 className="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-foreground mb-3">
-                  Drop a video, we handle the rest
+                  Drop a video or paste a link
                 </h2>
                 <p className="text-foreground-muted leading-relaxed mb-5 max-w-lg">
-                  Record a 30-minute walkthrough and upload it as-is. The in-browser processor compresses it to fit, or splits it at timestamps you choose — each segment becomes a linked tutorial step automatically.
+                  Upload a video file or paste a YouTube, Vimeo, or direct MP4 link. The in-browser processor compresses uploads to fit, or splits them at timestamps you choose — each segment becomes a linked tutorial step automatically.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                   <div className="flex items-center gap-2 text-sm text-foreground-secondary">
@@ -192,6 +193,12 @@ export default function Home() {
                       <Scissors className="w-3.5 h-3.5 text-accent" />
                     </div>
                     Timeline-based splitting
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Link2 className="w-3.5 h-3.5 text-blue-400" />
+                    </div>
+                    YouTube &amp; video links
                   </div>
                   <div className="flex items-center gap-2 text-sm text-foreground-secondary">
                     <div className="w-7 h-7 rounded-lg bg-green/10 flex items-center justify-center">

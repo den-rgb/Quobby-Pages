@@ -528,8 +528,8 @@ function ColorSwatches({
           onClick={() => onChange(p.value)}
           title={p.label}
           className={`w-5 h-5 rounded-md border transition-all ${value === p.value
-              ? 'border-accent ring-1 ring-accent/40 scale-110'
-              : 'border-white/10 hover:border-white/30'
+            ? 'border-accent ring-1 ring-accent/40 scale-110'
+            : 'border-white/10 hover:border-white/30'
             }`}
           style={{
             background:
@@ -757,8 +757,8 @@ function PropertiesPanel({
                   key={a}
                   onClick={() => onUpdate({ textAlign: a })}
                   className={`flex-1 py-1 text-[10px] rounded-md transition-all ${(element.textAlign ?? 'center') === a
-                      ? 'bg-accent text-black font-semibold'
-                      : 'bg-white/[0.03] text-foreground-muted hover:text-foreground'
+                    ? 'bg-accent text-black font-semibold'
+                    : 'bg-white/[0.03] text-foreground-muted hover:text-foreground'
                     }`}
                 >
                   {a}
@@ -848,8 +848,13 @@ export function CanvasBoardDesigner() {
     if (content?.board_view) {
       setElements(content.board_view.canvas_elements ?? []);
       setBoardTitle(content.board_view.title ?? '');
+    } else {
+      setElements([]);
+      setBoardTitle('');
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    setSelectedId(null);
+    setTool('select');
+  }, [stepId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toSvg = useCallback(
     (clientX: number, clientY: number) => {
@@ -1294,8 +1299,8 @@ export function CanvasBoardDesigner() {
                     onClick={() => setTool(t.tool)}
                     title={t.label}
                     className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${tool === t.tool
-                        ? 'bg-accent text-black'
-                        : 'text-foreground-muted hover:text-foreground hover:bg-white/[0.05]'
+                      ? 'bg-accent text-black'
+                      : 'text-foreground-muted hover:text-foreground hover:bg-white/[0.05]'
                       }`}
                   >
                     <Icon className="w-4 h-4" />

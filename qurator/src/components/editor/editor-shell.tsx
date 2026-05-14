@@ -236,9 +236,17 @@ export function EditorShell() {
 
         <div className="flex items-center gap-1.5 min-w-0">
           <Gamepad2 className="w-4 h-4 text-accent shrink-0" />
-          <span className="text-sm font-medium text-foreground truncate max-w-[80px] sm:max-w-none">
-            {tutorial?.title ?? 'Untitled Tutorial'}
-          </span>
+          <input
+            type="text"
+            value={tutorial?.title ?? ''}
+            onChange={(e) => {
+              if (!tutorial) return;
+              setTutorial({ ...tutorial, title: e.target.value });
+              useEditorStore.setState({ isDirty: true });
+            }}
+            placeholder="Untitled Tutorial"
+            className="text-sm font-medium text-foreground bg-transparent outline-none truncate max-w-[120px] sm:max-w-[240px] border-b border-transparent hover:border-foreground-faint focus:border-accent transition-colors placeholder:text-foreground-faint"
+          />
           {game && category?.slug === 'board-games' && (
             <button
               onClick={() => setShowGameSwitch(true)}

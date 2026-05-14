@@ -37,8 +37,8 @@ export const PREMIUM_FEATURES = [
   },
   {
     category: 'Quobby App',
-    title: 'Unlimited vocabulary generation',
-    description: 'Auto-generate flashcards for language decks.',
+    title: 'AI vocabulary generation',
+    description: 'AI-powered sentence and vocabulary flashcard generation for language decks.',
   },
   {
     category: 'Quobby App',
@@ -47,8 +47,13 @@ export const PREMIUM_FEATURES = [
   },
   {
     category: 'Quobby App',
-    title: 'No advertisements',
-    description: 'Distraction-free learning experience.',
+    title: 'AI document flashcards',
+    description: 'Auto-generate flashcards from scanned documents using AI.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Import decks',
+    description: 'Import flashcards from Anki, Quizlet, CSV, and JSON.',
   },
   {
     category: 'Quobby App',

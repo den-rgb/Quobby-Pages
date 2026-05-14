@@ -62,22 +62,72 @@ export type TextPart =
   | { type: 'text'; value: string }
   | { type: 'bold'; value: string }
   | { type: 'italic'; value: string }
+  | { type: 'color'; children: TextPart[]; color: string }
   | { type: 'br' };
+
+function findMatchingColorClose(text: string, start: number): number {
+  let depth = 1;
+  let i = start;
+  const openRe = /^\{c:#[0-9a-fA-F]{3,8}\}/;
+  while (i < text.length) {
+    if (text.startsWith('{/c}', i)) {
+      depth--;
+      if (depth === 0) return i;
+      i += 4;
+    } else {
+      const m = text.slice(i).match(openRe);
+      if (m) {
+        depth++;
+        i += m[0].length;
+      } else {
+        i++;
+      }
+    }
+  }
+  return -1;
+}
 
 export function parseMarkdownLite(text: string): TextPart[] {
   const parts: TextPart[] = [];
-  const pattern = /(\*\*(.+?)\*\*)|(\*(.+?)\*)|(\n)/g;
+  const pattern = /(\*\*(.+?)\*\*)|(\*(.+?)\*)|(\{c:(#[0-9a-fA-F]{3,8})\})|(\n)/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = pattern.exec(text)) !== null) {
     if (m.index > last) parts.push({ type: 'text', value: text.slice(last, m.index) });
-    if (m[2]) parts.push({ type: 'bold', value: m[2] });
-    else if (m[4]) parts.push({ type: 'italic', value: m[4] });
-    else if (m[5]) parts.push({ type: 'br' });
-    last = m.index + m[0].length;
+    if (m[2]) {
+      parts.push({ type: 'bold', value: m[2] });
+    } else if (m[4]) {
+      parts.push({ type: 'italic', value: m[4] });
+    } else if (m[6]) {
+      const contentStart = m.index + m[0].length;
+      const closeIdx = findMatchingColorClose(text, contentStart);
+      if (closeIdx >= 0) {
+        const inner = text.slice(contentStart, closeIdx);
+        parts.push({ type: 'color', children: parseMarkdownLite(inner), color: m[6] });
+        pattern.lastIndex = closeIdx + 4;
+      } else {
+        parts.push({ type: 'text', value: m[0] });
+      }
+    } else if (m[7]) {
+      parts.push({ type: 'br' });
+    }
+    last = pattern.lastIndex;
   }
   if (last < text.length) parts.push({ type: 'text', value: text.slice(last) });
   return parts;
+}
+
+export function stripMarkdown(text: string): string {
+  let result = text;
+  const colorRe = /\{c:#[0-9a-fA-F]{3,8}\}((?:(?!\{c:)[\s\S])*?)\{\/c\}/g;
+  let prev;
+  do {
+    prev = result;
+    result = result.replace(colorRe, '$1');
+  } while (result !== prev);
+  return result
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1');
 }
 
 function getOutgoingConnections(
@@ -92,10 +142,15 @@ export function findFirstContentStep(
   connections: TutorialConnection[]
 ): TutorialStep | undefined {
   const targetIds = new Set(connections.map((c) => c.to_step_id));
+  const sourceIds = new Set(connections.map((c) => c.from_step_id));
   const roots = steps.filter(
     (s) => s.step_type === 'content' && !targetIds.has(s.id)
   );
-  if (roots.length > 0) return roots[0];
+  if (roots.length > 0) {
+    const withExit = roots.filter((s) => sourceIds.has(s.id));
+    if (withExit.length > 0) return withExit[0];
+    return roots[0];
+  }
   const contentSteps = steps.filter((s) => s.step_type === 'content');
   return contentSteps.sort((a, b) => a.sort_order - b.sort_order)[0];
 }
@@ -164,6 +219,50 @@ export function resolveBranches(
   return null;
 }
 
+export function countForwardSteps(
+  currentStep: TutorialStep,
+  steps: TutorialStep[],
+  connections: TutorialConnection[],
+  variableState: VariableState
+): number {
+  let count = 0;
+  let step: TutorialStep | undefined = currentStep;
+  const seen = new Set<string>();
+
+  while (step) {
+    if (seen.has(step.id)) break;
+    seen.add(step.id);
+
+    const branchResult = resolveBranches(step, steps, connections, variableState);
+
+    if (branchResult?.autoTarget) {
+      const target = steps.find((s) => s.id === branchResult.autoTarget && s.step_type === 'content');
+      if (target) {
+        count++;
+        step = target;
+        continue;
+      }
+      break;
+    }
+
+    if (branchResult && branchResult.branches.length > 0) {
+      count += 1;
+      break;
+    }
+
+    const nextId = getNextContentStepId(step, steps, connections);
+    if (!nextId) break;
+
+    const nextStep = steps.find((s) => s.id === nextId && s.step_type === 'content');
+    if (!nextStep) break;
+
+    count++;
+    step = nextStep;
+  }
+
+  return count;
+}
+
 export function getNextContentStepId(
   currentStep: TutorialStep,
   steps: TutorialStep[],
@@ -178,7 +277,7 @@ export function getNextContentStepId(
       if (logic?.default_target_step_id && !logic.default_label) {
         return logic.default_target_step_id;
       }
-      if (!logic?.default_target_step_id) {
+      if (!logic?.default_target_step_id && (!logic || logic.conditions.length === 0)) {
         const logicOutgoing = getOutgoingConnections(target.id, connections);
         for (const lConn of logicOutgoing) {
           const lTarget = steps.find((s) => s.id === lConn.to_step_id);

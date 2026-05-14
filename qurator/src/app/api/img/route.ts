@@ -10,6 +10,7 @@ const ALLOWED_HOSTS = [
   'upload.wikimedia.org',
   'commons.wikimedia.org',
   'm.media-amazon.com',
+  'images.unsplash.com',
 ];
 
 function isAllowedHost(hostname: string): boolean {

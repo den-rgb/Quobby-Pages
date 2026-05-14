@@ -7,6 +7,7 @@ import {
   type BranchOption,
   type TextPart,
   type VariableState,
+  countForwardSteps,
   findFirstContentStep,
   getNextContentStepId,
   initVariableState,
@@ -14,7 +15,7 @@ import {
   parseMarkdownLite,
   resolveBranches,
 } from '@/lib/tutorial-navigation';
-import type { InteractiveElement, TutorialConnection, TutorialStep, TutorialVariable } from '@/lib/types';
+import { type InteractiveElement, type TutorialConnection, type TutorialStep, type TutorialVariable, buildEmbedUrl } from '@/lib/types';
 import {
   ArrowLeft,
   ArrowRight,
@@ -39,6 +40,8 @@ function SafeMarkdown({ parts }: { parts: TextPart[] }) {
             return <strong key={i} className="text-foreground font-semibold">{p.value}</strong>;
           case 'italic':
             return <em key={i}>{p.value}</em>;
+          case 'color':
+            return <span key={i} className="[&_strong]:text-inherit" style={{ color: p.color }}><SafeMarkdown parts={p.children} /></span>;
           case 'br':
             return <br key={i} />;
           default:
@@ -128,7 +131,7 @@ function EmbedBranch({
               <span className="w-5 h-5 rounded-full bg-green/10 border border-green/30 flex items-center justify-center text-[9px] font-bold text-green shrink-0">
                 {i + 1}
               </span>
-              {branch.label}
+              <span><SafeMarkdown parts={parseMarkdownLite(branch.label)} /></span>
             </span>
           </button>
         ))}
@@ -184,6 +187,17 @@ export default function EmbedTutorialPage() {
   const canAdvance = !hasQuiz || quizDone;
   const isTerminal = !hasBranching && !nextStepId;
 
+  const forwardSteps = useMemo(
+    () => currentFullStep ? countForwardSteps(currentFullStep, allSteps, connections, varState) : 0,
+    [currentFullStep, allSteps, connections, varState]
+  );
+
+  const uniqueVisited = useMemo(() => {
+    const ids = new Set(history);
+    if (startStep?.id) ids.add(startStep.id);
+    return ids;
+  }, [history, startStep]);
+
   const navigateTo = useCallback((targetId: string, setsVariable?: { name: string; value: string | number | boolean }) => {
     if (setsVariable) {
       setVarState((prev) => ({ ...prev, [setsVariable.name]: setsVariable.value }));
@@ -200,6 +214,12 @@ export default function EmbedTutorialPage() {
     setQuizCompleted(new Set());
     setVarState(initVariableState(variables));
   }, [variables]);
+
+  const nextStepTitle = useMemo(() => {
+    if (!nextStepId) return null;
+    const ns = allSteps.find((s) => s.id === nextStepId);
+    return ns?.content_json?.heading || null;
+  }, [nextStepId, allSteps]);
 
   const handleNext = useCallback(() => {
     if (nextStepId) navigateTo(nextStepId);
@@ -311,7 +331,10 @@ export default function EmbedTutorialPage() {
   }
 
   const visitedCount = history.length + 1;
-  const progress = (visitedCount / contentSteps.length) * 100;
+  const dynamicTotal = visitedCount + forwardSteps;
+  const progress = (visitedCount / dynamicTotal) * 100;
+  const unvisitedCount = contentSteps.length - uniqueVisited.size;
+  const isLastStep = isTerminal && canAdvance;
 
   const bodyParts = step?.body
     ? parseMarkdownLite(interpolateVariables(step.body, varState))
@@ -343,8 +366,11 @@ export default function EmbedTutorialPage() {
           </div>
         </div>
         <span className="text-[9px] text-foreground-faint font-medium tabular-nums shrink-0">
-          {visitedCount}/{contentSteps.length}
+          {visitedCount}/{dynamicTotal}
         </span>
+        {isLastStep && unvisitedCount > 0 && (
+          <span className="text-[8px] text-foreground-faint/60 whitespace-nowrap shrink-0">+{unvisitedCount} more</span>
+        )}
         <a
           href={fullUrl}
           target="_blank"
@@ -380,7 +406,15 @@ export default function EmbedTutorialPage() {
         {step?.media && step.media.length > 0 && (
           <div className="space-y-2 mb-2">
             {step.media.map((m) =>
-              m.type === 'video' ? (
+              m.video_url ? (
+                <iframe
+                  key={m.id}
+                  src={buildEmbedUrl(m.url, m.video_start, m.video_end)}
+                  className="w-full rounded-lg aspect-video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : m.type === 'video' ? (
                 <video key={m.id} src={m.url} controls className="w-full rounded-lg max-h-32" />
               ) : m.crop ? (
                 <div key={m.id} className="w-full rounded-lg overflow-hidden max-h-32">
@@ -472,7 +506,14 @@ export default function EmbedTutorialPage() {
             disabled={!canAdvance}
             className="flex items-center gap-1 px-3 py-1 bg-accent text-black text-[10px] font-semibold rounded-lg hover:bg-accent-light disabled:opacity-40 transition-colors"
           >
-            Next
+            <span className="flex flex-col items-end">
+              <span>Next</span>
+              {nextStepTitle && (
+                <span className="text-[9px] font-normal opacity-70 max-w-[120px] truncate">
+                  {nextStepTitle}
+                </span>
+              )}
+            </span>
             <ArrowRight className="w-3 h-3" />
           </button>
         ) : null}
