@@ -724,6 +724,18 @@ function CanvasElementSvg({ el }: { el: CanvasElement }) {
   return (
     <g transform={transform} opacity={el.opacity}>
       {el.type === 'shape' && <CanvasShapeSvg el={el} />}
+      {el.type === 'line' && (
+        <line
+          x1={el.x}
+          y1={el.y}
+          x2={el.x + el.width}
+          y2={el.y + el.height}
+          stroke={el.stroke ?? 'rgba(255,255,255,0.6)'}
+          strokeWidth={el.strokeWidth ?? 2}
+          strokeLinecap="round"
+          strokeDasharray={el.lineDash?.join(' ')}
+        />
+      )}
       {el.type === 'text' && (
         <foreignObject x={el.x} y={el.y} width={el.width} height={el.height}>
           <div
@@ -746,6 +758,32 @@ function CanvasElementSvg({ el }: { el: CanvasElement }) {
       {el.type === 'image' && el.imageUrl && (
         <image href={el.imageUrl} x={el.x} y={el.y} width={el.width} height={el.height}
           preserveAspectRatio="xMidYMid slice" />
+      )}
+      {el.type === 'path' && el.pathData && (
+        <g>
+          <path
+            d={el.pathData}
+            fill={el.fill ?? 'rgba(100, 180, 255, 0.15)'}
+            stroke={el.stroke ?? 'rgba(100, 180, 255, 0.7)'}
+            strokeWidth={el.strokeWidth ?? 1.5}
+            strokeLinejoin="round"
+          />
+          {el.label && (
+            <text
+              x={el.x + el.width / 2}
+              y={el.y + el.height / 2}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill={el.textColor ?? 'rgba(255,255,255,0.9)'}
+              fontSize={Math.min(el.width, el.height) * 0.15}
+              fontFamily="'Inter', system-ui, sans-serif"
+              fontWeight={600}
+              style={{ pointerEvents: 'none' }}
+            >
+              {el.label}
+            </text>
+          )}
+        </g>
       )}
     </g>
   );

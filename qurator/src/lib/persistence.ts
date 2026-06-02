@@ -52,7 +52,7 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
   if (!tutorial) return { error: 'No tutorial to save' };
 
   try {
-    let gameId = tutorial.game_id;
+    let gameId: string | null = null;
 
     if (game) {
       if (game.bgg_id) {
@@ -64,7 +64,7 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
         if (existing) {
           gameId = existing.id;
         }
-      } else if (!game.bgg_id) {
+      } else {
         const { data: existing } = await supabase
           .from('games')
           .select('id')
@@ -83,6 +83,7 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
             title: game.title,
             bgg_id: game.bgg_id ?? null,
             bgg_image_url: game.bgg_image_url ?? null,
+            bgg_rating: game.bgg_rating ?? null,
             description: game.description ?? '',
             complexity: game.complexity ?? 2,
             min_players: game.min_players ?? 1,
@@ -98,10 +99,29 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
       }
     }
 
+    let categoryId: string | null = null;
+    if (state.category) {
+      const { data: catRow } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('id', state.category.id)
+        .maybeSingle();
+      if (catRow) {
+        categoryId = catRow.id;
+      } else if (state.category.slug) {
+        const { data: catBySlug } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('slug', state.category.slug)
+          .maybeSingle();
+        categoryId = catBySlug?.id ?? null;
+      }
+    }
+
     const tutorialRow = {
       id: tutorial.id,
-      game_id: gameId || null,
-      category_id: tutorial.category_id || null,
+      game_id: gameId,
+      category_id: categoryId,
       creator_id: userId,
       title: tutorial.title,
       description: tutorial.description,

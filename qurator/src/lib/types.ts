@@ -59,6 +59,7 @@ export interface Game {
   title: string;
   bgg_id: number | null;
   bgg_image_url: string | null;
+  bgg_rating: number | null;
   description: string;
   complexity: GameComplexity;
   min_players: number;
@@ -128,7 +129,7 @@ export interface BoardPiece {
   tooltip?: string;
 }
 
-export type CanvasElementType = 'shape' | 'text' | 'image';
+export type CanvasElementType = 'shape' | 'text' | 'image' | 'line' | 'path';
 export type CanvasShape =
   | 'rectangle' | 'circle' | 'triangle' | 'diamond' | 'star' | 'hexagon'
   | 'meeple' | 'dice' | 'card' | 'token' | 'pawn' | 'cube' | 'flag' | 'crown';
@@ -148,12 +149,14 @@ export interface CanvasElement {
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
+  lineDash?: number[];
   text?: string;
   fontSize?: number;
   fontWeight?: number;
   textColor?: string;
   textAlign?: 'left' | 'center' | 'right';
   imageUrl?: string;
+  pathData?: string;
 }
 
 export interface BoardViewConfig {
@@ -259,5 +262,6 @@ export interface BGGSearchResult {
   max_players: number;
   playing_time: number;
   average_weight: number;
+  bgg_rating: number;
   dbId?: string;
 }

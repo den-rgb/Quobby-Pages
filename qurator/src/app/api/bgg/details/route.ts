@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
       const maxPMatch = body.match(/<maxplayers\s+value="(\d+)"/);
       const timeMatch = body.match(/<playingtime\s+value="(\d+)"/);
       const weightMatch = body.match(/<averageweight\s+value="([^"]+)"/);
+      const ratingMatch = body.match(/<average\s+value="([^"]+)"/);
 
       return {
         id,
@@ -66,6 +67,7 @@ export async function GET(request: NextRequest) {
         max_players: Number(maxPMatch?.[1] ?? 4),
         playing_time: Number(timeMatch?.[1] ?? 30),
         average_weight: Number(weightMatch?.[1] ?? 0),
+        bgg_rating: Math.round(Number(ratingMatch?.[1] ?? 0) * 10) / 10,
       };
     });
 

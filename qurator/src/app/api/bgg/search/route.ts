@@ -119,6 +119,9 @@ async function tryBggSearch(
       const weightMatch = body.match(
         /<averageweight\s+value="([^"]+)"/,
       );
+      const ratingMatch = body.match(
+        /<average\s+value="([^"]+)"/,
+      );
 
       return {
         id,
@@ -131,6 +134,7 @@ async function tryBggSearch(
         max_players: Number(maxPMatch?.[1] ?? 4),
         playing_time: Number(timeMatch?.[1] ?? 30),
         average_weight: Number(weightMatch?.[1] ?? 0),
+        bgg_rating: Math.round(Number(ratingMatch?.[1] ?? 0) * 10) / 10,
       };
     });
 
@@ -204,6 +208,7 @@ async function tryWikidataSearch(
           max_players: 4,
           playing_time: 30,
           average_weight: 0,
+          bgg_rating: 0,
         };
       },
     );
@@ -342,7 +347,7 @@ async function searchBingImage(title: string): Promise<string | null> {
 
 async function tryBingFallbackSearch(
   query: string,
-): Promise<{ id: number; name: string; image: string | null; thumbnail: string | null; description: string; year_published: null; min_players: number; max_players: number; playing_time: number; average_weight: number }[] | null> {
+): Promise<{ id: number; name: string; image: string | null; thumbnail: string | null; description: string; year_published: null; min_players: number; max_players: number; playing_time: number; average_weight: number; bgg_rating: number }[] | null> {
   try {
     const image = await searchBingImage(query);
     if (!image) return null;
@@ -357,6 +362,7 @@ async function tryBingFallbackSearch(
       max_players: 4,
       playing_time: 30,
       average_weight: 0,
+      bgg_rating: 0,
     }];
   } catch {
     return null;

@@ -12,6 +12,8 @@ import {
   Flag,
   Hexagon,
   Image,
+  ImagePlus,
+  Minus,
   MousePointer2,
   Save,
   Square,
@@ -19,6 +21,7 @@ import {
   Trash2,
   Triangle,
   Type,
+  X,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -100,7 +103,8 @@ type Tool =
   | 'flag'
   | 'crown'
   | 'text'
-  | 'image';
+  | 'image'
+  | 'line';
 
 const TOOLS: { tool: Tool; label: string; icon: React.ElementType; group: string }[] = [
   { tool: 'select', label: 'Select', icon: MousePointer2, group: 'pointer' },
@@ -110,6 +114,7 @@ const TOOLS: { tool: Tool; label: string; icon: React.ElementType; group: string
   { tool: 'diamond', label: 'Diamond', icon: Diamond, group: 'shape' },
   { tool: 'star', label: 'Star', icon: Star, group: 'shape' },
   { tool: 'hexagon', label: 'Hexagon', icon: Hexagon, group: 'shape' },
+  { tool: 'line', label: 'Line', icon: Minus, group: 'shape' },
   { tool: 'meeple', label: 'Meeple', icon: MeepleIcon, group: 'game' },
   { tool: 'pawn', label: 'Pawn', icon: PawnIcon, group: 'game' },
   { tool: 'dice', label: 'Dice', icon: Dices, group: 'game' },
@@ -157,6 +162,13 @@ const TEXT_COLOR_PRESETS = [
   { label: 'Red', value: 'rgba(255, 100, 100, 0.9)' },
 ];
 
+const LINE_DASH_PRESETS = [
+  { label: 'Solid', value: [] as number[] },
+  { label: 'Dashed', value: [8, 4] },
+  { label: 'Dotted', value: [3, 3] },
+  { label: 'Dash-Dot', value: [10, 4, 3, 4] },
+];
+
 const DEFAULT_SHAPE_SIZE = 80;
 
 type DragState = {
@@ -176,6 +188,11 @@ type DragState = {
   elStartY: number;
   elStartW: number;
   elStartH: number;
+} | {
+  type: 'draw-line';
+  elementId: string;
+  startX: number;
+  startY: number;
 } | null;
 
 function svgPoint(svg: SVGSVGElement, clientX: number, clientY: number) {
@@ -454,6 +471,18 @@ function ElementSvg({ el }: { el: CanvasElement }) {
   return (
     <g transform={transform} opacity={el.opacity}>
       {el.type === 'shape' && <ShapeSvg el={el} />}
+      {el.type === 'line' && (
+        <line
+          x1={el.x}
+          y1={el.y}
+          x2={el.x + el.width}
+          y2={el.y + el.height}
+          stroke={el.stroke ?? 'rgba(255,255,255,0.6)'}
+          strokeWidth={el.strokeWidth ?? 2}
+          strokeLinecap="round"
+          strokeDasharray={el.lineDash?.join(' ')}
+        />
+      )}
       {el.type === 'text' && (
         <foreignObject x={el.x} y={el.y} width={el.width} height={el.height}>
           <div
@@ -506,6 +535,32 @@ function ElementSvg({ el }: { el: CanvasElement }) {
           strokeWidth={1}
           strokeDasharray="6 3"
         />
+      )}
+      {el.type === 'path' && el.pathData && (
+        <g>
+          <path
+            d={el.pathData}
+            fill={el.fill ?? 'rgba(100, 180, 255, 0.15)'}
+            stroke={el.stroke ?? 'rgba(100, 180, 255, 0.7)'}
+            strokeWidth={el.strokeWidth ?? 1.5}
+            strokeLinejoin="round"
+          />
+          {el.label && (
+            <text
+              x={el.x + el.width / 2}
+              y={el.y + el.height / 2}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill={el.textColor ?? 'rgba(255,255,255,0.9)'}
+              fontSize={Math.min(el.width, el.height) * 0.15}
+              fontFamily="'Inter', system-ui, sans-serif"
+              fontWeight={600}
+              style={{ pointerEvents: 'none' }}
+            >
+              {el.label}
+            </text>
+          )}
+        </g>
       )}
     </g>
   );
@@ -614,34 +669,65 @@ function PropertiesPanel({
         </div>
       </div>
 
-      {/* Size */}
-      <div>
-        <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
-          Size
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-[10px] text-foreground-faint mb-0.5">Width</label>
-            <input
-              type="number"
-              min={10}
-              value={Math.round(element.width)}
-              onChange={(e) => onUpdate({ width: Math.max(10, Number(e.target.value)) })}
-              className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
-            />
-          </div>
-          <div>
-            <label className="block text-[10px] text-foreground-faint mb-0.5">Height</label>
-            <input
-              type="number"
-              min={10}
-              value={Math.round(element.height)}
-              onChange={(e) => onUpdate({ height: Math.max(10, Number(e.target.value)) })}
-              className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
-            />
+      {/* Size (not for lines) */}
+      {element.type !== 'line' && (
+        <div>
+          <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+            Size
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[10px] text-foreground-faint mb-0.5">Width</label>
+              <input
+                type="number"
+                min={10}
+                value={Math.round(element.width)}
+                onChange={(e) => onUpdate({ width: Math.max(10, Number(e.target.value)) })}
+                className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-foreground-faint mb-0.5">Height</label>
+              <input
+                type="number"
+                min={10}
+                value={Math.round(element.height)}
+                onChange={(e) => onUpdate({ height: Math.max(10, Number(e.target.value)) })}
+                className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* End point for lines */}
+      {element.type === 'line' && (
+        <div>
+          <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+            End Point
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[10px] text-foreground-faint mb-0.5">End X</label>
+              <input
+                type="number"
+                value={Math.round(element.x + element.width)}
+                onChange={(e) => onUpdate({ width: Number(e.target.value) - element.x })}
+                className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-foreground-faint mb-0.5">End Y</label>
+              <input
+                type="number"
+                value={Math.round(element.y + element.height)}
+                onChange={(e) => onUpdate({ height: Number(e.target.value) - element.y })}
+                className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Rotation & Opacity */}
       <div className="grid grid-cols-2 gap-2">
@@ -795,6 +881,105 @@ function PropertiesPanel({
         </div>
       )}
 
+      {/* Line-specific */}
+      {element.type === 'line' && (
+        <>
+          <div>
+            <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+              Stroke Color
+            </label>
+            <ColorSwatches
+              value={element.stroke ?? 'rgba(255,255,255,0.6)'}
+              presets={STROKE_PRESETS}
+              onChange={(v) => onUpdate({ stroke: v })}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] text-foreground-faint mb-0.5">
+              Line Width
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={12}
+              step={0.5}
+              value={element.strokeWidth ?? 2}
+              onChange={(e) => onUpdate({ strokeWidth: Number(e.target.value) })}
+              className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+              Line Style
+            </label>
+            <div className="flex gap-1">
+              {LINE_DASH_PRESETS.map((p) => (
+                <button
+                  key={p.label}
+                  onClick={() => onUpdate({ lineDash: p.value.length > 0 ? p.value : undefined })}
+                  className={`flex-1 py-1.5 text-[10px] rounded-md transition-all ${JSON.stringify(element.lineDash ?? []) === JSON.stringify(p.value)
+                    ? 'bg-accent text-black font-semibold'
+                    : 'bg-white/[0.03] text-foreground-muted hover:text-foreground'
+                    }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Path-specific */}
+      {element.type === 'path' && (
+        <>
+          <div>
+            <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+              Fill Color
+            </label>
+            <ColorSwatches
+              value={element.fill ?? 'rgba(100, 180, 255, 0.15)'}
+              presets={FILL_PRESETS}
+              onChange={(v) => onUpdate({ fill: v })}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+              Stroke Color
+            </label>
+            <ColorSwatches
+              value={element.stroke ?? 'rgba(100, 180, 255, 0.7)'}
+              presets={STROKE_PRESETS}
+              onChange={(v) => onUpdate({ stroke: v })}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] text-foreground-faint mb-0.5">
+              Stroke Width
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={8}
+              step={0.5}
+              value={element.strokeWidth ?? 1.5}
+              onChange={(e) => onUpdate({ strokeWidth: Number(e.target.value) })}
+              className="w-full px-2 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-accent/30"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-medium text-foreground-faint mb-1.5 uppercase tracking-wider">
+              Label Color
+            </label>
+            <ColorSwatches
+              value={element.textColor ?? 'rgba(255,255,255,0.9)'}
+              presets={TEXT_COLOR_PRESETS}
+              onChange={(v) => onUpdate({ textColor: v })}
+            />
+          </div>
+        </>
+      )}
+
       {/* Layer actions */}
       <div className="pt-3 border-t border-border space-y-2">
         <label className="block text-[10px] font-medium text-foreground-faint mb-1 uppercase tracking-wider">
@@ -843,6 +1028,9 @@ export function CanvasBoardDesigner() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [boardTitle, setBoardTitle] = useState('');
   const [snapLines, setSnapLines] = useState<{ x?: number; y?: number }>({});
+  const [refImage, setRefImage] = useState<string | null>(null);
+  const [refOpacity, setRefOpacity] = useState(0.3);
+  const refInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (content?.board_view) {
@@ -1002,8 +1190,28 @@ export function CanvasBoardDesigner() {
         });
         return;
       }
+
+      if (tool === 'line') {
+        const el: CanvasElement = {
+          id: `el-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          type: 'line',
+          x,
+          y,
+          width: 0,
+          height: 0,
+          rotation: 0,
+          zIndex: nextZ,
+          opacity: 1,
+          stroke: 'rgba(255, 255, 255, 0.6)',
+          strokeWidth: 2,
+        };
+        setElements((prev) => [...prev, el]);
+        setSelectedId(el.id);
+        setDrag({ type: 'draw-line', elementId: el.id, startX: x, startY: y });
+        return;
+      }
     },
-    [tool, toSvg, addElement]
+    [tool, toSvg, addElement, nextZ]
   );
 
   const handleElementPointerDown = useCallback(
@@ -1137,15 +1345,37 @@ export function CanvasBoardDesigner() {
         }
 
         updateElement(drag.elementId, { x: newX, y: newY, width: newW, height: newH });
+      } else if (drag.type === 'draw-line') {
+        let endX = x;
+        let endY = y;
+        if (e.shiftKey) {
+          const adx = Math.abs(endX - drag.startX);
+          const ady = Math.abs(endY - drag.startY);
+          if (adx > ady * 2) endY = drag.startY;
+          else if (ady > adx * 2) endX = drag.startX;
+        }
+        updateElement(drag.elementId, {
+          width: endX - drag.startX,
+          height: endY - drag.startY,
+        });
       }
     },
     [drag, toSvg, updateElement, elements]
   );
 
   const handlePointerUp = useCallback(() => {
+    if (drag?.type === 'draw-line') {
+      const el = elements.find((e) => e.id === drag.elementId);
+      if (el && Math.abs(el.width) < 5 && Math.abs(el.height) < 5) {
+        setElements((prev) => prev.filter((e) => e.id !== drag.elementId));
+        setSelectedId(null);
+      } else {
+        setTool('select');
+      }
+    }
     setDrag(null);
     setSnapLines({});
-  }, []);
+  }, [drag, elements]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -1211,6 +1441,17 @@ export function CanvasBoardDesigner() {
 
   const clipboardRef = useRef<CanvasElement | null>(null);
 
+  const handleRefImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRefImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }, []);
+
   const selectedElement = elements.find((el) => el.id === selectedId);
   const sortedElements = useMemo(
     () => [...elements].sort((a, b) => a.zIndex - b.zIndex),
@@ -1269,6 +1510,47 @@ export function CanvasBoardDesigner() {
         <div className="text-[10px] text-foreground-faint tabular-nums">
           {elements.length} element{elements.length !== 1 ? 's' : ''}
         </div>
+
+        <div className="h-5 w-px bg-border" />
+
+        {/* Reference image controls */}
+        <input
+          ref={refInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleRefImageUpload}
+        />
+        <button
+          onClick={() => refInputRef.current?.click()}
+          title="Upload reference image to trace"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-foreground-muted bg-white/[0.03] border border-border rounded-lg hover:border-accent/30 transition-all"
+        >
+          <ImagePlus className="w-3.5 h-3.5" />
+          {refImage ? 'Change Ref' : 'Ref Image'}
+        </button>
+
+        {refImage && (
+          <>
+            <input
+              type="range"
+              min={0.1}
+              max={0.9}
+              step={0.05}
+              value={refOpacity}
+              onChange={(e) => setRefOpacity(Number(e.target.value))}
+              className="w-14 accent-accent"
+              title="Reference opacity"
+            />
+            <button
+              onClick={() => setRefImage(null)}
+              className="p-1 text-foreground-faint hover:text-red-400 transition-colors"
+              title="Remove reference"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </>
+        )}
 
         <button
           onClick={handleSave}
@@ -1341,6 +1623,20 @@ export function CanvasBoardDesigner() {
             </defs>
             <rect width={CANVAS_W} height={CANVAS_H} fill="url(#grid-dots)" />
 
+            {/* Reference image background */}
+            {refImage && (
+              <image
+                href={refImage}
+                x={0}
+                y={0}
+                width={CANVAS_W}
+                height={CANVAS_H}
+                preserveAspectRatio="xMidYMid meet"
+                opacity={refOpacity}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+
             {/* Canvas boundary indicator */}
             <rect
               x={0.5}
@@ -1366,19 +1662,30 @@ export function CanvasBoardDesigner() {
                 style={{ cursor: tool === 'select' ? (drag ? 'grabbing' : 'grab') : 'crosshair' }}
               >
                 <ElementSvg el={el} />
-                <rect
-                  x={el.x - 4}
-                  y={el.y - 4}
-                  width={el.width + 8}
-                  height={el.height + 8}
-                  fill="transparent"
-                  stroke="none"
-                />
+                {el.type === 'line' ? (
+                  <line
+                    x1={el.x}
+                    y1={el.y}
+                    x2={el.x + el.width}
+                    y2={el.y + el.height}
+                    stroke="transparent"
+                    strokeWidth={12}
+                  />
+                ) : (
+                  <rect
+                    x={el.x - 4}
+                    y={el.y - 4}
+                    width={el.width + 8}
+                    height={el.height + 8}
+                    fill="transparent"
+                    stroke="none"
+                  />
+                )}
               </g>
             ))}
 
             {/* Selection outline + resize handles */}
-            {selectedElement && (
+            {selectedElement && selectedElement.type !== 'line' && (
               <g style={{ pointerEvents: 'none' }}>
                 <rect
                   x={selectedElement.x - 1}
@@ -1426,6 +1733,36 @@ export function CanvasBoardDesigner() {
                     />
                   );
                 })}
+              </g>
+            )}
+            {/* Line selection: highlight endpoints */}
+            {selectedElement && selectedElement.type === 'line' && (
+              <g style={{ pointerEvents: 'none' }}>
+                <line
+                  x1={selectedElement.x}
+                  y1={selectedElement.y}
+                  x2={selectedElement.x + selectedElement.width}
+                  y2={selectedElement.y + selectedElement.height}
+                  stroke="rgba(161, 48, 107, 0.8)"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 3"
+                />
+                <circle
+                  cx={selectedElement.x}
+                  cy={selectedElement.y}
+                  r={5}
+                  fill="rgba(161, 48, 107, 1)"
+                  stroke="rgba(255,255,255,0.6)"
+                  strokeWidth={1}
+                />
+                <circle
+                  cx={selectedElement.x + selectedElement.width}
+                  cy={selectedElement.y + selectedElement.height}
+                  r={5}
+                  fill="rgba(161, 48, 107, 1)"
+                  stroke="rgba(255,255,255,0.6)"
+                  strokeWidth={1}
+                />
               </g>
             )}
 

@@ -524,7 +524,7 @@ interface TutorialData {
   rating_count: number;
   play_count: number;
   creator_id: string;
-  game?: { title: string; min_players: number; max_players: number; complexity: number } | null;
+  game?: { title: string; bgg_id: number | null; min_players: number; max_players: number; complexity: number } | null;
 }
 
 export default function TutorialPlayerPage() {
@@ -550,6 +550,8 @@ export default function TutorialPlayerPage() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followLoading, setFollowLoading] = useState(false);
+  const [bggRating, setBggRating] = useState<number | null>(null);
+  const [bggComplexity, setBggComplexity] = useState<number | null>(null);
 
   const contentSteps = useMemo(
     () => allSteps.filter((s) => s.step_type === 'content'),
@@ -687,7 +689,7 @@ export default function TutorialPlayerPage() {
     async function fetchTutorial() {
       const { data: tut, error: tutErr } = await supabase
         .from('tutorials')
-        .select('*, games(title, min_players, max_players, complexity)')
+        .select('*, games(title, bgg_id, min_players, max_players, complexity)')
         .eq('id', tutorialId)
         .single();
 
@@ -760,6 +762,35 @@ export default function TutorialPlayerPage() {
 
     fetchTutorial();
   }, [tutorialId]);
+
+  useEffect(() => {
+    const game = tutorialData?.game;
+    if (!game) return;
+    const existing = (game as Record<string, unknown>)['bgg_rating'];
+    if (typeof existing === 'number' && existing > 0) {
+      setBggRating(existing);
+      return;
+    }
+    const applyResult = (r: { bgg_rating: number; average_weight: number }) => {
+      if (r.bgg_rating > 0) setBggRating(r.bgg_rating);
+      if (r.average_weight > 0) setBggComplexity(Math.round(r.average_weight));
+    };
+    if (game.bgg_id) {
+      fetch(`/api/bgg/details?ids=${game.bgg_id}`)
+        .then((r) => r.json())
+        .then((results: { id: number; bgg_rating: number; average_weight: number }[]) => {
+          if (Array.isArray(results) && results[0]) applyResult(results[0]);
+        })
+        .catch(() => { });
+    } else if (game.title) {
+      fetch(`/api/bgg/search?q=${encodeURIComponent(game.title)}`)
+        .then((r) => r.json())
+        .then((results: { id: number; bgg_rating: number; average_weight: number }[]) => {
+          if (Array.isArray(results) && results[0]) applyResult(results[0]);
+        })
+        .catch(() => { });
+    }
+  }, [tutorialData]);
 
   useEffect(() => {
     if (!user) return;
@@ -981,6 +1012,20 @@ export default function TutorialPlayerPage() {
               {game && (
                 <span className="flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" /> {game.min_players}-{game.max_players} players
+                </span>
+              )}
+              {(() => {
+                const cLevel = game?.complexity || bggComplexity || 0;
+                const cLabels = ['', 'Easy', 'Light', 'Medium', 'Heavy', 'Expert'];
+                return cLevel > 0 && cLevel <= 5 ? (
+                  <span className="flex items-center gap-1">
+                    <Lightbulb className="w-3.5 h-3.5" /> {cLabels[cLevel]}
+                  </span>
+                ) : null;
+              })()}
+              {bggRating != null && bggRating > 0 && (
+                <span className="flex items-center gap-1 text-orange-300">
+                  <Star className="w-3.5 h-3.5 text-orange-400" /> {bggRating.toFixed(1)}/10 BGG
                 </span>
               )}
             </div>

@@ -580,261 +580,9 @@ export const SCIENCE_STEPS: ContentStepPayload[] = [
   },
 ];
 
-// ─── Ticket to Ride Demo ────────────────────────────────────────────────────
-
-export const TTR_STEPS: ContentStepPayload[] = [
-  {
-    heading: 'Welcome to Ticket to Ride!',
-    body: "Ticket to Ride is one of the most popular board games in the world — a gateway classic for 2-5 players. You'll claim railway routes across the map by collecting and playing matching train cards, racing to complete secret destination tickets before anyone else.\n\nThis tutorial covers the **USA map** (the original). Once you know this, every version plays similarly.",
-    tip: "Games take about 45-60 minutes. The rules are simple enough for age 8+, but the strategy has real depth.",
-  },
-  {
-    heading: 'Setting Up',
-    body: "**Board:** Lay out the map in the centre of the table. It shows cities connected by coloured routes (1-6 train cars long).\n\n**Per player:**\n- Take **45 plastic train cars** and a matching **scoring marker** (place on 0)\n- Draw **4 train cards** from the deck\n- Draw **3 Destination Ticket cards** — keep at least 2, return unwanted ones to the bottom of the deck\n\n**Shared supply:**\n- Shuffle the **train card deck** and deal **5 face-up** next to it\n- Shuffle the **Destination Ticket deck** and place it nearby",
-    is_setup_step: true,
-    tip: "When choosing your starting tickets, look for destinations that overlap — two tickets that share a common middle city let you score both efficiently.",
-  },
-  {
-    heading: 'Train Cards',
-    body: "The deck contains **110 train cards** in 8 colours plus **14 Locomotives** (wild/rainbow cards).\n\nEach colour matches a route colour on the board. **Grey routes** can be claimed with any single colour.\n\nTo claim a route, you play cards matching the route's colour equal to its length:\n- A **3-long blue route** needs 3 blue cards\n- A **5-long grey route** needs 5 cards of any ONE colour\n- **Locomotives are wild** — they substitute for any colour\n\nThe 5 face-up cards are always visible, so you can plan ahead based on what's available.",
-    interactive: {
-      type: 'multiple_choice',
-      question: 'To claim a 4-long red route, which combination works?',
-      options: [
-        { label: '2 red + 2 blue cards', correct: false },
-        { label: '3 red + 1 locomotive', correct: true },
-        { label: '4 cards of any mixed colours', correct: false },
-        { label: '2 red + 2 locomotives + 1 extra', correct: false },
-      ],
-      explanation: 'All non-locomotive cards must be the SAME colour matching the route. Locomotives are wild and substitute for any colour, so 3 red + 1 locomotive = 4 red-equivalent cards.',
-    },
-  },
-  {
-    heading: 'Your Turn — 3 Options',
-    body: "On your turn, do **exactly one** of these three actions:\n\n**1. Draw Train Cards** — take 2 cards:\n- Draw from the **5 face-up cards** or the **top of the deck** (blind draw)\n- If you take a face-up **Locomotive**, that's your entire turn (only 1 card)\n- Blind-drawn locomotives are free — you still get your second draw\n- Replace face-up cards immediately after each pick\n\n**2. Claim a Route** — play matching cards to claim a route:\n- Discard the required cards face-up\n- Place your trains on every space of that route\n- Score points immediately (see scoring chart)\n- Each route can only be claimed **once** (in 2-3 player games, double routes are treated as single)\n\n**3. Draw Destination Tickets** — draw 3, keep at least 1:\n- These are secret objectives worth bonus points if completed\n- Uncompleted tickets **subtract** their value at game end!",
-    tip: "Drawing destination tickets mid-game is risky but can be hugely rewarding. Only do it when you've nearly finished your current tickets and have trains to spare.",
-  },
-  {
-    heading: 'Route Scoring',
-    body: "Longer routes score exponentially more points:\n\n- **1 car** = 1 point\n- **2 cars** = 2 points\n- **3 cars** = 4 points\n- **4 cars** = 7 points\n- **5 cars** = 10 points\n- **6 cars** = 15 points\n\nThis means a single 6-car route is worth more than six 1-car routes (15 vs 6). **Claiming long routes is critical for scoring well.**",
-    tip: "The 6-long routes (like LA to El Paso, or Duluth to Helena) are hugely valuable at 15 points each. Prioritise them when they fit your tickets.",
-  },
-  {
-    heading: 'Destination Tickets',
-    body: "Each Destination Ticket shows **two cities** and a **point value** (e.g., \"Los Angeles to New York — 21 points\").\n\n- If you connect those two cities with a **continuous chain of your routes** by game end, you score the ticket's points\n- If you **fail** to connect them, you **lose** that many points\n- You must keep tickets secret until end-game scoring\n- Longer-distance tickets are worth more but harder to complete\n\n**Key insight:** Your routes don't have to be a direct path — any connected chain of your claimed routes counts.",
-    interactive: {
-      type: 'multiple_choice',
-      question: 'You drew a ticket for "Seattle to Denver" but it looks hard to complete. What happens if you keep it and fail?',
-      options: [
-        { label: 'Nothing — uncompleted tickets are ignored', correct: false },
-        { label: 'You lose the ticket\'s point value from your score', correct: true },
-        { label: 'You lose half the ticket\'s value', correct: false },
-      ],
-      explanation: 'Uncompleted Destination Tickets are subtracted from your final score. This is why you should only keep tickets you\'re confident you can finish — especially mid-game draws.',
-    },
-  },
-  {
-    heading: 'Game End & Final Scoring',
-    body: "The end is triggered when any player reaches **2 or fewer trains remaining**. Every player (including the trigger player) gets **one final turn**.\n\nFinal scoring:\n1. **Route points** — already scored during the game\n2. **Completed Destination Tickets** — add their value\n3. **Failed Destination Tickets** — subtract their value\n4. **Longest Continuous Path** — the player with the longest single unbroken chain of routes scores a **10-point bonus**\n\nHighest total wins. Tiebreaker: most completed Destination Tickets.",
-    tip: "Keep an eye on opponents' train supplies. When someone is running low, the end is near — make sure your tickets are connected!",
-  },
-  {
-    heading: 'Strategy — Route Selection',
-    body: "Good route strategy separates beginners from winners:\n\n**Prioritise long routes early.** 5 and 6-car routes give disproportionate points and are contested. Claim them before opponents block you.\n\n**Build from the centre outward.** Routes through Denver, Chicago, and Nashville are high-traffic. Securing central routes early gives you flexibility to extend in any direction.\n\n**Watch for bottlenecks.** Some city pairs have only one route between them. If your ticket depends on a single-route bottleneck, claim it before someone else does.\n\n**Grey routes are flexible.** Save your colour-specific cards for coloured routes; use grey routes when you have surplus of any colour.",
-  },
-  {
-    heading: 'Strategy — Card Management',
-    body: "How you draw cards matters as much as which routes you claim:\n\n**Locomotives are powerful but expensive.** Taking a face-up locomotive costs your whole turn (1 card instead of 2). Only do it when you genuinely need it for a specific route.\n\n**Hoard one colour.** Accumulating 5-6 of one colour lets you claim a long route in one turn, giving opponents no time to block.\n\n**Watch opponent draws.** If someone keeps taking green cards, they're probably eyeing a green route. Consider claiming it first or preparing a backup plan.\n\n**Know when to stop drawing.** If you have enough cards to claim your target route, do it. Waiting risks someone else taking it.",
-    tip: "The face-up display is public information. Count what opponents take — it tells you their plans.",
-  },
-  {
-    heading: 'Strategy — Ticket Management',
-    body: "Tickets are where games are won or lost:\n\n**Overlap is king.** Two tickets like \"Seattle to Denver\" and \"Portland to Salt Lake City\" share most of their path. Completing both costs only slightly more than one.\n\n**Short tickets late game.** Drawing new tickets when you have 5+ trains left can be safe if you pick short-distance tickets you can complete with existing routes.\n\n**Never keep a ticket you can't finish.** A -21 penalty for failing \"LA to New York\" wipes out multiple claimed routes. Be honest about what's achievable with your remaining trains.\n\n**Bluff your destinations.** Claim a few routes in directions you don't need. This prevents opponents from deducing your tickets and blocking you.",
-  },
-  {
-    heading: 'Common Mistakes to Avoid',
-    body: "**1. Ignoring the train count.** You only have 45 trains. Every 1-car route costs the same precious train as part of a 6-car route. Don't waste trains on low-value short routes unless they connect your tickets.\n\n**2. Drawing too many tickets.** Two well-chosen starting tickets are often enough. Each additional ticket is a commitment of 5-15 trains.\n\n**3. Tunnel vision on one route.** If your planned route gets blocked, have a backup. Being flexible with alternative paths is more important than a perfect plan.\n\n**4. Forgetting the Longest Path bonus.** 10 points is significant. Try to build your routes in a continuous chain rather than scattered segments.\n\n**5. Revealing your plans.** Building an obvious straight line from coast to coast tells everyone your destination. Mix in some misdirection.",
-    tip: "The winner usually completes 2-3 tickets, claims 2-3 long routes, and connects them into the Longest Path. That's the recipe.",
-  },
-  {
-    heading: "You're Ready to Ride!",
-    body: "That's everything you need for Ticket to Ride. Quick summary:\n\n- **Draw cards** or **claim routes** or **draw tickets** each turn\n- **Longer routes** score exponentially more\n- **Complete tickets** for huge bonuses, but failed ones hurt\n- **Longest Path** bonus (10 points) rewards connected play\n- **Watch your train supply** — the game ends fast when someone runs low\n\nRemember: the best strategy is flexible routes that serve multiple tickets at once. Happy travels!",
-    tip: "Your first game will feel rushed — that's normal. You'll learn how quickly 45 trains disappear and plan better next time.",
-  },
-];
-
-// ─── Pandemic Demo ──────────────────────────────────────────────────────────
-
-export const PANDEMIC_STEPS: ContentStepPayload[] = [
-  {
-    heading: 'Welcome to Pandemic!',
-    body: "Pandemic is the most famous **cooperative** board game ever made. You and 1-3 teammates are elite disease specialists fighting to cure **4 deadly diseases** spreading across the globe.\n\nYou either **all win together** or **all lose together**. This isn't a competition — it's teamwork under pressure.",
-    tip: "Pandemic is intense. Expect to lose your first few games — that's normal and part of the learning curve.",
-  },
-  {
-    heading: 'Setting Up',
-    body: "**The board** shows 48 cities connected by lines, divided into **4 colour regions**:\n- **Blue** — North America and Europe\n- **Yellow** — Central/South America and Africa\n- **Black** — Middle East, Central and South Asia\n- **Red** — East Asia and Oceania\n\n**Setup steps:**\n1. Place a **Research Station** in Atlanta (CDC headquarters)\n2. Place all pawns in Atlanta\n3. Shuffle **Infection cards** and draw 9: place **3 cubes** on the first 3 cities, **2 cubes** on the next 3, **1 cube** on the last 3\n4. Set the **Infection Rate** marker to 2\n5. Shuffle **Epidemic cards** into the Player Deck (4 for easy, 5 for medium, 6 for hard)\n6. Deal Player cards: 4 each (2 players), 3 each (3 players), 2 each (4 players)\n7. Each player draws a **Role card** — roles give unique special abilities",
-    is_setup_step: true,
-    tip: "Start with 4 Epidemic cards (easy difficulty) for your first game. You'll still likely lose, but you'll learn the mechanics.",
-  },
-  {
-    heading: 'The Diseases',
-    body: "There are **4 diseases**, each represented by coloured cubes:\n\n- Each colour has **24 cubes** in the supply\n- Cities can hold **up to 3 cubes** of a colour\n- If a city would get a **4th cube** of any colour, an **Outbreak** occurs instead\n- Diseases spread via the **Infection Deck** — after each turn, cards are drawn and cubes placed\n\n**Your goal:** Discover **cures** for all 4 diseases. You do NOT need to remove every cube — you just need to find the 4 cures.\n\n**Curing a disease:** At a Research Station, discard **5 Player cards of the same colour** to cure that disease. Once cured, removing all cubes of that colour **eradicates** it (no more cubes of that colour can be placed).",
-    interactive: {
-      type: 'multiple_choice',
-      question: 'What do you need to cure a disease?',
-      options: [
-        { label: 'Remove all cubes of that colour from the board', correct: false },
-        { label: 'Discard 5 Player cards of the same colour at a Research Station', correct: true },
-        { label: 'Visit all cities of that colour', correct: false },
-        { label: 'Play 3 matching cards anywhere on the board', correct: false },
-      ],
-      explanation: 'To cure a disease, a player must be at a Research Station and discard 5 cards of the disease\'s colour. You don\'t need to eliminate all cubes — just discover the cure.',
-    },
-  },
-  {
-    heading: 'Your Turn — 4 Actions',
-    body: "Each turn you take **4 actions**, draw 2 Player cards, then infect cities. Actions include:\n\n**Movement (pick any):**\n- **Drive/Ferry** — move to an adjacent connected city\n- **Direct Flight** — discard a city card to fly there\n- **Charter Flight** — discard the card of the city you're IN to fly anywhere\n- **Shuttle Flight** — fly between any two Research Stations\n\n**Other actions:**\n- **Treat Disease** — remove 1 cube from your city (all cubes if disease is cured)\n- **Build Research Station** — discard your current city's card to build one here (max 6 on board)\n- **Share Knowledge** — give or take a city card matching the city you're both in\n- **Discover a Cure** — at a Research Station, discard 5 same-colour cards",
-    tip: "Movement is the biggest bottleneck. Every action spent travelling is an action not spent treating or curing. Plan routes carefully and use Research Stations as a shuttle network.",
-  },
-  {
-    heading: 'Drawing Cards & Epidemics',
-    body: "After your 4 actions, draw **2 Player cards**. Player cards are mostly city cards (for curing and movement), plus some **Event cards** (free special actions you can play anytime).\n\n**Hand limit: 7 cards.** Discard immediately if you exceed this.\n\n**Epidemic cards** are the worst thing in the deck. When drawn:\n\n1. **Increase** — move the Infection Rate marker up one step (more cities infected each turn)\n2. **Infect** — draw the **bottom** card of the Infection Deck and place **3 cubes** on that city\n3. **Intensify** — shuffle the Infection **discard pile** and place it **back on top** of the Infection Deck\n\nStep 3 is devastating: cities that were already infected will get infected **again**, creating outbreak chains.",
-    tip: "The Intensify step is what makes Pandemic brutal. Cities you already treated will come back. This is why managing hotspots (cities with 3 cubes) is critical.",
-  },
-  {
-    heading: 'Outbreaks & Chain Reactions',
-    body: "When a city would receive a **4th cube** of any colour, an **Outbreak** occurs:\n\n1. The Outbreak marker advances (8 outbreaks = you lose)\n2. Instead of placing a 4th cube, **every city connected to it** receives 1 cube of that colour\n3. If any of THOSE cities already has 3 cubes, they outbreak too — **chain reaction!**\n\nChain reactions are the most common way to lose. A single badly-timed infection card can cascade across 3-4 cities, advancing the Outbreak tracker by 3-4 steps in one go.\n\n**Prevention:** Never let clusters of 3-cube cities form adjacent to each other. Treat hotspots before they chain.",
-    interactive: {
-      type: 'multiple_choice',
-      question: 'São Paulo has 3 yellow cubes. Bogotá and Buenos Aires (both connected) each have 2. What happens if São Paulo gets infected again?',
-      options: [
-        { label: 'São Paulo gets a 4th cube', correct: false },
-        { label: 'São Paulo outbreaks, Bogotá and Buenos Aires each get 1 cube — no further outbreaks', correct: true },
-        { label: 'Nothing — 3 is the maximum', correct: false },
-      ],
-      explanation: 'São Paulo can\'t take a 4th cube, so it outbreaks. Each connected city gets +1 cube. Bogotá goes to 3 and Buenos Aires goes to 3 — dangerous but no chain reaction this time. If either had been at 3 already, they\'d outbreak too.',
-    },
-  },
-  {
-    heading: 'Player Roles',
-    body: "Each player has a unique **Role** with a special ability. Roles drastically change your strategy:\n\n- **Medic** — removes ALL cubes of a colour with 1 Treat action (normally just 1). After a cure is found, automatically removes cubes just by entering a city. The most powerful role for containment.\n- **Scientist** — cures a disease with only **4 cards** instead of 5. Speeds up the win condition.\n- **Researcher** — can give any card to another player in the same city (normally must match the city). Supercharges card sharing.\n- **Operations Expert** — can build Research Stations without discarding a card. Builds your shuttle network fast.\n- **Dispatcher** — can move other players' pawns on your turn. Enables powerful team coordination.\n- **Quarantine Specialist** — prevents cubes from being placed in your city and all adjacent cities. A mobile firewall.\n- **Contingency Planner** — can reclaim a discarded Event card. Double-uses powerful events.",
-    tip: "Role synergies matter. Researcher + Scientist is devastating: the Researcher feeds cards to the Scientist, who cures with only 4. Plan your strategy around your team's roles.",
-  },
-  {
-    heading: 'Winning & Losing',
-    body: "**You win** when all 4 diseases are cured. You do NOT need to remove all cubes — just discover all 4 cures.\n\n**You lose** if ANY of these happen:\n- **8 Outbreaks** occur (Outbreak tracker reaches the skull)\n- **A cube needs to be placed but the supply is empty** for that colour (24 cubes per colour)\n- **The Player Draw pile runs out** — you can't draw 2 cards\n\nMost losses come from outbreak chains or running out of Player cards (time pressure). You're always racing against the clock.",
-  },
-  {
-    heading: 'Strategy — Priority Management',
-    body: "Pandemic is fundamentally about **triage** — you can't do everything, so focus on what matters most:\n\n**Priority 1: Prevent chain outbreaks.** Any cluster of 3-cube cities adjacent to each other is an emergency. One infection card can cascade into 3-4 outbreaks and end the game. Treat these immediately.\n\n**Priority 2: Cure diseases.** This is your win condition. Every action should ultimately serve getting 5 same-colour cards to a Research Station. Treating cubes buys time, but curing wins the game.\n\n**Priority 3: Build Research Stations.** 2-3 strategically placed stations create a shuttle network that saves dozens of movement actions over the game. Place them in high-traffic cities.\n\n**Priority 4: Treat isolated cubes.** A single cube in a low-connectivity city is low priority. Don't waste actions travelling to treat it unless it's on your route.",
-  },
-  {
-    heading: 'Strategy — Card Sharing',
-    body: "Getting 5 same-colour cards to one player is the hardest part of the game. Here's how to do it efficiently:\n\n**Converge on a plan early.** Decide in the first few turns which player is curing which colour based on starting hands. Don't wait.\n\n**Share Knowledge aggressively.** Meeting another player in a matching city to trade cards is worth spending 2-3 movement actions. Cards in the wrong hand are wasted.\n\n**Use the Researcher.** If you have a Researcher, route cards through them — they can hand off any card in their city, not just the matching one.\n\n**Don't hoard.** If you have 4 blue cards but someone else has 3 blue cards and is closer to a Research Station, feed them your cards instead of trying to collect the 5th yourself.\n\n**Watch the hand limit.** Discarding a card you needed because you hit 7 is devastating. Share or use cards before you're forced to dump them.",
-  },
-  {
-    heading: 'Strategy — Reading the Board',
-    body: "Experienced players track the **Infection Discard Pile** — those are the cities that WILL come back after an Epidemic.\n\n**Post-Epidemic awareness:** After the Intensify step shuffles the discard pile on top, you know exactly which cities are about to be drawn again. If any of them have 2-3 cubes, treat them NOW.\n\n**Colour density:** Count how many cubes of each colour are on the board vs. in the supply. If 18 of 24 yellow cubes are placed, you're 6 cubes from losing via cube exhaustion.\n\n**Player deck countdown:** Count remaining Player cards. Divide by 2 (cards drawn per turn per player), then by player count. That's how many rounds you have left. If it's getting low, stop treating and focus entirely on curing.\n\n**Quiet turns are suspicious.** If several turns pass without an Epidemic, one is coming soon. Prepare by treating 3-cube cities.",
-    tip: "The infection discard pile is public information. Memorise it — especially which 3-cube cities are in there waiting to come back.",
-  },
-  {
-    heading: 'Common Mistakes to Avoid',
-    body: "**1. Playing solo in a co-op game.** Discuss every turn with your team. The best move often involves coordinating two players' positions over multiple turns.\n\n**2. Over-treating cubes.** Treating is necessary for survival, but it doesn't get you closer to winning. Balance containment with cure progress.\n\n**3. Spreading too thin.** Don't send players to all 4 corners of the map. Focus on 1-2 diseases at a time. Cure them, then pivot.\n\n**4. Ignoring the timer.** The Player Deck is a countdown clock. Every turn matters. If you spend 3 turns treating cubes without making cure progress, you're falling behind.\n\n**5. Forgetting Event cards.** Events can be played at ANY time, even during another player's turn or during infection. \"One Quiet Night\" (skip infection) and \"Airlift\" (move any pawn anywhere) are game-savers when used at the right moment.",
-  },
-  {
-    heading: "You're Ready to Save the World!",
-    body: "That's everything for Pandemic. Remember:\n\n- **Cure all 4 diseases** to win — you don't need to remove every cube\n- **Outbreaks chain-react** — never let 3-cube cities cluster\n- **Share cards early** — decide who's curing what from the start\n- **Track the Infection Discard Pile** — know what's coming back after Epidemics\n- **It's cooperative** — talk through every turn with your team\n\nStart on easy (4 Epidemics), learn the flow, then crank it up. Good luck, disease fighters!",
-    tip: "Winning on 6-Epidemic difficulty is a genuine achievement. Most experienced groups win about 30-40% of the time on hard.",
-  },
-];
-
-// ─── 7 Wonders Demo ─────────────────────────────────────────────────────────
-
-export const WONDERS_STEPS: ContentStepPayload[] = [
-  {
-    heading: 'Welcome to 7 Wonders!',
-    body: "7 Wonders is a card-drafting civilisation game for **3-7 players** that plays in just **30 minutes** regardless of player count. You lead an ancient civilisation, developing science, military, commerce, and civic structures while building one of the Seven Wonders of the Ancient World.\n\nWhat makes it special: everyone plays **simultaneously** — no waiting for turns.",
-    tip: "7 Wonders scales brilliantly. It plays almost identically at 3 players and 7 players because of the simultaneous card selection.",
-  },
-  {
-    heading: 'Setting Up',
-    body: "**Per player:**\n- Deal 1 random **Wonder board** (each has a unique power and resource)\n- Take **3 coins** from the bank\n- Your Wonder board's left side shows your **starting resource** (produced for free every turn)\n\n**Card decks (3 Ages):**\n- Separate cards by age (I, II, III) and card back colour\n- Remove cards based on player count (cards are marked — e.g., '3+', '5+')\n- Shuffle **Guild cards** (purple, Age III only) — add a number of random guilds equal to players + 2\n\n**Seating matters:** You only interact with your **immediate neighbours** (left and right). Trading and military happen only with adjacent players.",
-    is_setup_step: true,
-    tip: "Your Wonder board determines your starting resource and special abilities. Read it carefully before the game begins.",
-  },
-  {
-    heading: 'Card Types',
-    body: "There are **7 types of cards**, colour-coded:\n\n- **Brown (Raw Materials)** — produce basic resources: wood, stone, clay, ore\n- **Grey (Manufactured Goods)** — produce refined resources: glass, loom, papyrus\n- **Red (Military)** — provide shield symbols for military conflicts\n- **Blue (Civic)** — worth straight victory points (the simplest scoring)\n- **Green (Science)** — collect matching symbols for exponential scoring\n- **Yellow (Commerce)** — provide coins, trading advantages, or resource flexibility\n- **Purple (Guilds, Age III only)** — score based on what you or your neighbours have built\n\nEach card shows its **cost** (top-left) and **benefit** (centre/bottom). Some cards are free; others require resources or coins.",
-    tip: "Brown and grey cards produce resources every turn for free. Building them early means you won't need to buy resources from neighbours later.",
-  },
-  {
-    heading: 'How a Turn Works',
-    body: "Each age lasts **6 turns**. Every turn, all players act **simultaneously**:\n\n1. **Look at your hand** of cards\n2. **Choose 1 card** and place it face-down\n3. **Everyone reveals** at the same time\n4. **Play your card** in one of three ways:\n   - **Build it** — pay its resource cost, add it to your tableau\n   - **Build a Wonder stage** — tuck the card face-down under your Wonder board, pay the Wonder stage's cost\n   - **Discard it** — place it in the discard pile, receive **3 coins** from the bank\n5. **Pass remaining cards** to your neighbour (left in Ages I & III, right in Age II)\n\nRepeat until each player has played 6 cards. The 7th card is discarded.",
-    interactive: {
-      type: 'multiple_choice',
-      question: 'If you can\'t afford any card in your hand, what can you always do?',
-      options: [
-        { label: 'Pass your turn', correct: false },
-        { label: 'Discard any card for 3 coins', correct: true },
-        { label: 'Take a card for free', correct: false },
-        { label: 'Draw from the deck instead', correct: false },
-      ],
-      explanation: 'You can always discard any card for 3 coins. This is your safety valve — you\'re never stuck. But it\'s usually suboptimal; try to plan your economy so you can build instead.',
-    },
-  },
-  {
-    heading: 'Paying for Cards',
-    body: "Cards cost **resources** and/or **coins** (shown top-left).\n\n**Free chains:** Some cards list a prerequisite card name on the left. If you already built that card, this one is **free** regardless of its normal cost. Example: Baths (Age I) → Aqueduct (Age II) — building Baths lets you build Aqueduct for free later.\n\n**Getting resources:**\n- **Your own production:** Your Wonder board + any brown/grey cards you've built produce resources for free\n- **Buying from neighbours:** Pay **2 coins** per resource to a neighbour who produces it. You can buy from **both** neighbours in one turn\n- **You never lose resources.** They represent production capacity, not a consumable supply. Your neighbours keep their resources even when you buy from them\n\n**Yellow commerce cards** can reduce the cost of buying from neighbours to **1 coin** per resource.",
-    tip: "Resource production is permanent and free. Buying from neighbours costs coins every time. Invest in your own production early to save money long-term.",
-  },
-  {
-    heading: 'Military Conflicts',
-    body: "At the end of each Age, every player compares their **total military shields** (from red cards + Wonder stages) with each neighbour:\n\n- **Age I:** Winner gets +1 VP token, loser gets -1 VP token\n- **Age II:** Winner gets +3 VP, loser gets -1 VP\n- **Age III:** Winner gets +5 VP, loser gets -1 VP\n- **Ties:** Neither player gets a token for that conflict\n\nYou fight **both neighbours** separately, so you can win one fight and lose the other.\n\n**Key insight:** You don't need the most military in the game — just more than your two neighbours. 3-4 shields is often enough to beat a non-military neighbour. Check what they're building before investing heavily in red cards.",
-    interactive: {
-      type: 'multiple_choice',
-      question: 'At the end of Age III, you have 6 shields. Your left neighbour has 4 shields, your right has 8. What happens?',
-      options: [
-        { label: 'You gain +5 VP (left) and -1 VP (right) = net +4', correct: true },
-        { label: 'You lose both fights because you\'re not the strongest overall', correct: false },
-        { label: 'You gain +5 VP from beating left, nothing from right', correct: false },
-      ],
-      explanation: 'Military is resolved per-neighbour. You beat your left neighbour (+5 VP) and lose to your right (-1 VP). Each conflict is independent — it doesn\'t matter who has the most shields at the table.',
-    },
-  },
-  {
-    heading: 'Science Scoring',
-    body: "Green science cards show one of **3 symbols**: Tablet, Compass, or Gear.\n\nScience scores in **two ways** (both stack):\n\n**1. Sets of identical symbols:** Score = (count)² per symbol type\n- 1 Tablet = 1 VP, 2 Tablets = 4 VP, 3 Tablets = 9 VP, 4 Tablets = 16 VP\n\n**2. Complete sets of all 3 different symbols:** Each complete set = **7 VP**\n\nExample: 3 Tablets + 2 Compasses + 1 Gear = 9 + 4 + 1 + 7 (one complete set) = **21 VP**\n\nScience is the **highest-ceiling scoring strategy** in the game — but it requires heavy commitment. A half-hearted science strategy scores poorly; a dedicated one can reach 40+ VP from science alone.",
-    tip: "Science is all-or-nothing. Either commit heavily (6+ green cards) or skip it entirely. 2-3 science cards is usually worse than spending those picks on blue or military cards.",
-  },
-  {
-    heading: 'Building Your Wonder',
-    body: "Your Wonder board has **2-4 stages** (most have 3), each requiring specific resources. To build a stage:\n\n1. Choose any card from your hand\n2. Tuck it **face-down** under your Wonder board (the card's printed ability is ignored — it's just fuel)\n3. Pay the Wonder stage's resource cost (shown on your board)\n\nWonder stages give powerful benefits: VP, resources, military, free builds, extra cards, science symbols, or coins.\n\n**Stages must be built left to right** — you can't skip ahead.\n\n**You don't have to complete your Wonder.** Sometimes the resources are better spent on cards. But most Wonder stages are efficient — the VP/benefit per resource cost is usually good.",
-  },
-  {
-    heading: 'End-Game Scoring',
-    body: "After Age III military conflicts, tally everything:\n\n1. **Military conflict tokens** — sum all +1/+3/+5 and -1 tokens\n2. **Coins** — every **3 coins** = 1 VP\n3. **Wonder stages** — VP printed on each completed stage\n4. **Blue civic cards** — VP printed on each card\n5. **Yellow commerce cards** — some Age III yellow cards score based on conditions\n6. **Purple guild cards** — score based on your/neighbours' tableau\n7. **Science** — calculate sets + squares as described\n\nHighest total wins. Tiebreaker: most coins remaining.\n\nTypical winning scores range from **50-70 VP** depending on player count.",
-  },
-  {
-    heading: 'Strategy — Reading the Draft',
-    body: "Since cards pass around the table, you get information about what your neighbours are doing:\n\n**Watch what's missing.** If you pass 7 cards left and get back 6, your neighbour took something. What's gone tells you their strategy.\n\n**Hate-draft when necessary.** Sometimes the best play is to take a card you don't need to prevent a neighbour from completing a devastating combo (like their 4th science symbol or a guild that scores off YOUR cards).\n\n**Track the direction.** Ages I and III pass **left**; Age II passes **right**. In Age I, your right neighbour is feeding you cards — build a relationship with their leftovers. In Age II, it reverses.\n\n**Late-round picks are committed.** By turns 5-6, you're seeing the same small pool. Plan your last 2 picks from the start of the age if possible.",
-  },
-  {
-    heading: 'Strategy — Neighbour Awareness',
-    body: "You only interact with your **immediate neighbours**. This creates key dynamics:\n\n**Military is local.** If neither neighbour is building military, you can skip it entirely and spend those picks on VP-generating cards. One red card to \"win\" cheap military is often enough.\n\n**Resource trading matters.** Before buying a resource card, check if a neighbour already produces it. Buying at 2 coins (or 1 with commerce cards) might be cheaper than spending a card pick on production.\n\n**Guilds score off neighbours.** Purple cards in Age III score based on your neighbours' cards. \"Builders Guild\" scores per Wonder stage your neighbours built. If they've built a lot, this guild is worth 10+ VP.\n\n**Don't help your neighbours.** If your right neighbour is going heavy on science, don't pass them science cards. Discard them for coins or hate-draft them even if you can't use them.",
-  },
-  {
-    heading: 'Strategy — Common Archetypes',
-    body: "Winning strategies typically follow one of these patterns:\n\n**Blue/Wonder (Civic):** Build blue cards for raw VP + complete your Wonder. Straightforward, consistent, scores 45-55 VP. Good default when unsure.\n\n**Science Engine:** Commit hard to green cards. Aim for 3-3-3 distribution (= 27 + 21 = 48 VP from science alone). Needs 6+ green cards to be worthwhile. High ceiling but vulnerable to hate-drafting.\n\n**Military + Commerce:** Dominate both neighbours militarily (+18 VP from winning all 6 conflicts) while yellow cards generate coins and VP. Flexible and hard to counter.\n\n**Guild Sniper:** Build a balanced tableau in Ages I-II, then pick guilds in Age III that score off your specific neighbours' strengths. Requires reading the table well.\n\n**Adapt, don't force.** The best players read what's available in the draft and pivot. If science cards keep coming, go science. If military cards dry up, pivot to blue. Flexibility wins more than a rigid plan.",
-    tip: "There's no single best strategy — that's what makes 7 Wonders replayable. The winner is usually the player who best adapts to what the draft offers.",
-  },
-  {
-    heading: "You're Ready to Build!",
-    body: "That's everything for 7 Wonders. Quick reference:\n\n- **Simultaneous play** — everyone picks and reveals at the same time\n- **3 Ages**, 6 cards each, pass hands left/right/left\n- **7 card types** — resources, military, civic, science, commerce, guilds\n- **Buy from neighbours** at 2 coins per resource\n- **Military** is local — only fight your left and right neighbours\n- **Science** scores exponentially — commit fully or skip it\n- **Guilds** (Age III) reward reading your neighbours\n\nPick your Wonder, build your civilisation, and aim for the highest score. May your civilisation stand the test of time!",
-    tip: "First game tip: focus on blue civic cards and your Wonder. They're the most intuitive scoring path while you learn the other mechanics.",
-  },
-];
-
+// Ticket to Ride, Pandemic, and 7 Wonders demos removed - replaced by
+// full interactive tutorials created via the tutorial creator skill.
+//
 // ─── Tutorial metadata per ID ───────────────────────────────────────────────
 
 interface DemoTutorialData {
@@ -865,6 +613,7 @@ export const DEMO_TUTORIALS: Record<string, DemoTutorialData> = {
         title: 'Catan',
         bgg_id: 13,
         bgg_image_url: 'https://cf.geekdo-images.com/W3Bsga_uLP9kO91gZ7H8yw__original/img/xV7oisd3RQ8R-k18cdWAYthHXsA=/0x0/filters:format(jpeg)/pic2419375.jpg',
+        bgg_rating: 7.1,
         description: 'Trade, build, and settle the island of Catan.',
         complexity: 2,
         min_players: 3,
@@ -899,6 +648,7 @@ export const DEMO_TUTORIALS: Record<string, DemoTutorialData> = {
         title: 'Wingspan',
         bgg_id: 266192,
         bgg_image_url: 'https://cf.geekdo-images.com/yLZJCVLlIx4c7eJEWUNJ7w__original/img/cI782Zis9cT66j2MjSHKJGnFPNw=/0x0/filters:format(jpeg)/pic4458123.jpg',
+        bgg_rating: 8.1,
         description: 'Attract birds to your wildlife preserve.',
         complexity: 3,
         min_players: 1,
@@ -933,6 +683,7 @@ export const DEMO_TUTORIALS: Record<string, DemoTutorialData> = {
         title: 'Codenames',
         bgg_id: 178900,
         bgg_image_url: 'https://cf.geekdo-images.com/F_KDEu0GjdClml8N7c8Imw__itemrep/img/e8zw8YQvQB8q8zfWkHQ48Ls920g=/fit-in/246x300/filters:strip_icc()/pic2582929.jpg',
+        bgg_rating: 7.6,
         description: 'Give one-word clues to identify secret agents.',
         complexity: 1,
         min_players: 2,
@@ -1076,108 +827,6 @@ export const DEMO_TUTORIALS: Record<string, DemoTutorialData> = {
       creator: { display_name: 'QUOBBY', avatar_emoji: '🔬' },
     },
     steps: SCIENCE_STEPS,
-  },
-  '00000000-0000-4000-a000-000000000010': {
-    tutorial: {
-      id: '00000000-0000-4000-a000-000000000010',
-      game_id: '00000000-0000-4000-b000-000000000004',
-      category_id: DEMO_CATEGORY_IDS['board-games'],
-      creator_id: DEMO_CREATOR_ID,
-      title: 'Ticket to Ride Quickstart + Strategy',
-      description: 'Complete rules, route strategy, card management, and ticket tactics for Ticket to Ride USA. Beginner to intermediate.',
-      estimated_minutes: 12,
-      status: 'published',
-      version: 1,
-      forked_from: null,
-      rating_avg: 0,
-      rating_count: 0,
-      play_count: 0,
-      created_at: '2026-05-20T00:00:00Z',
-      updated_at: '2026-06-01T00:00:00Z',
-      game: {
-        id: '00000000-0000-4000-b000-000000000004',
-        title: 'Ticket to Ride',
-        bgg_id: 9209,
-        bgg_image_url: 'https://cf.geekdo-images.com/kdWYkW-7AqG63HhqPL6ekA__original/img/rWF8r4JXXCQQ7QhiWHhmT-rQ3Pc=/0x0/filters:format(jpeg)/pic8937637.jpg',
-        description: 'Build train routes across North America and complete destination tickets.',
-        complexity: 2,
-        min_players: 2,
-        max_players: 5,
-        play_time_minutes: 60,
-        year_published: 2004,
-        created_at: '2026-05-20T00:00:00Z',
-      },
-      creator: { display_name: 'QUOBBY', avatar_emoji: '🎲' },
-    },
-    steps: TTR_STEPS,
-  },
-  '00000000-0000-4000-a000-000000000011': {
-    tutorial: {
-      id: '00000000-0000-4000-a000-000000000011',
-      game_id: '00000000-0000-4000-b000-000000000005',
-      category_id: DEMO_CATEGORY_IDS['board-games'],
-      creator_id: DEMO_CREATOR_ID,
-      title: 'Pandemic Quickstart + Strategy',
-      description: 'Full cooperative rules, role synergies, outbreak prevention, and advanced board-reading tactics for Pandemic.',
-      estimated_minutes: 14,
-      status: 'published',
-      version: 1,
-      forked_from: null,
-      rating_avg: 0,
-      rating_count: 0,
-      play_count: 0,
-      created_at: '2026-05-22T00:00:00Z',
-      updated_at: '2026-06-01T00:00:00Z',
-      game: {
-        id: '00000000-0000-4000-b000-000000000005',
-        title: 'Pandemic',
-        bgg_id: 30549,
-        bgg_image_url: 'https://cf.geekdo-images.com/S3ybV1LAp-8SnHIXLLjVqA__original/img/IsrvRLpUV1TEyZsO5rC-btXaPz0=/0x0/filters:format(jpeg)/pic1534148.jpg',
-        description: 'Work together to stop four deadly diseases from spreading across the globe.',
-        complexity: 3,
-        min_players: 2,
-        max_players: 4,
-        play_time_minutes: 45,
-        year_published: 2008,
-        created_at: '2026-05-22T00:00:00Z',
-      },
-      creator: { display_name: 'QUOBBY', avatar_emoji: '🎲' },
-    },
-    steps: PANDEMIC_STEPS,
-  },
-  '00000000-0000-4000-a000-000000000012': {
-    tutorial: {
-      id: '00000000-0000-4000-a000-000000000012',
-      game_id: '00000000-0000-4000-b000-000000000006',
-      category_id: DEMO_CATEGORY_IDS['board-games'],
-      creator_id: DEMO_CREATOR_ID,
-      title: '7 Wonders Quickstart + Strategy',
-      description: 'Card drafting rules, science scoring, military tactics, and archetype strategies for 7 Wonders. From first game to winning.',
-      estimated_minutes: 14,
-      status: 'published',
-      version: 1,
-      forked_from: null,
-      rating_avg: 0,
-      rating_count: 0,
-      play_count: 0,
-      created_at: '2026-05-25T00:00:00Z',
-      updated_at: '2026-06-01T00:00:00Z',
-      game: {
-        id: '00000000-0000-4000-b000-000000000006',
-        title: '7 Wonders',
-        bgg_id: 68448,
-        bgg_image_url: 'https://cf.geekdo-images.com/35h9Za_JvMMMtx_92kT0Jg__original/img/jt70jJDZ1y1FWJs4ZQf5FI8APVY=/0x0/filters:format(jpeg)/pic7149798.jpg',
-        description: 'Draft cards to develop your ancient civilisation and build a world wonder.',
-        complexity: 3,
-        min_players: 3,
-        max_players: 7,
-        play_time_minutes: 30,
-        year_published: 2010,
-        created_at: '2026-05-25T00:00:00Z',
-      },
-      creator: { display_name: 'QUOBBY', avatar_emoji: '🎲' },
-    },
-    steps: WONDERS_STEPS,
   },
 };
 

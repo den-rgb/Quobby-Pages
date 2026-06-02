@@ -74,7 +74,7 @@ function ComplexityBadge({ level }: { level: number }) {
 }
 
 interface TutorialWithGame extends Tutorial {
-  games?: { title: string; bgg_image_url: string | null; complexity: number; min_players: number; max_players: number } | null;
+  games?: { title: string; bgg_id: number | null; bgg_image_url: string | null; complexity: number; min_players: number; max_players: number } | null;
   categories?: { name: string; slug: string } | null;
   profiles?: { display_name: string; avatar_emoji: string } | null;
 }
@@ -94,6 +94,9 @@ export default function TutorialsPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'highest_rated' | 'following'>('popular');
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+  const [bggData, setBggData] = useState<Record<number, { rating: number; complexity: number }>>({});
+  const [titleData, setTitleData] = useState<Record<string, { rating: number; complexity: number }>>({});
+  const [dbDemoIds, setDbDemoIds] = useState<Set<string>>(new Set());
   const [demoCreatorProfile, setDemoCreatorProfile] = useState<{ display_name: string; avatar_emoji: string } | null>(null);
 
   useEffect(() => {
@@ -106,6 +109,14 @@ export default function TutorialsPage() {
       .single()
       .then(({ data }) => {
         if (data) setDemoCreatorProfile(data);
+      });
+    const demoIds = DEMO_TUTORIAL_LIST.map((d) => d.id);
+    supabase
+      .from('tutorials')
+      .select('id')
+      .in('id', demoIds)
+      .then(({ data }) => {
+        setDbDemoIds(new Set(data?.map((d: { id: string }) => d.id) ?? []));
       });
   }, []);
 
@@ -126,7 +137,7 @@ export default function TutorialsPage() {
     const supabase = createClient();
     let q = supabase
       .from('tutorials')
-      .select('*, games(title, bgg_image_url, complexity, min_players, max_players), categories(name, slug), profiles!creator_id(display_name, avatar_emoji)')
+      .select('*, games(title, bgg_id, bgg_image_url, complexity, min_players, max_players), categories(name, slug), profiles!creator_id(display_name, avatar_emoji)')
       .eq('status', 'published');
 
     if (sortBy === 'popular') q = q.order('play_count', { ascending: false });
@@ -161,6 +172,49 @@ export default function TutorialsPage() {
       }
     });
   }, [selectedCategoryId, sortBy]);
+
+  useEffect(() => {
+    const ids = new Set<number>();
+    const titleLookups = new Set<string>();
+    tutorials.forEach((t) => {
+      const tw = t as TutorialWithGame;
+      const bggId = tw.games?.bgg_id ?? t.game?.bgg_id;
+      const title = tw.games?.title ?? t.game?.title;
+      if (bggId) { ids.add(bggId); }
+      else if (title) { titleLookups.add(title); }
+    });
+    DEMO_TUTORIAL_LIST.forEach((t) => {
+      if (t.game?.bgg_id && t.game.bgg_rating) {
+        const c = t.game.complexity ?? 0;
+        setBggData((prev) => ({ ...prev, [t.game!.bgg_id!]: { rating: t.game!.bgg_rating!, complexity: c } }));
+      }
+    });
+    if (ids.size > 0) {
+      fetch(`/api/bgg/details?ids=${Array.from(ids).join(',')}`)
+        .then((r) => r.json())
+        .then((results: { id: number; bgg_rating: number; average_weight: number }[]) => {
+          if (!Array.isArray(results)) return;
+          const map: Record<number, { rating: number; complexity: number }> = {};
+          results.forEach((r) => {
+            if (r.bgg_rating > 0) map[r.id] = { rating: r.bgg_rating, complexity: Math.round(r.average_weight) || 0 };
+          });
+          setBggData((prev) => ({ ...prev, ...map }));
+        })
+        .catch(() => { });
+    }
+    Array.from(titleLookups).slice(0, 8).forEach((title) => {
+      fetch(`/api/bgg/search?q=${encodeURIComponent(title)}`)
+        .then((r) => r.json())
+        .then((results: { id: number; bgg_rating: number; average_weight: number }[]) => {
+          if (!Array.isArray(results) || results.length === 0) return;
+          const best = results[0];
+          if (best.bgg_rating > 0) {
+            setTitleData((prev) => ({ ...prev, [title]: { rating: best.bgg_rating, complexity: Math.round(best.average_weight) || 0 } }));
+          }
+        })
+        .catch(() => { });
+    });
+  }, [tutorials]);
 
   useEffect(() => {
     if (!user) return;
@@ -344,6 +398,7 @@ export default function TutorialsPage() {
     ...tutorials,
     ...DEMO_TUTORIAL_LIST.filter((demo) => {
       if (tutorials.some((t) => t.id === demo.id)) return false;
+      if (dbDemoIds.has(demo.id)) return false;
       if (selectedCategorySlug && demo.category_id) {
         const demoSlug = DEMO_CATEGORY_SLUGS[demo.category_id];
         if (demoSlug !== selectedCategorySlug) return false;
@@ -447,7 +502,10 @@ export default function TutorialsPage() {
               const gameTitle = tw.games?.title ?? t.game?.title;
               const categoryName = tw.categories?.name ?? t.category?.name;
               const subtitle = gameTitle ?? categoryName ?? 'Tutorial';
-              const complexity = tw.games?.complexity ?? t.game?.complexity;
+              const bggId = tw.games?.bgg_id ?? t.game?.bgg_id;
+              const enriched = (bggId ? bggData[bggId] : null) ?? (gameTitle ? titleData[gameTitle] : null);
+              const bggRating = enriched?.rating ?? t.game?.bgg_rating ?? null;
+              const complexity = tw.games?.complexity ?? t.game?.complexity ?? (enriched?.complexity || null);
               const minPlayers = tw.games?.min_players ?? t.game?.min_players;
               const maxPlayers = tw.games?.max_players ?? t.game?.max_players;
               const isDemo = !tw.profiles && t.creator_id === DEMO_CREATOR_ID;
@@ -477,7 +535,14 @@ export default function TutorialsPage() {
                           {t.title}
                         </h3>
                       </div>
-                      {hasGame && complexity && <ComplexityBadge level={complexity} />}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {complexity != null && complexity > 0 && <ComplexityBadge level={complexity} />}
+                        {bggRating != null && bggRating > 0 && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-orange-500/15 text-orange-300 whitespace-nowrap">
+                            {bggRating.toFixed(1)}/10 BGG
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {t.description && (
                       <p className="text-sm text-foreground-muted leading-relaxed mb-4 line-clamp-2">
@@ -495,7 +560,7 @@ export default function TutorialsPage() {
                         <Clock className="w-3.5 h-3.5" />
                         {t.estimated_minutes}m
                       </span>
-                      {hasGame && minPlayers && maxPlayers && (
+                      {minPlayers && maxPlayers && (
                         <span className="flex items-center gap-1">
                           <Users className="w-3.5 h-3.5" />
                           {minPlayers}-{maxPlayers}p

@@ -67,6 +67,7 @@ function gameFromRow(g: Record<string, unknown>): BGGSearchResult {
     max_players: (g.max_players as number) ?? 4,
     playing_time: (g.play_time_minutes as number) ?? 30,
     average_weight: (g.complexity as number) ?? 2,
+    bgg_rating: (g.bgg_rating as number) ?? 0,
     dbId: (g.id as string) ?? undefined,
   };
 }
@@ -150,7 +151,7 @@ export default function CreatePage() {
       const [{ data: cachedGames }, bggResults] = await Promise.all([
         supabase
           .from('games')
-          .select('id, title, bgg_id, bgg_image_url, description, complexity, min_players, max_players, play_time_minutes, year_published')
+          .select('id, title, bgg_id, bgg_image_url, bgg_rating, description, complexity, min_players, max_players, play_time_minutes, year_published')
           .ilike('title', `%${query.trim()}%`)
           .limit(10),
         searchBGG(query.trim()).catch(() => [] as BGGSearchResult[]),
@@ -197,6 +198,7 @@ export default function CreatePage() {
         title: game.name,
         bgg_id: game.id || null,
         bgg_image_url: game.image,
+        bgg_rating: game.bgg_rating || null,
         description: game.description?.slice(0, 500) ?? '',
         complexity: complexityFromWeight(game.average_weight),
         min_players: game.min_players,
@@ -233,6 +235,7 @@ export default function CreatePage() {
         year_published: selectedGame.year_published ?? null,
         description: selectedGame.description.slice(0, 500),
         bgg_image_url: selectedGame.image,
+        bgg_rating: selectedGame.bgg_rating || null,
       }));
     }
 
@@ -475,7 +478,7 @@ export default function CreatePage() {
             <button
               onClick={() => {
                 if (!customName.trim()) return;
-                handleSelectGame({ id: 0, name: customName.trim(), year_published: null, image: customImage, thumbnail: customImage, description: '', min_players: customMinPlayers, max_players: customMaxPlayers, playing_time: customPlayTime, average_weight: customComplexity });
+                handleSelectGame({ id: 0, name: customName.trim(), year_published: null, image: customImage, thumbnail: customImage, description: '', min_players: customMinPlayers, max_players: customMaxPlayers, playing_time: customPlayTime, average_weight: customComplexity, bgg_rating: 0 });
                 setShowCustomForm(false);
               }}
               disabled={customName.trim().length === 0}
@@ -648,10 +651,13 @@ function GameCard({ game, onSelect, onDelete, compact = false }: { game: BGGSear
           </div>
           <div className="p-3 flex-1 flex flex-col">
             <h4 className="text-sm font-semibold text-foreground mb-1 line-clamp-1 group-hover:text-accent-light transition-colors">{game.name}</h4>
-            <div className="flex items-center gap-2 text-[10px] text-foreground-faint mt-auto">
+            <div className="flex items-center gap-2 text-[10px] text-foreground-faint mt-auto flex-wrap">
               <span className="flex items-center gap-0.5"><Users className="w-2.5 h-2.5" />{game.min_players}-{game.max_players}</span>
               <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{game.playing_time}m</span>
               <ComplexityTag level={complexity} />
+              {game.bgg_rating > 0 && (
+                <span className="text-orange-300 font-medium">{game.bgg_rating.toFixed(1)}/10 BGG</span>
+              )}
             </div>
           </div>
         </button>
@@ -672,6 +678,9 @@ function GameCard({ game, onSelect, onDelete, compact = false }: { game: BGGSear
             <span className="flex items-center gap-1"><Users className="w-3 h-3" />{game.min_players}-{game.max_players}</span>
             <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{game.playing_time}m</span>
             <ComplexityTag level={complexity} />
+            {game.bgg_rating > 0 && (
+              <span className="text-orange-300 font-medium">{game.bgg_rating.toFixed(1)}/10 BGG</span>
+            )}
           </div>
         </div>
       </button>
