@@ -2,6 +2,7 @@
 
 import { PremiumUpsell } from '@/components/premium-upsell';
 import { useAuth } from '@/lib/auth';
+import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST } from '@/lib/demo-tutorials';
 import { createClient } from '@/lib/supabase/client';
 import type { Tutorial } from '@/lib/types';
 import {
@@ -241,7 +242,20 @@ export default function ProfilePage() {
       .eq('creator_id', userId)
       .order('updated_at', { ascending: false });
     if (tutErr) console.error('Tutorials fetch failed:', tutErr.message);
-    setTutorials((tutData as TutorialWithGame[]) ?? []);
+    let allTuts = (tutData as TutorialWithGame[]) ?? [];
+    if (userId === DEMO_CREATOR_ID) {
+      const dbIds = new Set(allTuts.map((t) => t.id));
+      const demos = DEMO_TUTORIAL_LIST.filter((d) => !dbIds.has(d.id)).map((d) => {
+        const slug = d.category_id ? DEMO_CATEGORY_SLUGS[d.category_id] : undefined;
+        return {
+          ...d,
+          games: d.game ? { title: d.game.title, bgg_image_url: d.game.bgg_image_url ?? null } : null,
+          categories: slug ? { name: slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()), slug, icon: null } : null,
+        };
+      });
+      allTuts = [...allTuts, ...demos];
+    }
+    setTutorials(allTuts);
     setLoadingTutorials(false);
 
     const { data: notices } = await supabase

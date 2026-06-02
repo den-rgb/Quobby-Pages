@@ -1,24 +1,32 @@
 'use client';
 
 import { useEditorStore } from '@/lib/store';
-import type { CanvasElement, CanvasShape, ContentStepPayload } from '@/lib/types';
+import type { BoardCell, BoardPiece, BoardType, BoardViewConfig, CanvasElement, CanvasShape, ContentStepPayload } from '@/lib/types';
 import {
   ArrowLeft,
+  Camera,
+  Check,
   Circle,
   Copy,
   Crown,
   Diamond,
   Dices,
+  Eye,
+  EyeOff,
   Flag,
+  Grid3X3,
   Hexagon,
   Image,
+  Loader2,
   MousePointer2,
+  RefreshCw,
   Save,
   Square,
   Star,
   Trash2,
   Triangle,
   Type,
+  X,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -146,6 +154,15 @@ const STROKE_PRESETS = [
   { label: 'Green', value: 'rgba(60, 180, 80, 0.7)' },
   { label: 'None', value: 'transparent' },
 ];
+
+interface ExtractionResult {
+  elements: CanvasElement[];
+  title?: string;
+  suggestedBoardType?: BoardType;
+  gridDimensions?: { rows: number; cols: number };
+  gridCells?: BoardCell[];
+  gridPieces?: BoardPiece[];
+}
 
 const TEXT_COLOR_PRESETS = [
   { label: 'White', value: 'rgba(255, 255, 255, 0.9)' },
@@ -843,6 +860,115 @@ export function CanvasBoardDesigner() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [boardTitle, setBoardTitle] = useState('');
   const [snapLines, setSnapLines] = useState<{ x?: number; y?: number }>({});
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState<string | null>(null);
+  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [showReference, setShowReference] = useState(true);
+  const [referenceOpacity, setReferenceOpacity] = useState(0.2);
+  const [extractHint, setExtractHint] = useState('');
+  const lastImageBase64Ref = useRef<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [pendingExtraction, setPendingExtraction] = useState<ExtractionResult | null>(null);
+  const [pendingToggles, setPendingToggles] = useState<Record<string, boolean>>({});
+  const [pendingMode, setPendingMode] = useState<'canvas' | 'grid'>('canvas');
+
+  const runExtraction = useCallback(async (base64: string, hint?: string) => {
+    setExtracting(true);
+    setExtractError(null);
+    try {
+      const res = await fetch('/api/board/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: base64,
+          ...(hint ? { prompt: hint } : {}),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Extraction failed' }));
+        throw new Error(err.error || 'Extraction failed');
+      }
+
+      const data = await res.json() as ExtractionResult;
+      if (data.elements?.length) {
+        const toggles: Record<string, boolean> = {};
+        data.elements.forEach((el) => { toggles[el.id] = true; });
+        setPendingToggles(toggles);
+        const hasGrid = data.suggestedBoardType && data.suggestedBoardType !== 'custom' && data.gridCells?.length;
+        setPendingMode(hasGrid ? 'grid' : 'canvas');
+        setPendingExtraction(data);
+      } else {
+        setExtractError('No board elements detected in the image');
+      }
+    } catch (err) {
+      setExtractError(err instanceof Error ? err.message : 'Extraction failed');
+    } finally {
+      setExtracting(false);
+    }
+  }, []);
+
+  const handleImportFromPhoto = useCallback(async (file: File) => {
+    const reader = new FileReader();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    setReferenceImage(dataUrl);
+    setShowReference(true);
+
+    const base64 = dataUrl.split(',')[1];
+    lastImageBase64Ref.current = base64;
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    await runExtraction(base64, extractHint || undefined);
+  }, [runExtraction, extractHint]);
+
+  const handleRegenerate = useCallback(async () => {
+    if (!lastImageBase64Ref.current) return;
+    setPendingExtraction(null);
+    await runExtraction(lastImageBase64Ref.current, extractHint || undefined);
+  }, [runExtraction, extractHint]);
+
+  const handleApplyExtraction = useCallback(() => {
+    if (!pendingExtraction) return;
+
+    if (pendingMode === 'grid' && pendingExtraction.gridCells?.length && stepId && step) {
+      const gridConfig: BoardViewConfig = {
+        type: pendingExtraction.suggestedBoardType ?? 'rect_grid',
+        cols: pendingExtraction.gridDimensions?.cols ?? 5,
+        rows: pendingExtraction.gridDimensions?.rows ?? 5,
+        cells: pendingExtraction.gridCells,
+        pieces: pendingExtraction.gridPieces ?? [],
+        title: pendingExtraction.title,
+      };
+      const currentContent: ContentStepPayload = step.content_json ?? { heading: '', body: '' };
+      updateStepContent(stepId, { ...currentContent, board_view: gridConfig });
+      setPendingExtraction(null);
+      router.push('/create/new');
+      return;
+    }
+
+    const included = pendingExtraction.elements.filter((el) => pendingToggles[el.id]);
+    if (included.length) {
+      setElements((prev) => {
+        const maxZ = prev.reduce((max, el) => Math.max(max, el.zIndex), 0);
+        const rebased = included.map((el, i) => ({ ...el, zIndex: maxZ + 1 + i }));
+        return [...prev, ...rebased];
+      });
+      if (pendingExtraction.title && !boardTitle) {
+        setBoardTitle(pendingExtraction.title);
+      }
+    }
+    setPendingExtraction(null);
+  }, [pendingExtraction, pendingMode, pendingToggles, boardTitle, stepId, step, updateStepContent]);
+
+  const handleCancelExtraction = useCallback(() => {
+    setPendingExtraction(null);
+  }, []);
 
   useEffect(() => {
     if (content?.board_view) {
@@ -1270,6 +1396,74 @@ export function CanvasBoardDesigner() {
           {elements.length} element{elements.length !== 1 ? 's' : ''}
         </div>
 
+        {referenceImage && (
+          <>
+            <div className="h-5 w-px bg-border" />
+
+            <button
+              onClick={() => setShowReference((v) => !v)}
+              title={showReference ? 'Hide reference' : 'Show reference'}
+              className={`p-1.5 rounded-lg transition-all ${showReference
+                ? 'text-accent bg-accent/10'
+                : 'text-foreground-faint hover:text-foreground hover:bg-white/[0.05]'
+                }`}
+            >
+              {showReference ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
+
+            {showReference && (
+              <input
+                type="range"
+                min={0.05}
+                max={0.5}
+                step={0.05}
+                value={referenceOpacity}
+                onChange={(e) => setReferenceOpacity(Number(e.target.value))}
+                className="w-16 h-1 accent-accent"
+                title={`Reference opacity: ${Math.round(referenceOpacity * 100)}%`}
+              />
+            )}
+
+            <button
+              onClick={handleRegenerate}
+              disabled={extracting}
+              title="Regenerate board from photo"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-foreground-muted bg-white/[0.03] border border-border rounded-lg hover:border-accent/30 hover:text-foreground transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${extracting ? 'animate-spin' : ''}`} />
+              Regenerate
+            </button>
+
+            <input
+              type="text"
+              value={extractHint}
+              onChange={(e) => setExtractHint(e.target.value)}
+              className="max-w-[180px] px-2 py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent/30 text-[11px] text-foreground-muted focus:text-foreground focus:outline-none transition-colors"
+              placeholder="Focus on..."
+              title="Hint for AI extraction (e.g. 'focus on the scoring track')"
+            />
+          </>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleImportFromPhoto(file);
+          }}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={extracting}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground-muted bg-white/[0.03] border border-border rounded-lg hover:border-accent/30 hover:text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {extracting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+          {extracting ? 'Extracting...' : 'Import from Photo'}
+        </button>
+
         <button
           onClick={handleSave}
           className="flex items-center gap-2 px-4 py-1.5 bg-accent text-black text-sm font-semibold rounded-lg hover:bg-accent-light transition-colors"
@@ -1312,7 +1506,7 @@ export function CanvasBoardDesigner() {
         </div>
 
         {/* Canvas area */}
-        <div className="flex-1 flex items-center justify-center bg-background-secondary overflow-hidden p-6">
+        <div className="flex-1 relative flex items-center justify-center bg-background-secondary overflow-hidden p-6">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
@@ -1340,6 +1534,20 @@ export function CanvasBoardDesigner() {
               </pattern>
             </defs>
             <rect width={CANVAS_W} height={CANVAS_H} fill="url(#grid-dots)" />
+
+            {/* Reference image background */}
+            {referenceImage && showReference && (
+              <image
+                href={referenceImage}
+                x={0}
+                y={0}
+                width={CANVAS_W}
+                height={CANVAS_H}
+                preserveAspectRatio="xMidYMid meet"
+                opacity={referenceOpacity}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
 
             {/* Canvas boundary indicator */}
             <rect
@@ -1475,6 +1683,204 @@ export function CanvasBoardDesigner() {
               );
             })()}
           </svg>
+
+          {/* Extraction overlay */}
+          {extracting && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm rounded-xl z-20">
+              <div className="flex flex-col items-center gap-3 px-6 py-5 bg-card border border-border rounded-2xl shadow-2xl">
+                <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                <p className="text-sm font-medium text-foreground">Analyzing board...</p>
+                <p className="text-xs text-foreground-faint">This may take a few seconds</p>
+              </div>
+            </div>
+          )}
+
+          {/* Extraction review dialog */}
+          {pendingExtraction && !extracting && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl z-20">
+              <div className="w-[420px] max-h-[80%] flex flex-col bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+                {/* Review header */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Review Extraction</h3>
+                    {pendingExtraction.title && (
+                      <p className="text-xs text-foreground-faint mt-0.5">{pendingExtraction.title}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleCancelExtraction}
+                    className="p-1 text-foreground-faint hover:text-foreground transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Mode selector (if grid available) */}
+                {pendingExtraction.suggestedBoardType && pendingExtraction.suggestedBoardType !== 'custom' && pendingExtraction.gridCells?.length ? (
+                  <div className="px-5 py-3 border-b border-border">
+                    <p className="text-[10px] font-medium text-foreground-faint uppercase tracking-wider mb-2">Board Mode</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setPendingMode('canvas')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${pendingMode === 'canvas'
+                            ? 'bg-accent text-black'
+                            : 'bg-white/[0.03] text-foreground-muted border border-border hover:border-accent/30'
+                          }`}
+                      >
+                        <Image className="w-3.5 h-3.5" />
+                        Canvas ({pendingExtraction.elements.length} elements)
+                      </button>
+                      <button
+                        onClick={() => setPendingMode('grid')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${pendingMode === 'grid'
+                            ? 'bg-accent text-black'
+                            : 'bg-white/[0.03] text-foreground-muted border border-border hover:border-accent/30'
+                          }`}
+                      >
+                        <Grid3X3 className="w-3.5 h-3.5" />
+                        {pendingExtraction.suggestedBoardType.replace('_', ' ')} ({pendingExtraction.gridCells.length} cells)
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Element list */}
+                <div className="flex-1 overflow-y-auto px-5 py-3">
+                  {pendingMode === 'canvas' ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-[10px] font-medium text-foreground-faint uppercase tracking-wider">
+                          Elements ({Object.values(pendingToggles).filter(Boolean).length}/{pendingExtraction.elements.length})
+                        </p>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => {
+                              const all: Record<string, boolean> = {};
+                              pendingExtraction.elements.forEach((el) => { all[el.id] = true; });
+                              setPendingToggles(all);
+                            }}
+                            className="text-[10px] text-accent hover:text-accent-light transition-colors"
+                          >
+                            All
+                          </button>
+                          <span className="text-[10px] text-foreground-faint">|</span>
+                          <button
+                            onClick={() => {
+                              const none: Record<string, boolean> = {};
+                              pendingExtraction.elements.forEach((el) => { none[el.id] = false; });
+                              setPendingToggles(none);
+                            }}
+                            className="text-[10px] text-foreground-faint hover:text-foreground transition-colors"
+                          >
+                            None
+                          </button>
+                        </div>
+                      </div>
+                      {pendingExtraction.elements.map((el) => (
+                        <label
+                          key={el.id}
+                          className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all ${pendingToggles[el.id]
+                              ? 'bg-accent/10 border border-accent/20'
+                              : 'bg-white/[0.02] border border-transparent hover:border-border'
+                            }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={pendingToggles[el.id] ?? true}
+                            onChange={(e) => setPendingToggles((prev) => ({ ...prev, [el.id]: e.target.checked }))}
+                            className="accent-accent w-3.5 h-3.5"
+                          />
+                          <div
+                            className="w-4 h-4 rounded shrink-0 border border-white/10"
+                            style={{ background: el.type === 'shape' ? (el.fill ?? 'rgba(161,48,107,0.5)') : 'rgba(255,255,255,0.1)' }}
+                          />
+                          <span className="text-xs text-foreground flex-1 truncate">
+                            {el.label || el.text || (el.type === 'shape' ? el.shape : el.type)}
+                          </span>
+                          <span className="text-[10px] text-foreground-faint capitalize">{el.type === 'shape' ? el.shape : el.type}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-medium text-foreground-faint uppercase tracking-wider mb-2">
+                        Grid: {pendingExtraction.suggestedBoardType?.replace('_', ' ')} — {pendingExtraction.gridDimensions?.cols}×{pendingExtraction.gridDimensions?.rows}
+                      </p>
+                      <div className="grid grid-cols-5 gap-1">
+                        {pendingExtraction.gridCells?.slice(0, 25).map((cell, i) => (
+                          <div
+                            key={cell.id}
+                            className="aspect-square rounded-md border border-white/10 flex items-center justify-center"
+                            style={{ background: cell.color }}
+                            title={cell.tooltip || cell.label || `Cell ${i + 1}`}
+                          >
+                            <span className="text-[8px] text-white/80 font-medium truncate px-0.5">
+                              {cell.icon || cell.label || ''}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {(pendingExtraction.gridCells?.length ?? 0) > 25 && (
+                        <p className="text-[10px] text-foreground-faint text-center">
+                          + {(pendingExtraction.gridCells?.length ?? 0) - 25} more cells
+                        </p>
+                      )}
+                      {pendingExtraction.gridPieces?.length ? (
+                        <p className="text-xs text-foreground-muted mt-2">
+                          {pendingExtraction.gridPieces.length} piece{pendingExtraction.gridPieces.length !== 1 ? 's' : ''} detected
+                        </p>
+                      ) : null}
+                      <p className="text-[10px] text-foreground-faint mt-1">
+                        Grid mode will replace the canvas with a structured grid board.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Review footer */}
+                <div className="flex items-center gap-2 px-5 py-3 border-t border-border">
+                  <button
+                    onClick={handleRegenerate}
+                    disabled={extracting}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground-muted bg-white/[0.03] border border-border rounded-lg hover:border-accent/30 transition-all"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Regenerate
+                  </button>
+                  <div className="flex-1" />
+                  <button
+                    onClick={handleCancelExtraction}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground-muted bg-white/[0.03] border border-border rounded-lg hover:border-accent/30 transition-all"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleApplyExtraction}
+                    className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold bg-accent text-black rounded-lg hover:bg-accent-light transition-colors"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    Apply {pendingMode === 'canvas' ? `(${Object.values(pendingToggles).filter(Boolean).length})` : 'Grid'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Extraction error */}
+          {extractError && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+              <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-xl">
+                <p className="text-xs text-red-400">{extractError}</p>
+                <button
+                  onClick={() => setExtractError(null)}
+                  className="text-red-400 hover:text-red-300 text-xs font-medium ml-1"
+                >
+                  dismiss
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right properties panel */}

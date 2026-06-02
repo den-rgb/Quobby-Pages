@@ -1,3 +1,4 @@
+import { DEMO_CATEGORY_SLUGS, DEMO_TUTORIALS } from './demo-tutorials';
 import { useEditorStore } from './store';
 import { createClient } from './supabase/client';
 import type {
@@ -180,8 +181,44 @@ export async function loadTutorial(
       .eq('id', tutorialId)
       .single();
 
-    if (tutErr || !tutorial)
+    if (tutErr || !tutorial) {
+      const demo = DEMO_TUTORIALS[tutorialId];
+      if (demo) {
+        const demoSteps: TutorialStep[] = demo.steps.map((s, i) => ({
+          id: crypto.randomUUID(),
+          tutorial_id: demo.tutorial.id,
+          step_type: 'content' as const,
+          sort_order: i,
+          content_json: s,
+          logic_json: null,
+          position_x: 100,
+          position_y: 100 + i * 150,
+        }));
+        const slug = demo.tutorial.category_id ? DEMO_CATEGORY_SLUGS[demo.tutorial.category_id] : undefined;
+        const demoCategory: Category | null = slug ? {
+          id: demo.tutorial.category_id!,
+          name: slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          slug,
+          icon: null,
+          description: '',
+          sort_order: 0,
+          created_at: demo.tutorial.created_at,
+        } : null;
+        useEditorStore.setState({
+          tutorial: demo.tutorial,
+          game: demo.tutorial.game ?? null,
+          category: demoCategory,
+          steps: demoSteps,
+          connections: [],
+          objects: [],
+          variables: [],
+          isDirty: false,
+          selectedStepId: null,
+        });
+        return {};
+      }
       return { error: `Tutorial not found: ${tutErr?.message}` };
+    }
 
     let game: Game | null = null;
     if (tutorial.game_id) {
