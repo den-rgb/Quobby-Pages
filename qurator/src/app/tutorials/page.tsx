@@ -379,13 +379,18 @@ export default function TutorialsPage() {
     } catch { /* silent */ }
   }, []);
 
-  const handleShare = useCallback((e: React.MouseEvent, tutorialId: string, type: 'link' | 'embed') => {
+  const handleShare = useCallback((e: React.MouseEvent, tutorialId: string, type: 'link' | 'embed' | 'markdown') => {
     e.preventDefault();
     e.stopPropagation();
     const origin = window.location.origin;
-    const text = type === 'link'
-      ? `${origin}/tutorials/${tutorialId}`
-      : `<iframe src="${origin}/embed/${tutorialId}" width="100%" height="500" style="border:none;border-radius:12px;" allow="clipboard-write"></iframe>`;
+    let text: string;
+    if (type === 'link') {
+      text = `${origin}/tutorials/${tutorialId}`;
+    } else if (type === 'embed') {
+      text = `<script src="${origin}/embed.js" data-tutorial="${tutorialId}" data-height="500"></script>`;
+    } else {
+      text = `[![Open Tutorial](${origin}/api/og?id=${tutorialId})](${origin}/tutorials/${tutorialId})`;
+    }
     navigator.clipboard.writeText(text);
     setCopiedId(tutorialId);
     setShareMenuId(null);
@@ -609,6 +614,13 @@ export default function TutorialsPage() {
                               >
                                 <Code2 className="w-3.5 h-3.5" />
                                 <span>Copy embed code<br /><span className="text-[10px] text-foreground-faint">For websites &amp; blogs</span></span>
+                              </button>
+                              <button
+                                onClick={(e) => handleShare(e, t.id, 'markdown')}
+                                className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2 border-t border-border"
+                              >
+                                <Code2 className="w-3.5 h-3.5" />
+                                <span>Copy Markdown badge<br /><span className="text-[10px] text-foreground-faint">For GitHub &amp; READMEs</span></span>
                               </button>
                             </div>
                           )}

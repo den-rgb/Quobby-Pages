@@ -968,7 +968,7 @@ export default function TutorialPlayerPage() {
                 </button>
                 <button
                   onClick={() => {
-                    const embedCode = `<iframe src="${window.location.origin}/embed/${tutorialId}" width="100%" height="500" style="border:none;border-radius:12px;" allow="clipboard-write"></iframe>`;
+                    const embedCode = `<script src="${window.location.origin}/embed.js" data-tutorial="${tutorialId}" data-height="500"></script>`;
                     navigator.clipboard.writeText(embedCode);
                     setLinkCopied(true);
                     setShowShareMenu(false);
@@ -978,6 +978,19 @@ export default function TutorialPlayerPage() {
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-foreground-faint" />
                   <span>Copy embed code<br /><span className="text-[10px] text-foreground-faint">For websites &amp; blogs</span></span>
+                </button>
+                <button
+                  onClick={() => {
+                    const markdown = `[![Open Tutorial](${window.location.origin}/api/og?id=${tutorialId})](${window.location.origin}/tutorials/${tutorialId})`;
+                    navigator.clipboard.writeText(markdown);
+                    setLinkCopied(true);
+                    setShowShareMenu(false);
+                    setTimeout(() => setLinkCopied(false), 2000);
+                  }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-foreground-secondary hover:bg-white/[0.04] transition-colors flex items-center gap-2 border-t border-border"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground-faint" />
+                  <span>Copy Markdown badge<br /><span className="text-[10px] text-foreground-faint">For GitHub &amp; READMEs</span></span>
                 </button>
               </div>
             )}
