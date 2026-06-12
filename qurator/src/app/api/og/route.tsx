@@ -45,9 +45,9 @@ export async function GET(request: NextRequest) {
   const gameTitle = tut.games?.title as string | undefined;
   const rawArtUrl = (tut.cover_image_url || tut.games?.bgg_image_url) as string | null;
 
-  const artData = rawArtUrl ? await fetchAsDataUri(rawArtUrl, 2500) : null;
+  const artData = rawArtUrl ? await fetchAsDataUri(rawArtUrl, 1500) : null;
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div
         style={{
@@ -241,9 +241,13 @@ export async function GET(request: NextRequest) {
     {
       width: 1200,
       height: 630,
-      headers: {
-        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
-      },
     },
   );
+
+  return new Response(imageResponse.body, {
+    headers: {
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+    },
+  });
 }
