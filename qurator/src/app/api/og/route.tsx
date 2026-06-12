@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-async function fetchAsDataUri(url: string, timeoutMs = 4000): Promise<string | null> {
+async function fetchAsDataUri(url: string, timeoutMs = 2500): Promise<string | null> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
     if (!res.ok) return null;
@@ -27,9 +27,6 @@ export async function GET(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const host = request.headers.get('host') || 'qurator.quobby.com';
-  const proto = request.headers.get('x-forwarded-proto') || 'https';
-  const origin = `${proto}://${host}`;
 
   const res = await fetch(
     `${supabaseUrl}/rest/v1/tutorials?id=eq.${id}&select=title,description,cover_image_url,estimated_minutes,rating_avg,rating_count,play_count,games(title,bgg_image_url)`,
@@ -48,10 +45,7 @@ export async function GET(request: NextRequest) {
   const gameTitle = tut.games?.title as string | undefined;
   const rawArtUrl = (tut.cover_image_url || tut.games?.bgg_image_url) as string | null;
 
-  const [iconData, artData] = await Promise.all([
-    fetchAsDataUri(`${origin}/app-icon.png`, 3000),
-    rawArtUrl ? fetchAsDataUri(rawArtUrl, 4000) : Promise.resolve(null),
-  ]);
+  const artData = rawArtUrl ? await fetchAsDataUri(rawArtUrl, 2500) : null;
 
   return new ImageResponse(
     (
@@ -134,18 +128,9 @@ export async function GET(request: NextRequest) {
             {/* Top: logo + game badge */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {iconData ? (
-                  <img
-                    src={iconData}
-                    width={36}
-                    height={36}
-                    style={{ borderRadius: '8px' }}
-                  />
-                ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: '8px', background: '#a1306b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', fontWeight: 800 }}>
-                    Q
-                  </div>
-                )}
+                <div style={{ width: 36, height: 36, borderRadius: '8px', background: 'linear-gradient(135deg, #a1306b, #c44f8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', fontWeight: 800 }}>
+                  Q
+                </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                   <span style={{ fontSize: '18px', fontWeight: 700, color: '#a1306b' }}>Qurator</span>
                   <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>by Quobby</span>
@@ -256,6 +241,9 @@ export async function GET(request: NextRequest) {
     {
       width: 1200,
       height: 630,
+      headers: {
+        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+      },
     },
   );
 }
