@@ -28,8 +28,8 @@ import {
   RotateCcw,
   XCircle,
 } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 function SafeMarkdown({ parts }: { parts: TextPart[] }) {
   return (
@@ -142,7 +142,11 @@ function EmbedBranch({
 
 export default function EmbedTutorialPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const tutorialId = params.id as string;
+  const theme = searchParams.get('theme') || 'dark';
+  const startStepParam = searchParams.get('step') || '';
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState('');
   const [allSteps, setAllSteps] = useState<TutorialStep[]>([]);
@@ -153,6 +157,18 @@ export default function EmbedTutorialPage() {
   const [history, setHistory] = useState<string[]>([]);
   const [varState, setVarState] = useState<VariableState>({});
   const [quizCompleted, setQuizCompleted] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const h = Math.ceil(entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height);
+        window.parent.postMessage({ type: 'qurator:resize', height: h }, '*');
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [loading]);
 
   const contentSteps = useMemo(
     () => allSteps.filter((s) => s.step_type === 'content'),
@@ -303,6 +319,15 @@ export default function EmbedTutorialPage() {
     fetchTutorial();
   }, [tutorialId]);
 
+  useEffect(() => {
+    if (loading || !startStepParam || contentSteps.length === 0) return;
+    const stepIdx = parseInt(startStepParam, 10);
+    if (!isNaN(stepIdx) && stepIdx > 0 && stepIdx < contentSteps.length) {
+      const targetStep = contentSteps[stepIdx];
+      if (targetStep) setHistory([targetStep.id]);
+    }
+  }, [loading, startStepParam, contentSteps]);
+
   const handleQuizComplete = useCallback(() => {
     if (currentStepId) {
       setQuizCompleted((prev) => new Set(prev).add(currentStepId));
@@ -348,8 +373,10 @@ export default function EmbedTutorialPage() {
     ? `${window.location.origin}/tutorials/${tutorialId}`
     : '';
 
+  const themeClass = theme === 'light' ? 'theme-light' : '';
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden">
+    <div ref={containerRef} className={`fixed inset-0 z-[9999] bg-background flex flex-col overflow-hidden ${themeClass}`}>
       {/* Header */}
       <div className="px-3 py-2 border-b border-border flex items-center gap-2 shrink-0">
         <div className="flex-1 min-w-0">
@@ -460,20 +487,6 @@ export default function EmbedTutorialPage() {
         {step?.board_view && (
           <div className="mt-2">
             <BoardView config={step.board_view} />
-          </div>
-        )}
-
-        {step?.rive_url && (
-          <div className="mt-2 rounded-lg overflow-hidden border border-accent/20">
-            <div className="px-2 py-1 bg-accent/5 border-b border-accent/10 flex items-center gap-1.5">
-              <span className="text-[9px] font-semibold text-accent">Interactive Animation</span>
-            </div>
-            <canvas
-              data-rive-url={step.rive_url}
-              data-rive-state-machine={step.rive_state_machine || 'State Machine 1'}
-              data-rive-artboard={step.rive_artboard || ''}
-              className="w-full aspect-[4/3]"
-            />
           </div>
         )}
 

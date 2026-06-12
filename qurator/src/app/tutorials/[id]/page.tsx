@@ -968,7 +968,7 @@ export default function TutorialPlayerPage() {
                 </button>
                 <button
                   onClick={() => {
-                    const embedCode = `<script src="${window.location.origin}/embed.js" data-tutorial="${tutorialId}" data-height="500"></script>`;
+                    const embedCode = `<iframe src="${window.location.origin}/embed/${tutorialId}" width="100%" height="500" style="border:none;border-radius:12px;" allow="clipboard-write" loading="lazy" title="${tutorialData?.title ?? 'Tutorial'}"></iframe>\n\n<!-- Alternative: auto-resizing script embed -->\n<!-- <script src="${window.location.origin}/embed.js" data-tutorial="${tutorialId}"></script> -->`;
                     navigator.clipboard.writeText(embedCode);
                     setLinkCopied(true);
                     setShowShareMenu(false);

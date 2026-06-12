@@ -171,8 +171,16 @@ export default async function TutorialLayout({ params, children }: Props) {
     }
   }
 
+  const oembedUrl = `https://qurator.quobby.com/api/oembed?url=${encodeURIComponent(`https://qurator.quobby.com/tutorials/${id}`)}&format=json`;
+
   return (
     <>
+      <link
+        rel="alternate"
+        type="application/json+oembed"
+        href={oembedUrl}
+        title="Qurator Tutorial"
+      />
       {jsonLd && (
         <script
           type="application/ld+json"

@@ -387,7 +387,7 @@ export default function TutorialsPage() {
     if (type === 'link') {
       text = `${origin}/tutorials/${tutorialId}`;
     } else if (type === 'embed') {
-      text = `<script src="${origin}/embed.js" data-tutorial="${tutorialId}" data-height="500"></script>`;
+      text = `<iframe src="${origin}/embed/${tutorialId}" width="100%" height="500" style="border:none;border-radius:12px;" allow="clipboard-write" loading="lazy"></iframe>\n\n<!-- Alternative: auto-resizing script embed -->\n<!-- <script src="${origin}/embed.js" data-tutorial="${tutorialId}"></script> -->`;
     } else {
       text = `[![Open Tutorial](${origin}/api/og?id=${tutorialId})](${origin}/tutorials/${tutorialId})`;
     }
