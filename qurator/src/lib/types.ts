@@ -107,6 +107,11 @@ export interface ContentStepPayload {
   interactive?: InteractiveElement;
   board_view?: BoardViewConfig;
   is_setup_step?: boolean;
+  rive_url?: string;
+  rive_state_machine?: string;
+  rive_artboard?: string;
+  rive_trigger?: string;
+  rive_steps?: number;
 }
 
 export type BoardType = 'hex_grid' | 'rect_grid' | 'row_layout' | 'custom';

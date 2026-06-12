@@ -1095,6 +1095,8 @@ export default function TutorialPlayerPage() {
             <img
               src={step.image_url}
               alt=""
+              loading="lazy"
+              decoding="async"
               className="w-full rounded-xl mb-6 object-cover max-h-64"
             />
           )}
@@ -1122,6 +1124,8 @@ export default function TutorialPlayerPage() {
                     <img
                       src={m.url}
                       alt={m.filename}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full object-cover"
                       style={{
                         clipPath: `inset(${m.crop.y}% ${100 - m.crop.x - m.crop.width}% ${100 - m.crop.y - m.crop.height}% ${m.crop.x}%)`,
@@ -1133,6 +1137,8 @@ export default function TutorialPlayerPage() {
                     key={m.id}
                     src={m.url}
                     alt={m.filename}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full rounded-xl object-cover max-h-96"
                   />
                 )

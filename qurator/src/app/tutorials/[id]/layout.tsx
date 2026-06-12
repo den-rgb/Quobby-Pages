@@ -92,9 +92,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${tutorial.title} — ${gameTitle}`
       : tutorial.title;
 
-    const images = tutorial.cover_image_url
-      ? [{ url: tutorial.cover_image_url, alt: tutorial.title }]
-      : undefined;
+    const images = [
+      { url: `https://qurator.quobby.com/api/og?id=${id}`, width: 1200, height: 630, alt: tutorial.title },
+    ];
 
     return {
       title,
@@ -104,13 +104,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: tutorial.description,
         url: `https://qurator.quobby.com/tutorials/${id}`,
         type: 'article',
-        ...(images && { images }),
+        images,
       },
       twitter: {
-        card: images ? 'summary_large_image' : 'summary',
+        card: 'summary_large_image',
         title,
         description: tutorial.description,
-        ...(images && { images: [images[0].url] }),
+        images: [images[0].url],
       },
       alternates: { canonical: `https://qurator.quobby.com/tutorials/${id}` },
     };

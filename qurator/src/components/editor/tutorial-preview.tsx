@@ -294,6 +294,8 @@ export function TutorialPreview() {
               <img
                 src={content.image_url}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="w-full rounded-xl mb-3 object-cover max-h-40"
               />
             )}
@@ -321,6 +323,8 @@ export function TutorialPreview() {
                       key={m.id}
                       src={m.url}
                       alt={m.filename}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full rounded-xl object-cover max-h-40"
                     />
                   )

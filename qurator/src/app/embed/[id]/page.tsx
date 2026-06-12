@@ -399,6 +399,8 @@ export default function EmbedTutorialPage() {
           <img
             src={step.image_url}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="w-full rounded-lg mb-2 object-cover max-h-32"
           />
         )}
@@ -421,6 +423,8 @@ export default function EmbedTutorialPage() {
                   <img
                     src={m.url}
                     alt={m.filename}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full object-cover"
                     style={{
                       clipPath: `inset(${m.crop.y}% ${100 - m.crop.x - m.crop.width}% ${100 - m.crop.y - m.crop.height}% ${m.crop.x}%)`,
@@ -428,7 +432,7 @@ export default function EmbedTutorialPage() {
                   />
                 </div>
               ) : (
-                <img key={m.id} src={m.url} alt={m.filename} className="w-full rounded-lg object-cover max-h-32" />
+                <img key={m.id} src={m.url} alt={m.filename} loading="lazy" decoding="async" className="w-full rounded-lg object-cover max-h-32" />
               )
             )}
           </div>
@@ -456,6 +460,20 @@ export default function EmbedTutorialPage() {
         {step?.board_view && (
           <div className="mt-2">
             <BoardView config={step.board_view} />
+          </div>
+        )}
+
+        {step?.rive_url && (
+          <div className="mt-2 rounded-lg overflow-hidden border border-accent/20">
+            <div className="px-2 py-1 bg-accent/5 border-b border-accent/10 flex items-center gap-1.5">
+              <span className="text-[9px] font-semibold text-accent">Interactive Animation</span>
+            </div>
+            <canvas
+              data-rive-url={step.rive_url}
+              data-rive-state-machine={step.rive_state_machine || 'State Machine 1'}
+              data-rive-artboard={step.rive_artboard || ''}
+              className="w-full aspect-[4/3]"
+            />
           </div>
         )}
 
