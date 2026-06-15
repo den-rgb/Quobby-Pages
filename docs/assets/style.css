@@ -497,6 +497,114 @@ img {
   transform: translateX(-50%) translateY(8px);
 }
 
+/* ===== How It Works Section ===== */
+.how-it-works {
+  padding: 80px 24px;
+}
+
+.how-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.step-card {
+  padding: 32px 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all var(--transition);
+}
+
+.step-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(139, 0, 81, 0.1);
+}
+
+.step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  border: 1px solid rgba(139, 0, 81, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.step-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.step-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ===== Who Section ===== */
+.who-section {
+  padding: 80px 24px;
+}
+
+.who-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.who-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.who-card {
+  padding: 32px 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all var(--transition);
+}
+
+.who-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(139, 0, 81, 0.1);
+}
+
+.who-icon {
+  font-size: 1.8rem;
+  margin-bottom: 14px;
+}
+
+.who-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.who-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
 /* ===== CTA Section ===== */
 .cta-section {
   padding: 80px 24px;
@@ -964,6 +1072,14 @@ img {
   }
 
   .support-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .who-grid {
     grid-template-columns: 1fr;
   }
 }

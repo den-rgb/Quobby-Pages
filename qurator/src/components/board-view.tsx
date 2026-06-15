@@ -1,7 +1,8 @@
 'use client';
 
 import type { BoardCell, BoardPiece, BoardViewConfig, CanvasElement, CanvasShape } from '@/lib/types';
-import { useState } from 'react';
+import { Eye, EyeOff, Type } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface BoardViewProps {
   config: BoardViewConfig;
@@ -789,24 +790,39 @@ function CanvasElementSvg({ el }: { el: CanvasElement }) {
   );
 }
 
-function CanvasView({ config }: { config: BoardViewConfig }) {
+function CanvasView({ config, showLabels }: { config: BoardViewConfig; showLabels: boolean }) {
   const elements = [...(config.canvas_elements ?? [])].sort((a, b) => a.zIndex - b.zIndex);
   const w = config.canvas_width ?? 800;
   const h = config.canvas_height ?? 600;
   const [hovId, setHovId] = useState<string | null>(null);
 
+  const handleTap = (el: CanvasElement) => {
+    if (!el.label) return;
+    setHovId((prev) => (prev === el.id ? null : el.id));
+  };
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto max-h-[460px]">
-      {elements.map((el) => (
-        <g
-          key={el.id}
-          onMouseEnter={() => el.label && setHovId(el.id)}
-          onMouseLeave={() => setHovId((p) => (p === el.id ? null : p))}
-          style={{ cursor: el.label ? 'pointer' : 'default' }}
-        >
-          <CanvasElementSvg el={el} />
-        </g>
-      ))}
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="w-full h-auto max-h-[460px]"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) setHovId(null);
+      }}
+    >
+      {elements.map((el) => {
+        if (el.type === 'text' && !showLabels) return null;
+        return (
+          <g
+            key={el.id}
+            onMouseEnter={() => el.label && setHovId(el.id)}
+            onMouseLeave={() => setHovId((p) => (p === el.id ? null : p))}
+            onClick={(e) => { e.stopPropagation(); handleTap(el); }}
+            style={{ cursor: el.label ? 'pointer' : 'default' }}
+          >
+            <CanvasElementSvg el={el} />
+          </g>
+        );
+      })}
       {hovId && (() => {
         const el = elements.find((e) => e.id === hovId);
         if (!el?.label) return null;
@@ -834,8 +850,17 @@ function CanvasView({ config }: { config: BoardViewConfig }) {
 
 export function BoardView({ config, className }: BoardViewProps) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const [showLabels, setShowLabels] = useState(true);
 
   const hasCanvasElements = config.canvas_elements && config.canvas_elements.length > 0;
+  const hasTextElements = config.canvas_elements?.some((el) => el.type === 'text') ?? false;
+  const isCustomCanvas = config.type === 'custom' && hasCanvasElements;
+
+  useEffect(() => {
+    if (!isCustomCanvas || !hasTextElements) return;
+    const mq = window.matchMedia('(max-width: 768px)');
+    if (mq.matches) setShowLabels(false);
+  }, [isCustomCanvas, hasTextElements]);
 
   return (
     <div
@@ -844,11 +869,25 @@ export function BoardView({ config, className }: BoardViewProps) {
         background: 'linear-gradient(145deg, rgba(18,18,30,0.95) 0%, rgba(10,10,20,0.98) 100%)',
       }}
     >
-      {config.title && (
-        <div className="px-4 py-2.5 border-b border-white/[0.04]">
+      {(config.title || (isCustomCanvas && hasTextElements)) && (
+        <div className="px-4 py-2.5 border-b border-white/[0.04] flex items-center justify-between">
           <p className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.12em]">
-            {config.title}
+            {config.title ?? ''}
           </p>
+          {isCustomCanvas && hasTextElements && (
+            <button
+              onClick={() => setShowLabels((v) => !v)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all border border-white/[0.08] hover:border-white/20"
+              style={{
+                color: showLabels ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)',
+                background: showLabels ? 'rgba(255,255,255,0.06)' : 'transparent',
+              }}
+            >
+              {showLabels ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+              <Type className="w-3 h-3" />
+              {showLabels ? 'Labels on' : 'Labels off'}
+            </button>
+          )}
         </div>
       )}
       <div className="p-4">
@@ -861,11 +900,16 @@ export function BoardView({ config, className }: BoardViewProps) {
         {config.type === 'row_layout' && (
           <RowLayout config={config} hovered={hovered} setHovered={setHovered} />
         )}
-        {config.type === 'custom' && hasCanvasElements && (
-          <CanvasView config={config} />
+        {isCustomCanvas && (
+          <CanvasView config={config} showLabels={showLabels} />
         )}
         {config.type === 'custom' && !hasCanvasElements && (
           <RectGrid config={config} hovered={hovered} setHovered={setHovered} />
+        )}
+        {isCustomCanvas && (
+          <p className="text-[9px] text-white/25 text-center mt-2 md:hidden">
+            Tap shapes to see details
+          </p>
         )}
       </div>
     </div>

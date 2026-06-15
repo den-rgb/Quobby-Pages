@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Book,
+  BookOpen,
   Box,
   Check,
   Eye,
@@ -238,7 +239,7 @@ export function EditorShell() {
         </Link>
 
         <div className="flex items-center gap-1.5 min-w-0">
-          <Gamepad2 className="w-4 h-4 text-accent shrink-0" />
+          <BookOpen className="w-4 h-4 text-accent shrink-0" />
           <input
             type="text"
             value={tutorial?.title ?? ''}
@@ -373,7 +374,7 @@ export function EditorShell() {
 
       {/* Main area: flow canvas + sidebar */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Flow canvas — always visible */}
+        {/* Flow canvas - always visible */}
         <div className="flex-1 overflow-hidden">
           <FlowEditor onNodeDoubleClick={openContentSidebar} />
         </div>
@@ -439,8 +440,8 @@ export function EditorShell() {
                     <div>
                       <p className="text-xs font-medium text-foreground">{issue.stepTitle}</p>
                       <p className="text-[10px] text-foreground-muted">
-                        {issue.issue === 'no_incoming' && 'No incoming connection — unreachable'}
-                        {issue.issue === 'no_outgoing' && 'No outgoing connection — dead end'}
+                        {issue.issue === 'no_incoming' && 'No incoming connection - unreachable'}
+                        {issue.issue === 'no_outgoing' && 'No outgoing connection - dead end'}
                         {issue.issue === 'logic_no_incoming' && 'Logic block has no incoming connection'}
                         {issue.issue === 'logic_no_outgoing' && 'Logic block has no outgoing connection'}
                       </p>

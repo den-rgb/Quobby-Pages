@@ -1,0 +1,50 @@
+# Qurator by Quobby
+
+> Qurator is a free, community-driven platform for creating and following interactive, step-by-step tutorials on any topic.
+
+## What is Qurator?
+
+Qurator lets anyone create interactive tutorials with a visual drag-and-drop flow editor. Tutorials support branching logic, comprehension quizzes, video, images, code blocks, and board game visualizations. Learners follow guided walkthroughs rather than reading static text.
+
+## Key Features
+
+- Visual Flow Editor: Build tutorials with drag-and-drop nodes, content steps, and branching logic
+- Interactive Learning: Comprehension quizzes, checklists, and branching paths personalize each tutorial
+- Community-Driven: Anyone can create, publish, rate, review, and fork tutorials
+- Any Topic: Board games, cooking, DIY, software, music, sports, science, and more
+- Smart Video: Upload videos up to 1 GB or paste YouTube/Vimeo links; split into segments
+- Board Game Designer: Built-in hex grid, rectangular grid, and custom canvas board visualizer
+- Embeddable: Every tutorial has an embed code for websites and blogs
+- Free: Core experience costs nothing; Premium adds video splitting and analytics
+
+## Tutorial Categories
+
+- Board Games (how to play popular board games with interactive guides)
+- Cooking & Recipes (step-by-step cooking tutorials)
+- DIY & Crafts
+- Software & Programming
+- Music
+- Sports
+- Science
+
+## Board Game Tutorials Available
+
+Qurator hosts interactive how-to-play tutorials for popular board games including:
+Catan, Wingspan, Terraforming Mars, Azul, Ticket to Ride, 7 Wonders, 7 Wonders Duel, Pandemic, Ark Nova, Sky Team, Codenames, Wyrmspan, Gaia Project, Earth, Cartographers, Heat: Pedal to the Metal, Marvel Champions, Sea Salt & Paper, Forest Shuffle, and many more.
+
+Each board game tutorial includes setup instructions, rule explanations, strategy tips, interactive quizzes, and custom board visualizations.
+
+## URLs
+
+- Homepage: https://qurator.quobby.com
+- Browse Tutorials: https://qurator.quobby.com/tutorials
+- Create a Tutorial: https://qurator.quobby.com/create
+- Sitemap: https://qurator.quobby.com/sitemap.xml
+
+## About Quobby
+
+Quobby is a free mobile study companion app featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, and group study sessions. Qurator tutorials are integrated into the Quobby app.
+
+- Website: https://www.quobby.com
+- Instagram: https://www.instagram.com/quobby.official/
+- Support: helpmequobby@gmail.com

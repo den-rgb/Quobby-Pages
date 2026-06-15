@@ -62,6 +62,8 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
           .eq('bgg_id', game.bgg_id)
           .maybeSingle();
         if (existing) {
+          // Link only. Editor defaults (null rating, complexity 2, etc.) must not
+          // overwrite BGG-backfilled values on a shared games row.
           gameId = existing.id;
         }
       } else {

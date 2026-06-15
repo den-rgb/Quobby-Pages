@@ -109,7 +109,7 @@ export function LinkSplitDialog({ media, currentStepId, onClose }: Props) {
       const newStep = addContentStep(baseX, baseY + i * 160);
       const startLabel = formatTime(seg.start);
       const endLabel = seg.end !== undefined ? formatTime(seg.end) : 'end';
-      const heading = `Part ${i + 1} (${startLabel}–${endLabel})`;
+      const heading = `Part ${i + 1} (${startLabel}-${endLabel})`;
       const attachment: MediaAttachment = {
         ...media,
         id: crypto.randomUUID(),
@@ -151,7 +151,7 @@ export function LinkSplitDialog({ media, currentStepId, onClose }: Props) {
 
           <p className="text-xs text-foreground-muted leading-relaxed">
             Watch the video and enter timestamps where you want to split. Each segment
-            becomes its own tutorial step — the video will auto-start and auto-stop at
+            becomes its own tutorial step - the video will auto-start and auto-stop at
             the selected times.
           </p>
 
@@ -204,7 +204,7 @@ export function LinkSplitDialog({ media, currentStepId, onClose }: Props) {
                 >
                   <span className={`w-2 h-2 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-accent' : 'bg-green'}`} />
                   <span className="text-xs text-foreground flex-1">
-                    {formatTime(seg.start)} – {seg.end !== undefined ? formatTime(seg.end) : 'end'}
+                    {formatTime(seg.start)} - {seg.end !== undefined ? formatTime(seg.end) : 'end'}
                   </span>
                   <span className="text-[10px] text-foreground-faint truncate max-w-[10rem]">
                     {i === 0 ? '→ Current step' : `→ New step (Part ${i + 1})`}

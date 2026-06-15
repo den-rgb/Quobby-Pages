@@ -60,7 +60,7 @@ const STEPS: OnboardingStep[] = [
   },
   {
     title: 'Game Components',
-    body: 'Add board views to steps to show interactive game boards — hex grids for Catan-style games, rectangular grids for Codenames, or row layouts for engine builders like Wingspan.',
+    body: 'Add board views to steps to show interactive game boards - hex grids for Catan-style games, rectangular grids for Codenames, or row layouts for engine builders like Wingspan.',
     icon: Box,
     iconColor: 'text-accent',
   },

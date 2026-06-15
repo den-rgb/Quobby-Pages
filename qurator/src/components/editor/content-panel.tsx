@@ -15,6 +15,7 @@ import type {
 import {
   Bold,
   CheckCircle2,
+  CheckSquare,
   ChevronLeft,
   ChevronRight,
   Code,
@@ -142,8 +143,8 @@ export function ContentPanel() {
           <span className="text-xs font-medium text-foreground truncate">
             Step {stepIndex + 1} of {steps.length}
             {selectedStep.step_type === 'content'
-              ? ` — ${selectedStep.content_json?.heading || 'Untitled'}`
-              : ' — Logic'}
+              ? ` - ${selectedStep.content_json?.heading || 'Untitled'}`
+              : ' - Logic'}
           </span>
         </div>
         <button
@@ -448,6 +449,20 @@ function ContentEditor({
     });
   };
 
+  const addChecklist = () => {
+    updateStepContent(step.id, {
+      ...content,
+      interactive: {
+        type: 'checklist',
+        question: '',
+        items: [
+          { label: '' },
+          { label: '' },
+        ],
+      },
+    });
+  };
+
   const removeQuiz = () => {
     const { interactive: _, ...rest } = content;
     updateStepContent(step.id, rest as ContentStepPayload);
@@ -543,7 +558,7 @@ function ContentEditor({
         </label>
       </div>
 
-      {/* Board view section — only for board games */}
+      {/* Board view section - only for board games */}
       {isBoardGames && (
         <div className="pt-4 border-t border-border">
           <div className="flex items-center justify-between mb-3">
@@ -595,21 +610,34 @@ function ContentEditor({
         </div>
       )}
 
-      {/* Quiz section */}
+      {/* Interactive section (Quiz or Checklist) */}
       <div className="pt-4 border-t border-border">
         <div className="flex items-center justify-between mb-3">
           <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-            <HelpCircle className="w-3.5 h-3.5 text-accent" />
-            Comprehension Check
+            {content.interactive?.type === 'checklist' ? (
+              <CheckSquare className="w-3.5 h-3.5 text-accent" />
+            ) : (
+              <HelpCircle className="w-3.5 h-3.5 text-accent" />
+            )}
+            {content.interactive?.type === 'checklist' ? 'Checklist' : 'Comprehension Check'}
           </label>
           {!content.interactive ? (
-            <button
-              onClick={addQuiz}
-              className="flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
-            >
-              <Plus className="w-3 h-3" />
-              Add Quiz
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={addChecklist}
+                className="flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+              >
+                <CheckSquare className="w-3 h-3" />
+                Add Checklist
+              </button>
+              <button
+                onClick={addQuiz}
+                className="flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+                Add Quiz
+              </button>
+            </div>
           ) : (
             <button
               onClick={removeQuiz}
@@ -621,7 +649,74 @@ function ContentEditor({
           )}
         </div>
 
-        {content.interactive && (
+        {content.interactive?.type === 'checklist' && (
+          <div className="space-y-3 p-3 bg-white/[0.02] border border-border rounded-xl">
+            <div>
+              <label className="block text-[10px] font-medium text-foreground-faint mb-0.5">
+                Title (optional)
+              </label>
+              <input
+                type="text"
+                value={content.interactive.question ?? ''}
+                onChange={(e) => updateQuiz({ question: e.target.value })}
+                className="w-full px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground placeholder:text-foreground-faint focus:outline-none focus:border-accent/30"
+                placeholder="e.g. Ingredients gathered?"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-medium text-foreground-faint mb-1.5">
+                Items
+              </label>
+              <div className="space-y-1.5">
+                {content.interactive.items?.map((item, i) => (
+                  <div key={i} className="flex items-center gap-1.5">
+                    <CheckSquare className="w-3.5 h-3.5 text-foreground-faint shrink-0" />
+                    <input
+                      type="text"
+                      value={item.label}
+                      onChange={(e) => {
+                        const newItems = [...(content.interactive!.items ?? [])];
+                        newItems[i] = { ...newItems[i], label: e.target.value };
+                        updateQuiz({ items: newItems });
+                      }}
+                      className="flex-1 px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground placeholder:text-foreground-faint focus:outline-none focus:border-accent/30"
+                      placeholder={`Item ${i + 1}`}
+                    />
+                    {(content.interactive?.items?.length ?? 0) > 1 && (
+                      <button
+                        onClick={() => {
+                          const newItems = content.interactive!.items!.filter(
+                            (_, j) => j !== i
+                          );
+                          updateQuiz({ items: newItems });
+                        }}
+                        className="text-foreground-faint hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  const newItems = [
+                    ...(content.interactive!.items ?? []),
+                    { label: '' },
+                  ];
+                  updateQuiz({ items: newItems });
+                }}
+                className="mt-1.5 flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+                Add item
+              </button>
+            </div>
+          </div>
+        )}
+
+        {content.interactive && content.interactive.type !== 'checklist' && (
           <div className="space-y-3 p-3 bg-white/[0.02] border border-border rounded-xl">
             <div>
               <label className="block text-[10px] font-medium text-foreground-faint mb-0.5">

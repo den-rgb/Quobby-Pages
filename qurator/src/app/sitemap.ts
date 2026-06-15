@@ -20,22 +20,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createClient();
     const { data: tutorials } = await supabase
       .from('tutorials')
-      .select('id, updated_at')
+      .select('id, updated_at, play_count, games(title)')
       .eq('status', 'published')
       .order('updated_at', { ascending: false });
 
     if (tutorials) {
       for (const t of tutorials) {
+        const game = t.games as unknown as { title: string } | null;
+        const priority = (t.play_count ?? 0) > 100 ? 0.8 : 0.7;
         entries.push({
           url: `https://qurator.quobby.com/tutorials/${t.id}`,
           lastModified: new Date(t.updated_at),
           changeFrequency: 'weekly',
-          priority: 0.7,
+          priority,
+          ...(game?.title && {
+            alternates: {
+              languages: {
+                'x-default': `https://qurator.quobby.com/tutorials/${t.id}`,
+              },
+            },
+          }),
         });
       }
     }
   } catch {
-    // Supabase unavailable during build — include demo tutorials only
+    // Supabase unavailable during build - include demo tutorials only
   }
 
   for (const demo of DEMO_TUTORIAL_LIST) {

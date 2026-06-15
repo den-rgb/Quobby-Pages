@@ -17,7 +17,7 @@ export default function PremiumSuccessPage() {
           </h1>
         </div>
         <p className="text-foreground-muted mb-8">
-          Your subscription is now active. All premium features are unlocked —
+          Your subscription is now active. All premium features are unlocked -
           larger video uploads, video splitting, and tutorial analytics.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

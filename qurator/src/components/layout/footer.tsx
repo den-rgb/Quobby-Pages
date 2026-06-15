@@ -1,6 +1,6 @@
 'use client';
 
-import { Gamepad2 } from 'lucide-react';
+import { QuratorLogo } from '@/components/layout/qurator-logo';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -12,7 +12,7 @@ export function Footer() {
     <footer className="border-t border-border py-12 px-6">
       <div className="max-w-[1100px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-2.5">
-          <Gamepad2 className="w-5 h-5 text-accent" />
+          <QuratorLogo size={20} />
           <span className="font-semibold text-foreground text-sm">
             Qurator
           </span>
@@ -38,7 +38,7 @@ export function Footer() {
             <a
               href="https://www.quobby.com/support"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className="text-foreground-muted text-sm hover:text-foreground transition-colors"
             >
               FAQ &amp; Support
@@ -52,6 +52,26 @@ export function Footer() {
               className="text-foreground-muted text-sm hover:text-foreground transition-colors"
             >
               Quobby App
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.quobby.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="text-foreground-muted text-sm hover:text-foreground transition-colors"
+            >
+              Privacy
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.quobby.com/terms"
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="text-foreground-muted text-sm hover:text-foreground transition-colors"
+            >
+              Terms
             </a>
           </li>
         </ul>

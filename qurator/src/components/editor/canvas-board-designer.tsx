@@ -1497,7 +1497,7 @@ export function CanvasBoardDesigner() {
 
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <span className="text-sm font-medium text-foreground">Board Setup Designer</span>
-          <span className="text-xs text-foreground-faint">—</span>
+          <span className="text-xs text-foreground-faint">-</span>
           <input
             type="text"
             value={boardTitle}

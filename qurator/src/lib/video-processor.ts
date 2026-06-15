@@ -141,7 +141,7 @@ async function readAndClean(path: string): Promise<Blob> {
     raw = await readFile(path);
   } catch {
     throw new Error(
-      'Output file was not created — FFmpeg may have run out of memory. Try splitting into smaller segments.',
+      'Output file was not created - FFmpeg may have run out of memory. Try splitting into smaller segments.',
     );
   }
   await deleteFile(path);

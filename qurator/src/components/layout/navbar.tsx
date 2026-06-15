@@ -1,9 +1,11 @@
 'use client';
 
+import { QuratorLogo } from '@/components/layout/qurator-logo';
 import { PremiumUpsell } from '@/components/premium-upsell';
+import { ThemePicker } from '@/components/theme-picker';
 import { useAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
-import { Crown, Download, Gamepad2, HelpCircle, LogOut, Menu, User, X } from 'lucide-react';
+import { Crown, Download, HelpCircle, LogOut, Menu, Palette, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -128,7 +130,7 @@ function UserMenu() {
       </button>
 
       {menuOpen && (
-        <div className="absolute right-0 top-12 w-56 bg-background-secondary border border-border rounded-xl shadow-xl overflow-hidden z-50">
+        <div className="absolute left-1/2 -translate-x-1/2 lg:left-auto lg:right-0 lg:translate-x-0 top-12 w-56 bg-background-secondary border border-border rounded-xl shadow-xl overflow-hidden z-50">
           <div className="px-4 py-3 border-b border-border">
             <div className="flex items-center gap-2">
               <p
@@ -190,6 +192,55 @@ function UserMenu() {
   );
 }
 
+function ThemeMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (ref.current && !ref.current.contains(e.target as Node)) {
+      setOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [handleClickOutside]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        aria-label="Choose theme"
+        aria-expanded={open}
+        className={`flex items-center gap-1.5 px-4 py-2 lg:px-0 lg:py-0 lg:w-9 lg:h-9 lg:justify-center rounded-lg text-sm font-medium transition-all ${open
+          ? 'text-foreground bg-white/5'
+          : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
+          }`}
+      >
+        <Palette className="w-4 h-4" />
+        <span className="lg:hidden">Theme</span>
+      </button>
+      {open && (
+        <div className="absolute left-1/2 -translate-x-1/2 lg:left-auto lg:right-0 lg:translate-x-0 top-12 w-[min(20.5rem,calc(100vw-2rem))] max-lg:static max-lg:translate-x-0 max-lg:left-0 max-lg:top-auto max-lg:mt-2 max-lg:w-full bg-background-secondary border border-border rounded-xl shadow-xl overflow-hidden z-50 p-3">
+          <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-wider text-foreground-faint">
+            Appearance
+          </p>
+          <ThemePicker compact />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const { isPremium, isAdmin } = useAuth();
@@ -205,7 +256,7 @@ export function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 backdrop-blur-xl bg-background/80 border-b border-border">
         <div className="max-w-[1100px] mx-auto flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-3 no-underline">
-            <Gamepad2 className="w-8 h-8 text-accent" />
+            <QuratorLogo size={32} />
             <span className="text-lg font-bold text-foreground tracking-tight">
               Qurator
             </span>
@@ -290,6 +341,9 @@ export function Navbar() {
               >
                 Start Creating
               </Link>
+            </li>
+            <li>
+              <ThemeMenu />
             </li>
             <li className="lg:ml-2">
               <UserMenu />

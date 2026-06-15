@@ -1,6 +1,7 @@
 'use client';
 
 import { PremiumUpsell } from '@/components/premium-upsell';
+import { ThemePicker } from '@/components/theme-picker';
 import { useAuth } from '@/lib/auth';
 import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST } from '@/lib/demo-tutorials';
 import { createClient } from '@/lib/supabase/client';
@@ -494,7 +495,7 @@ export default function ProfilePage() {
       <div className="max-w-[800px] mx-auto space-y-6">
         {/* Profile Header */}
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl">
-          <div className="flex items-center gap-5">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center text-3xl shrink-0 border-2 border-white/10"
               style={{
@@ -503,8 +504,8 @@ export default function ProfilePage() {
             >
               {avatarEmoji}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
                 <h1
                   className="text-xl font-bold truncate"
                   style={{ color: `#${nameColor}` }}
@@ -523,7 +524,7 @@ export default function ProfilePage() {
               <p className="text-xs text-foreground-faint truncate">
                 {user.email}
               </p>
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center justify-center sm:justify-start gap-3 mt-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-yellow-500/15 text-yellow-400 text-xs font-semibold rounded-full">
                   <Trophy className="w-3 h-3" />
                   Level {level}
@@ -659,7 +660,15 @@ export default function ProfilePage() {
               {portalLoading ? 'Opening…' : 'Manage'}
             </span>
           </button>
-        ) : null}
+          ) : null}
+
+        {/* Appearance */}
+        <div className="p-5 bg-white/[0.03] border border-white/[0.06] rounded-2xl">
+          <ThemePicker />
+          <p className="text-[11px] text-foreground-faint mt-3 px-1">
+            Saved on this device. Named palettes match the Quobby app themes.
+          </p>
+        </div>
 
         {/* Level Progress */}
         {profile && (
@@ -883,7 +892,7 @@ export default function ProfilePage() {
                       {isPremium
                         ? (() => {
                           const rated = published.filter((t) => t.rating_count > 0);
-                          if (rated.length === 0) return '—';
+                          if (rated.length === 0) return '-';
                           return (rated.reduce((s, t) => s + t.rating_avg, 0) / rated.length).toFixed(1);
                         })()
                         : '---'}

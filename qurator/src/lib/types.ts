@@ -5,7 +5,7 @@ export type ComponentType =
   | 'card' | 'token' | 'die' | 'board' | 'meeple' | 'tile' | 'marker'
   | 'image' | 'diagram' | 'annotation' | 'label' | 'other';
 export type VariableType = 'number' | 'string' | 'boolean';
-export type InteractiveElementType = 'multiple_choice' | 'tap_continue' | 'timer' | 'text_input';
+export type InteractiveElementType = 'multiple_choice' | 'checklist' | 'tap_continue' | 'timer' | 'text_input';
 
 export interface Category {
   id: string;
@@ -172,11 +172,16 @@ export interface BoardViewConfig {
   canvas_height?: number;
 }
 
+export interface ChecklistItem {
+  label: string;
+}
+
 export interface InteractiveElement {
   type: InteractiveElementType;
   question?: string;
   options?: { label: string; correct: boolean }[];
   explanation?: string;
+  items?: ChecklistItem[];
 }
 
 export interface LogicCondition {

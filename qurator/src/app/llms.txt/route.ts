@@ -1,5 +1,24 @@
-export function GET() {
-  const content = `# Qurator — by Quobby
+import { getPublishedCatalog } from '@/lib/seo';
+
+export async function GET() {
+  const catalog = await getPublishedCatalog();
+  const gameLines = catalog.games
+    .slice(0, 40)
+    .map((g) => `- How to play ${g.title}: https://qurator.quobby.com/tutorials/${g.tutorialId}`)
+    .join('\n');
+  const recipeLines = catalog.recipes
+    .slice(0, 20)
+    .map((r) => `- ${r.title}: https://qurator.quobby.com/tutorials/${r.tutorialId}`)
+    .join('\n');
+
+  const catalogSection = [
+    gameLines && `## Published board game tutorials\n\n${gameLines}`,
+    recipeLines && `## Published recipe tutorials\n\n${recipeLines}`,
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+  const content = `# Qurator - by Quobby
 
 > Qurator is a free, community-driven platform for creating and following interactive, step-by-step tutorials on any topic.
 
@@ -34,7 +53,7 @@ Qurator is built by the Quobby team and complements the Quobby mobile app.
 
 Board Games, Cooking, DIY & Crafts, Software, Music, Sports, Science
 
-## Links
+${catalogSection ? `${catalogSection}\n\n` : ''}## Links
 
 - Browse tutorials: https://qurator.quobby.com/tutorials
 - Create a tutorial: https://qurator.quobby.com/create
@@ -42,7 +61,7 @@ Board Games, Cooking, DIY & Crafts, Software, Music, Sports, Science
 
 ---
 
-# Quobby — Smart Flashcards & Study Tools
+# Quobby - Smart Flashcards & Study Tools
 
 > Quobby is a free mobile study companion app available on iOS, featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, group study sessions, and gamification.
 

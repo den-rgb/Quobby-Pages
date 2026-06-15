@@ -120,6 +120,66 @@ function InteractiveQuiz({
   );
 }
 
+function InteractiveChecklist({
+  element,
+  checked,
+  onToggle,
+}: {
+  element: InteractiveElement;
+  checked: number[];
+  onToggle: (i: number) => void;
+}) {
+  const total = element.items?.length ?? 0;
+  const done = checked.length;
+
+  return (
+    <div className="mt-6 p-5 bg-white/[0.02] border border-border rounded-xl">
+      {element.question && (
+        <p className="text-foreground font-medium mb-4">
+          {element.question}
+        </p>
+      )}
+      <div className="space-y-2">
+        {element.items?.map((item, i) => (
+          <button
+            key={i}
+            onClick={() => onToggle(i)}
+            className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm flex items-center gap-3 ${checked.includes(i)
+              ? 'border-green/40 bg-green/5 text-foreground-secondary'
+              : 'border-border hover:border-foreground-faint hover:bg-white/[0.03] text-foreground-secondary'
+              }`}
+          >
+            <span
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${checked.includes(i)
+                ? 'border-green bg-green text-black'
+                : 'border-foreground-faint'
+                }`}
+            >
+              {checked.includes(i) && <Check className="w-3.5 h-3.5" />}
+            </span>
+            <span className={checked.includes(i) ? 'line-through opacity-60' : ''}>
+              {item.label}
+            </span>
+          </button>
+        ))}
+      </div>
+      {total > 0 && (
+        <div className="mt-4 flex items-center gap-2">
+          <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-green rounded-full transition-all duration-300"
+              style={{ width: `${(done / total) * 100}%` }}
+            />
+          </div>
+          <span className="text-xs text-foreground-faint font-medium tabular-nums">
+            {done}/{total}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SafeMarkdown({ parts }: { parts: TextPart[] }) {
   return (
     <>
@@ -228,7 +288,7 @@ function ReportDialog({
         }),
       });
     } catch {
-      /* Edge function may not be deployed yet — report is still in DB */
+      /* Edge function may not be deployed yet - report is still in DB */
     }
 
     setSubmitting(false);
@@ -541,6 +601,7 @@ export default function TutorialPlayerPage() {
   const [history, setHistory] = useState<string[]>([]);
   const [varState, setVarState] = useState<VariableState>({});
   const [quizCompleted, setQuizCompleted] = useState<Set<string>>(new Set());
+  const [checklistState, setChecklistState] = useState<Record<string, number[]>>({});
   const [showReport, setShowReport] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -582,8 +643,9 @@ export default function TutorialPlayerPage() {
 
   const hasBranching = branches !== null && branches.branches.length > 0;
   const hasQuiz = !!step?.interactive;
+  const isChecklist = step?.interactive?.type === 'checklist';
   const quizDone = currentStepId ? quizCompleted.has(currentStepId) : false;
-  const canAdvance = !hasQuiz || quizDone;
+  const canAdvance = !hasQuiz || isChecklist || quizDone;
   const isTerminal = !hasBranching && !nextStepId;
   const isLastStep = isTerminal && canAdvance;
 
@@ -612,6 +674,7 @@ export default function TutorialPlayerPage() {
   const restart = useCallback(() => {
     setHistory([]);
     setQuizCompleted(new Set());
+    setChecklistState({});
     setVarState(initVariableState(variables));
   }, [variables]);
 
@@ -1181,7 +1244,23 @@ export default function TutorialPlayerPage() {
             </div>
           )}
 
-          {hasQuiz && (
+          {hasQuiz && step!.interactive!.type === 'checklist' && currentStepId && (
+            <InteractiveChecklist
+              element={step!.interactive!}
+              checked={checklistState[currentStepId] ?? []}
+              onToggle={(i) => {
+                setChecklistState((prev) => {
+                  const current = prev[currentStepId!] ?? [];
+                  const next = current.includes(i)
+                    ? current.filter((x) => x !== i)
+                    : [...current, i];
+                  return { ...prev, [currentStepId!]: next };
+                });
+              }}
+            />
+          )}
+
+          {hasQuiz && step!.interactive!.type !== 'checklist' && (
             <InteractiveQuiz
               element={step!.interactive!}
               onComplete={handleQuizComplete}
@@ -1236,7 +1315,7 @@ export default function TutorialPlayerPage() {
             ) : null}
           </div>
 
-          {/* Rating section — shown at end */}
+          {/* Rating section - shown at end */}
           {isLastStep && (
             <div className="mt-10 p-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl text-center">
               <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -1255,7 +1334,7 @@ export default function TutorialPlayerPage() {
             </div>
           )}
 
-          {/* Comments — shown at end */}
+          {/* Comments - shown at end */}
           {isLastStep && (
             <div className="mt-8 pt-8 border-t border-border">
               <CommentsSection tutorialId={tutorialId} creatorId={tutorialData.creator_id} />

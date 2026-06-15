@@ -197,7 +197,7 @@ export function VideoProcessDialog({
       for (let i = 1; i < attachments.length; i++) {
         const seg = segments[i];
         const newStep = addContentStep(baseX, baseY + i * 160);
-        const heading = `Part ${i + 1} (${formatTime(seg.startTime)}–${formatTime(seg.endTime)})`;
+        const heading = `Part ${i + 1} (${formatTime(seg.startTime)}-${formatTime(seg.endTime)})`;
         updateStepContent(newStep.id, {
           heading,
           body: '',
@@ -249,7 +249,7 @@ export function VideoProcessDialog({
             <div className="w-full rounded-xl bg-black/40 flex flex-col items-center justify-center py-8 gap-2">
               <Film className="w-8 h-8 text-foreground-faint" />
               <p className="text-xs text-foreground-muted">
-                Preview unavailable — FFmpeg can still process this file
+                Preview unavailable - FFmpeg can still process this file
               </p>
             </div>
           ) : (
@@ -395,7 +395,7 @@ export function VideoProcessDialog({
                           }`}
                       />
                       <span className="text-xs text-foreground flex-1">
-                        {formatTime(seg.start)} – {formatTime(seg.end)}
+                        {formatTime(seg.start)} - {formatTime(seg.end)}
                       </span>
                       <span className="text-[10px] text-foreground-faint truncate max-w-[10rem]">
                         {i === 0

@@ -262,7 +262,7 @@ export default function CreatePage() {
             Create a Tutorial
           </h1>
           <p className="text-lg text-foreground-muted max-w-[500px] mx-auto">
-            Teach anything — pick a category and start building.
+            Teach anything - pick a category and start building.
           </p>
         </div>
 

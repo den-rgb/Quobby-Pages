@@ -87,7 +87,7 @@ export function PremiumUpsell({ onClose, feature }: Props) {
               7-day free trial for new subscribers
             </p>
             <p className="text-[10px] text-foreground-faint">
-              Cancel anytime — you won&apos;t be charged until the trial ends.
+              Cancel anytime - you won&apos;t be charged until the trial ends.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export function PremiumUpsell({ onClose, feature }: Props) {
                     ) : (
                       <Crown className="w-3.5 h-3.5" />
                     )}
-                    Start Free Trial — Monthly
+                    Start Free Trial - Monthly
                   </button>
                 )}
                 {yearlyPriceId && (
@@ -125,7 +125,7 @@ export function PremiumUpsell({ onClose, feature }: Props) {
                     ) : (
                       <Crown className="w-3.5 h-3.5" />
                     )}
-                    Start Free Trial — Yearly
+                    Start Free Trial - Yearly
                   </button>
                 )}
               </>

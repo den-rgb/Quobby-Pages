@@ -7,6 +7,7 @@ import type { Category, Tutorial } from '@/lib/types';
 import {
   Bookmark,
   BookmarkCheck,
+  BookOpen,
   Check,
   Clock,
   Code2,
@@ -490,7 +491,7 @@ export default function TutorialsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
-            <Gamepad2 className="w-12 h-12 text-foreground-faint mx-auto mb-4" />
+            <BookOpen className="w-12 h-12 text-foreground-faint mx-auto mb-4" />
             <p className="text-foreground-muted">
               No tutorials found. Try a different search or{' '}
               <Link href="/create" className="text-accent hover:text-accent-light">

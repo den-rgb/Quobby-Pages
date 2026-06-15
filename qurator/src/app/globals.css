@@ -1,21 +1,174 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0a0a14;
-  --color-background-secondary: #12121e;
-  --color-card: rgba(255, 255, 255, 0.03);
-  --color-card-hover: rgba(255, 255, 255, 0.06);
-  --color-foreground: #ffffff;
-  --color-foreground-secondary: rgba(255, 255, 255, 0.85);
-  --color-foreground-muted: rgba(255, 255, 255, 0.5);
-  --color-foreground-faint: rgba(255, 255, 255, 0.35);
-  --color-accent: #a1306b;
-  --color-accent-light: #c44f8a;
-  --color-accent-glow: rgba(139, 0, 81, 0.15);
-  --color-green: #b8ff6b;
-  --color-border: rgba(255, 255, 255, 0.06);
+  --color-background: var(--q-background);
+  --color-background-secondary: var(--q-background-secondary);
+  --color-card: var(--q-card);
+  --color-card-hover: var(--q-card-hover);
+  --color-foreground: var(--q-foreground);
+  --color-foreground-secondary: var(--q-foreground-secondary);
+  --color-foreground-muted: var(--q-foreground-muted);
+  --color-foreground-faint: var(--q-foreground-faint);
+  --color-accent: var(--q-accent);
+  --color-accent-light: var(--q-accent-light);
+  --color-accent-glow: var(--q-accent-glow);
+  --color-green: var(--q-green);
+  --color-border: var(--q-border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+:root,
+[data-theme="dark"] {
+  --q-background: #0a0a14;
+  --q-background-secondary: #12121e;
+  --q-card: rgba(255, 255, 255, 0.03);
+  --q-card-hover: rgba(255, 255, 255, 0.06);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.85);
+  --q-foreground-muted: rgba(255, 255, 255, 0.5);
+  --q-foreground-faint: rgba(255, 255, 255, 0.35);
+  --q-accent: #a1306b;
+  --q-accent-light: #c44f8a;
+  --q-accent-glow: rgba(139, 0, 81, 0.15);
+  --q-green: #b8ff6b;
+  --q-border: rgba(255, 255, 255, 0.06);
+  --q-glow: rgba(139, 0, 81, 0.15);
+  --q-glow-soft: rgba(139, 0, 81, 0.06);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --q-background: #F2F2F7;
+  --q-background-secondary: #E5E5ED;
+  --q-card: #ffffff;
+  --q-card-hover: #f4f4fa;
+  --q-foreground: #1C1C2E;
+  --q-foreground-secondary: rgba(28, 28, 46, 0.85);
+  --q-foreground-muted: #6B6B80;
+  --q-foreground-faint: #8e8ea3;
+  --q-accent: #a1306b;
+  --q-accent-light: #c44f8a;
+  --q-accent-glow: rgba(161, 48, 107, 0.12);
+  --q-green: #2E7D32;
+  --q-border: rgba(0, 0, 0, 0.08);
+  --q-glow: rgba(161, 48, 107, 0.12);
+  --q-glow-soft: rgba(161, 48, 107, 0.06);
+  color-scheme: light;
+}
+
+[data-theme="ocean"] {
+  --q-background: #0A1628;
+  --q-background-secondary: #0D2137;
+  --q-card: rgba(19, 47, 76, 0.7);
+  --q-card-hover: rgba(19, 47, 76, 0.95);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.85);
+  --q-foreground-muted: rgba(255, 255, 255, 0.55);
+  --q-foreground-faint: rgba(255, 255, 255, 0.38);
+  --q-accent: #29B6F2;
+  --q-accent-light: #4FC3F7;
+  --q-accent-glow: rgba(41, 182, 242, 0.16);
+  --q-green: #64FFDA;
+  --q-border: rgba(255, 255, 255, 0.08);
+  --q-glow: rgba(41, 182, 242, 0.18);
+  --q-glow-soft: rgba(100, 255, 218, 0.08);
+  color-scheme: dark;
+}
+
+[data-theme="forest"] {
+  --q-background: #0D1F12;
+  --q-background-secondary: #132A18;
+  --q-card: rgba(27, 61, 36, 0.7);
+  --q-card-hover: rgba(27, 61, 36, 0.95);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.85);
+  --q-foreground-muted: rgba(255, 255, 255, 0.55);
+  --q-foreground-faint: rgba(255, 255, 255, 0.38);
+  --q-accent: #66BB6A;
+  --q-accent-light: #81C784;
+  --q-accent-glow: rgba(102, 187, 106, 0.16);
+  --q-green: #FFD54F;
+  --q-border: rgba(255, 255, 255, 0.08);
+  --q-glow: rgba(102, 187, 106, 0.18);
+  --q-glow-soft: rgba(255, 213, 79, 0.08);
+  color-scheme: dark;
+}
+
+[data-theme="sunset"] {
+  --q-background: #2C1810;
+  --q-background-secondary: #3D2318;
+  --q-card: rgba(74, 44, 30, 0.7);
+  --q-card-hover: rgba(74, 44, 30, 0.95);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.88);
+  --q-foreground-muted: rgba(255, 255, 255, 0.58);
+  --q-foreground-faint: rgba(255, 255, 255, 0.4);
+  --q-accent: #FF8A65;
+  --q-accent-light: #FFAB91;
+  --q-accent-glow: rgba(255, 138, 101, 0.16);
+  --q-green: #FFD180;
+  --q-border: rgba(255, 255, 255, 0.08);
+  --q-glow: rgba(255, 138, 101, 0.18);
+  --q-glow-soft: rgba(255, 209, 128, 0.08);
+  color-scheme: dark;
+}
+
+[data-theme="midnight"] {
+  --q-background: #1A0D24;
+  --q-background-secondary: #251033;
+  --q-card: rgba(50, 27, 69, 0.7);
+  --q-card-hover: rgba(50, 27, 69, 0.95);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.88);
+  --q-foreground-muted: rgba(255, 255, 255, 0.58);
+  --q-foreground-faint: rgba(255, 255, 255, 0.4);
+  --q-accent: #B388FF;
+  --q-accent-light: #D1C4E9;
+  --q-accent-glow: rgba(179, 136, 255, 0.16);
+  --q-green: #FF80AB;
+  --q-border: rgba(255, 255, 255, 0.08);
+  --q-glow: rgba(179, 136, 255, 0.18);
+  --q-glow-soft: rgba(255, 128, 171, 0.08);
+  color-scheme: dark;
+}
+
+[data-theme="rose"] {
+  --q-background: #1F1218;
+  --q-background-secondary: #2A1820;
+  --q-card: rgba(61, 36, 48, 0.7);
+  --q-card-hover: rgba(61, 36, 48, 0.95);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.88);
+  --q-foreground-muted: rgba(255, 255, 255, 0.58);
+  --q-foreground-faint: rgba(255, 255, 255, 0.4);
+  --q-accent: #F8BBD9;
+  --q-accent-light: #FCE4EC;
+  --q-accent-glow: rgba(248, 187, 217, 0.16);
+  --q-green: #CE93D8;
+  --q-border: rgba(255, 255, 255, 0.08);
+  --q-glow: rgba(248, 187, 217, 0.16);
+  --q-glow-soft: rgba(206, 147, 216, 0.08);
+  color-scheme: dark;
+}
+
+[data-theme="cherry_blossom"] {
+  --q-background: #1C0E15;
+  --q-background-secondary: #271521;
+  --q-card: rgba(51, 29, 44, 0.7);
+  --q-card-hover: rgba(51, 29, 44, 0.95);
+  --q-foreground: #ffffff;
+  --q-foreground-secondary: rgba(255, 255, 255, 0.88);
+  --q-foreground-muted: rgba(255, 255, 255, 0.58);
+  --q-foreground-faint: rgba(255, 255, 255, 0.4);
+  --q-accent: #FFB7C5;
+  --q-accent-light: #FFCDD2;
+  --q-accent-glow: rgba(255, 183, 197, 0.16);
+  --q-green: #B8D4E3;
+  --q-border: rgba(255, 255, 255, 0.08);
+  --q-glow: rgba(255, 183, 197, 0.16);
+  --q-glow-soft: rgba(184, 212, 227, 0.08);
+  color-scheme: dark;
 }
 
 html,
@@ -29,8 +182,20 @@ body {
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--q-glow), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, var(--q-glow-soft), transparent 50%),
+    linear-gradient(180deg, var(--color-background) 0%, var(--color-background-secondary) 100%);
+}
+
 ::selection {
-  background: rgba(139, 0, 81, 0.3);
+  background: var(--q-accent-glow);
   color: var(--color-foreground);
 }
 
@@ -49,7 +214,45 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* React Flow overrides to match dark theme */
+/* Light theme: remap white-overlay utilities that assume a dark page */
+[data-theme="light"] .bg-white\/\[0\.02\],
+[data-theme="light"] .bg-white\/\[0\.03\],
+[data-theme="light"] .bg-white\/\[0\.04\],
+[data-theme="light"] .bg-white\/\[0\.05\],
+[data-theme="light"] .bg-white\/\[0\.06\],
+[data-theme="light"] .bg-white\/5,
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .hover\:bg-white\/5:hover,
+[data-theme="light"] .hover\:bg-white\/10:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/\[0\.06\],
+[data-theme="light"] .border-white\/\[0\.08\] {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .bg-\[\#16162a\],
+[data-theme="light"] .bg-\[\#1a1a2e\],
+[data-theme="light"] .bg-\[\#0d0d1a\] {
+  background-color: var(--q-background-secondary);
+}
+
+[data-theme="light"] .bg-\[\#0d0d1a\]\/70 {
+  background-color: rgba(242, 242, 247, 0.78);
+}
+
+/* Filled lime/green CTAs stay readable in light mode */
+[data-theme="light"] .bg-green {
+  --q-green: #b8ff6b;
+}
+
+/* React Flow overrides to match current theme */
 .react-flow__background {
   background: var(--color-background-secondary) !important;
 }

@@ -114,6 +114,66 @@ function QuizPreview({
   );
 }
 
+function ChecklistPreview({
+  element,
+  checked,
+  onToggle,
+}: {
+  element: InteractiveElement;
+  checked: number[];
+  onToggle: (i: number) => void;
+}) {
+  const total = element.items?.length ?? 0;
+  const done = checked.length;
+
+  return (
+    <div className="mt-3 p-3 bg-white/[0.02] border border-border rounded-xl">
+      {element.question && (
+        <p className="text-foreground font-medium text-xs mb-2">
+          {element.question}
+        </p>
+      )}
+      <div className="space-y-1">
+        {element.items?.map((item, i) => (
+          <button
+            key={i}
+            onClick={() => onToggle(i)}
+            className={`w-full text-left px-2.5 py-1.5 rounded-lg border transition-all text-[11px] flex items-center gap-2 ${checked.includes(i)
+              ? 'border-green/40 bg-green/5 text-foreground-secondary'
+              : 'border-border hover:border-foreground-faint text-foreground-secondary'
+              }`}
+          >
+            <span
+              className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all ${checked.includes(i)
+                ? 'border-green bg-green text-black'
+                : 'border-foreground-faint'
+                }`}
+            >
+              {checked.includes(i) && <CheckCircle2 className="w-2.5 h-2.5" />}
+            </span>
+            <span className={checked.includes(i) ? 'line-through opacity-60' : ''}>
+              {item.label || '(empty item)'}
+            </span>
+          </button>
+        ))}
+      </div>
+      {total > 0 && (
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-green rounded-full transition-all duration-300"
+              style={{ width: `${(done / total) * 100}%` }}
+            />
+          </div>
+          <span className="text-[9px] text-foreground-faint font-medium tabular-nums">
+            {done}/{total}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BranchPreview({
   prompt,
   branches,
@@ -153,6 +213,7 @@ export function TutorialPreview() {
   const { steps, connections, variables, game } = useEditorStore();
   const [history, setHistory] = useState<string[]>([]);
   const [quizDone, setQuizDone] = useState<Set<string>>(new Set());
+  const [checklistState, setChecklistState] = useState<Record<string, number[]>>({});
   const [varState, setVarState] = useState<VariableState>(() =>
     initVariableState(variables)
   );
@@ -171,6 +232,7 @@ export function TutorialPreview() {
   const step = steps.find((s) => s.id === currentStepId && s.step_type === 'content');
   const content = step?.content_json;
   const hasQuiz = !!content?.interactive;
+  const isChecklist = content?.interactive?.type === 'checklist';
   const quizCompleted = currentStepId ? quizDone.has(currentStepId) : false;
 
   const branches = useMemo(() => {
@@ -187,7 +249,7 @@ export function TutorialPreview() {
   }, [step, steps, connections, autoTarget]);
 
   const hasBranching = branches !== null && branches.branches.length > 0;
-  const canAdvance = !hasQuiz || quizCompleted;
+  const canAdvance = !hasQuiz || isChecklist || quizCompleted;
   const isTerminal = !hasBranching && !nextStepId;
 
   const bodyParts = useMemo(() => {
@@ -220,6 +282,7 @@ export function TutorialPreview() {
   const restart = useCallback(() => {
     setHistory([]);
     setQuizDone(new Set());
+    setChecklistState({});
     setVarState(initVariableState(variables));
   }, [variables]);
 
@@ -367,7 +430,23 @@ export function TutorialPreview() {
               </div>
             )}
 
-            {hasQuiz && !quizCompleted && (
+            {hasQuiz && isChecklist && currentStepId && (
+              <ChecklistPreview
+                element={content!.interactive!}
+                checked={checklistState[currentStepId] ?? []}
+                onToggle={(i) => {
+                  setChecklistState((prev) => {
+                    const current = prev[currentStepId!] ?? [];
+                    const next = current.includes(i)
+                      ? current.filter((x) => x !== i)
+                      : [...current, i];
+                    return { ...prev, [currentStepId!]: next };
+                  });
+                }}
+              />
+            )}
+
+            {hasQuiz && !isChecklist && !quizCompleted && (
               <QuizPreview
                 element={content!.interactive!}
                 onComplete={handleQuizComplete}

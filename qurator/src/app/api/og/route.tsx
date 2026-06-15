@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
               minWidth: 0,
             }}
           >
-            {/* Brand — big and bold */}
+            {/* Brand - big and bold */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               {iconData ? (
                 <img
@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
               <span style={{ fontSize: '38px', fontWeight: 900, color: '#4cd964', letterSpacing: '-0.02em' }}>Qurator</span>
             </div>
 
-            {/* Title in maroon box — fills middle */}
+            {/* Title in maroon box - fills middle */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {gameTitle && (
                 <span style={{ fontSize: '17px', fontWeight: 700, color: '#4cd964', textTransform: 'uppercase', letterSpacing: '0.1em' }}>

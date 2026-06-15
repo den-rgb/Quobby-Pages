@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
 Sitemap: https://www.quobby.com/sitemap.xml
+
+# IndexNow
+# Key: 809a8b8e35a4411f935c9282603e14dc
+# Verification: https://www.quobby.com/809a8b8e35a4411f935c9282603e14dc.txt
