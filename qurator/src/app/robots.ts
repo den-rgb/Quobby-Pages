@@ -6,12 +6,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/profile', '/create/', '/premium/'],
+        disallow: ['/api/', '/profile', '/create/', '/premium/', '/admin'],
       },
       {
         userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'Anthropic-AI', 'ClaudeBot', 'PerplexityBot', 'Cohere-AI'],
         allow: ['/', '/llms.txt'],
-        disallow: ['/api/', '/profile', '/create/', '/premium/'],
+        disallow: ['/api/', '/profile', '/create/', '/premium/', '/admin'],
       },
     ],
     sitemap: 'https://qurator.quobby.com/sitemap.xml',

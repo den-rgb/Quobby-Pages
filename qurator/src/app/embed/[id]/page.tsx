@@ -214,6 +214,7 @@ export default function EmbedTutorialPage() {
   const [variables, setVariables] = useState<TutorialVariable[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [paidLocked, setPaidLocked] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [varState, setVarState] = useState<VariableState>({});
   const [quizCompleted, setQuizCompleted] = useState<Set<string>>(new Set());
@@ -336,7 +337,7 @@ export default function EmbedTutorialPage() {
     async function fetchTutorial() {
       const { data: tut, error: tutErr } = await supabase
         .from('tutorials')
-        .select('id, title, status')
+        .select('id, title, status, is_paid')
         .eq('id', tutorialId)
         .single();
 
@@ -347,6 +348,12 @@ export default function EmbedTutorialPage() {
       }
 
       setTitle(tut.title);
+
+      if (tut.is_paid) {
+        setPaidLocked(true);
+        setLoading(false);
+        return;
+      }
 
       const { data: stepData } = await supabase
         .from('tutorial_steps')
@@ -401,6 +408,25 @@ export default function EmbedTutorialPage() {
     return (
       <div data-theme={theme === 'light' ? 'light' : 'dark'} className="fixed inset-0 z-[9999] bg-background flex items-center justify-center">
         <Loader2 className="w-6 h-6 text-foreground-faint animate-spin" />
+      </div>
+    );
+  }
+
+  if (paidLocked) {
+    const fullUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/tutorials/${tutorialId}`
+      : `https://qurator.quobby.com/tutorials/${tutorialId}`;
+    return (
+      <div data-theme={theme === 'light' ? 'light' : 'dark'} className="fixed inset-0 z-[9999] bg-background flex items-center justify-center p-6">
+        <div className="text-center">
+          <p className="text-sm font-medium text-foreground mb-1">Paid tutorial</p>
+          <p className="text-xs text-foreground-muted mb-3">
+            This tutorial is not available as an embed.
+          </p>
+          <a href={fullUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">
+            Open on Qurator
+          </a>
+        </div>
       </div>
     );
   }

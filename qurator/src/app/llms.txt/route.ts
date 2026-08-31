@@ -20,16 +20,17 @@ export async function GET() {
 
   const content = `# Qurator - by Quobby
 
-> Qurator is a free, community-driven platform for creating and following interactive, step-by-step tutorials on any topic.
+> Qurator is a tutor and tutorial platform: find interactive, step-by-step lessons or become a tutor and sell your own.
 
 ## What is Qurator?
 
-Qurator (https://qurator.quobby.com) lets anyone build interactive tutorials using a visual drag-and-drop flow editor. Tutorials support branching logic, comprehension quizzes, board game visualisations, embedded videos (upload or paste YouTube/Vimeo links), and code blocks. Learners follow guided walkthroughs rather than reading static text.
+Qurator (https://qurator.quobby.com) is a tutor marketplace and tutorial maker. Anyone can become a tutor by building interactive lessons in a visual drag-and-drop flow editor. Tutorials support branching logic, comprehension quizzes, board game visualisations, embedded videos (upload or paste YouTube/Vimeo links), and code blocks. Learners follow guided walkthroughs rather than reading static text or booking a live call.
 
 Qurator is built by the Quobby team and complements the Quobby mobile app.
 
 ## Key Features
 
+- **Find a Tutor**: Browse interactive lessons from tutors and creators. Paid tutorials checkout on the web and unlock in the Quobby app.
 - **Visual Flow Editor**: Drag-and-drop node editor for creating tutorial steps with branching logic.
 - **Any Topic**: Board games, cooking, DIY, software, music, sports, science, and more.
 - **Community-Driven**: Anyone can publish, rate, review, fork, and improve tutorials.
@@ -37,10 +38,14 @@ Qurator is built by the Quobby team and complements the Quobby mobile app.
 - **Board Game Designer**: Built-in hex/grid board designer for board game tutorials.
 - **Video Processing**: Upload videos up to 1 GB or paste YouTube/Vimeo links. Premium users can split long videos into timeline-based segments that auto-create linked steps.
 - **Embeddable**: Tutorials can be embedded on any website via iframe.
-- **Free to Use**: Creating and following tutorials is free. Premium adds video splitting and analytics.
+- **Sell Tutorials**: Creators can set a EUR price (€2.00–€49.99), keep 90% of the amount paid, and withdraw via Stripe Express (minimum €20) after a 14-day hold. Checkout is on the web.
+- **Premium Loyalty**: Paying Quobby Premium members (not trial) get 5–35% off paid tutorials, growing with account age. Accounts in their first 30 days can claim one tutorial of €5 or less for free.
+- **Free to Use**: Creating and following free tutorials is free. Premium adds video splitting, analytics, and the tutorial loyalty discount.
 
 ## Who Should Use Qurator?
 
+- Learners looking for a tutor or an interactive lesson
+- Tutors who want to publish and sell step-by-step walkthroughs
 - Teachers and educators creating interactive lesson plans
 - Board game enthusiasts teaching game rules
 - Cooking enthusiasts sharing recipes as step-by-step guides
@@ -101,7 +106,7 @@ Quobby (https://www.quobby.com) is an all-in-one study app designed to make lear
 
 ## Pricing
 
-Free to download and use. Premium subscription unlocks cloud sync, unlimited decks, AI generation, document scanning, and more.
+Free to download and use. Premium subscription unlocks cloud sync, unlimited decks, AI generation, document scanning, up to 35% off paid Qurator tutorials, and more.
 
 ## Contact
 

@@ -1,10 +1,12 @@
 'use client';
 
+import { EarningsPanel } from '@/components/earnings-panel';
 import { PremiumUpsell } from '@/components/premium-upsell';
 import { ThemePicker } from '@/components/theme-picker';
 import { useAuth } from '@/lib/auth';
 import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST } from '@/lib/demo-tutorials';
 import { createClient } from '@/lib/supabase/client';
+import { formatEur } from '@/lib/tutorial-pricing';
 import type { Tutorial } from '@/lib/types';
 import {
   AlertTriangle,
@@ -23,6 +25,7 @@ import {
   Play,
   Plus,
   Star,
+  Tag,
   Trash2,
   Trophy,
   UserPlus,
@@ -103,6 +106,20 @@ function StatCard({
   );
 }
 
+function PaidBadge({
+  tutorial,
+}: {
+  tutorial: { is_paid?: boolean; price_cents?: number | null };
+}) {
+  if (!tutorial.is_paid) return null;
+  return (
+    <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-500/15 text-amber-300 shrink-0">
+      <Tag className="w-3 h-3" />
+      {tutorial.price_cents ? formatEur(tutorial.price_cents) : 'Paid'}
+    </span>
+  );
+}
+
 function TutorialCard({
   tutorial,
   onDelete,
@@ -129,11 +146,14 @@ function TutorialCard({
             {tutorial.title}
           </h3>
         </div>
-        <span
-          className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ml-3 ${statusColors[tutorial.status] ?? statusColors.draft}`}
-        >
-          {tutorial.status}
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0 ml-3">
+          <PaidBadge tutorial={tutorial} />
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[tutorial.status] ?? statusColors.draft}`}
+          >
+            {tutorial.status}
+          </span>
+        </div>
       </div>
 
       {tutorial.description && (
@@ -203,6 +223,7 @@ export default function ProfilePage() {
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [paidOnly, setPaidOnly] = useState(false);
   const [tutorialSort, setTutorialSort] = useState<'recent' | 'name' | 'plays' | 'rating'>('recent');
   const [showUpsell, setShowUpsell] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -434,10 +455,13 @@ export default function ProfilePage() {
     }
     return acc;
   }, []);
+  const paidCount = tutorials.filter((t) => t.is_paid).length;
 
-  const filtered = categoryFilter
-    ? tutorials.filter((t) => t.categories?.slug === categoryFilter)
-    : tutorials;
+  const filtered = tutorials.filter((t) => {
+    if (paidOnly && !t.is_paid) return false;
+    if (categoryFilter && t.categories?.slug !== categoryFilter) return false;
+    return true;
+  });
 
   const sorted = [...filtered].sort((a, b) => {
     if (tutorialSort === 'name') return a.title.localeCompare(b.title);
@@ -660,7 +684,9 @@ export default function ProfilePage() {
               {portalLoading ? 'Opening…' : 'Manage'}
             </span>
           </button>
-          ) : null}
+        ) : null}
+
+        <EarningsPanel />
 
         {/* Appearance */}
         <div className="p-5 bg-white/[0.03] border border-white/[0.06] rounded-2xl">
@@ -744,6 +770,7 @@ export default function ProfilePage() {
               {!loadingTutorials && (
                 <span className="ml-2 text-foreground-faint/50">
                   {tutorials.length}
+                  {paidCount > 0 ? ` · ${paidCount} paid` : ''}
                 </span>
               )}
             </h2>
@@ -768,16 +795,27 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {uniqueCategories.length > 0 && (
+          {(uniqueCategories.length > 0 || paidCount > 0) && (
             <div className="flex flex-wrap gap-1.5 mb-3 px-1">
               <button
-                onClick={() => setCategoryFilter(null)}
-                className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors ${!categoryFilter ? 'bg-accent/15 text-accent border-accent/30' : 'bg-white/[0.03] text-foreground-faint border-white/[0.08] hover:border-white/[0.15]'}`}
+                type="button"
+                onClick={() => { setCategoryFilter(null); setPaidOnly(false); }}
+                className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors ${!categoryFilter && !paidOnly ? 'bg-accent/15 text-accent border-accent/30' : 'bg-white/[0.03] text-foreground-faint border-white/[0.08] hover:border-white/[0.15]'}`}
               >
                 All
               </button>
+              {paidCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setPaidOnly((v) => !v)}
+                  className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors ${paidOnly ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' : 'bg-white/[0.03] text-foreground-faint border-white/[0.08] hover:border-white/[0.15]'}`}
+                >
+                  Paid
+                </button>
+              )}
               {uniqueCategories.map((cat) => (
                 <button
+                  type="button"
                   key={cat.slug}
                   onClick={() => setCategoryFilter(categoryFilter === cat.slug ? null : cat.slug)}
                   className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors ${categoryFilter === cat.slug ? 'bg-accent/15 text-accent border-accent/30' : 'bg-white/[0.03] text-foreground-faint border-white/[0.08] hover:border-white/[0.15]'}`}
@@ -808,6 +846,13 @@ export default function ProfilePage() {
                 <Plus className="w-4 h-4" />
                 Create Tutorial
               </Link>
+            </div>
+          ) : drafts.length === 0 && published.length === 0 ? (
+            <div className="p-8 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-center">
+              <Tag className="w-10 h-10 text-foreground-faint mx-auto mb-3" />
+              <p className="text-sm text-foreground-muted mb-1">
+                {paidOnly ? 'No paid tutorials' : 'No tutorials match this filter'}
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -920,6 +965,7 @@ export default function ProfilePage() {
                         <span className="text-xs text-foreground font-medium truncate flex-1 min-w-0">
                           {t.title}
                         </span>
+                        <PaidBadge tutorial={t} />
                         <span className="flex items-center gap-1 text-[11px] text-foreground-faint shrink-0">
                           <Play className="w-3 h-3" />
                           {t.play_count ?? 0}
@@ -989,6 +1035,7 @@ export default function ProfilePage() {
                         {t.title}
                       </h3>
                     </div>
+                    <PaidBadge tutorial={t} />
                   </div>
                   {t.description && (
                     <p className="text-xs text-foreground-muted line-clamp-2 mb-3">

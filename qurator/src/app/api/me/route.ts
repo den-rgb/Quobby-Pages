@@ -1,10 +1,6 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-
-const ADMIN_IDS = (process.env.ADMIN_USER_IDS ?? '')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean);
+import { isAdminUserId } from '@/lib/admin';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
   const supabase = await createClient();
@@ -16,5 +12,5 @@ export async function GET() {
     return NextResponse.json({ isAdmin: false });
   }
 
-  return NextResponse.json({ isAdmin: ADMIN_IDS.includes(user.id) });
+  return NextResponse.json({ isAdmin: isAdminUserId(user.id) });
 }

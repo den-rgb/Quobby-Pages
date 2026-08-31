@@ -1,4 +1,5 @@
 import { DEMO_CATEGORY_SLUGS, DEMO_TUTORIALS } from './demo-tutorials';
+import { QURATOR_EVENT, trackClientEvent } from './qurator-events';
 import { useEditorStore } from './store';
 import { createClient } from './supabase/client';
 import type {
@@ -131,14 +132,58 @@ export async function saveTutorial(userId: string): Promise<{ error?: string }> 
       status: tutorial.status,
       version: tutorial.version,
       forked_from: tutorial.forked_from,
+      is_paid: tutorial.is_paid ?? false,
+      price_cents: tutorial.is_paid ? (tutorial.price_cents ?? null) : null,
+      currency: tutorial.is_paid ? (tutorial.currency ?? 'eur') : null,
+      seller_terms_accepted_at: tutorial.seller_terms_accepted_at ?? null,
       updated_at: new Date().toISOString(),
     };
+
+    const { data: existing } = await supabase
+      .from('tutorials')
+      .select('id, status, is_paid')
+      .eq('id', tutorial.id)
+      .maybeSingle();
 
     const { error: tutErr } = await supabase
       .from('tutorials')
       .upsert(tutorialRow, { onConflict: 'id' });
 
     if (tutErr) return { error: `Tutorial save failed: ${tutErr.message}` };
+
+    if (!existing) {
+      trackClientEvent(QURATOR_EVENT.TUTORIAL_CREATED, {
+        tutorialId: tutorial.id,
+        forked: !!tutorial.forked_from,
+        isPaid: !!tutorial.is_paid,
+      });
+      if (tutorial.status === 'published') {
+        trackClientEvent(QURATOR_EVENT.TUTORIAL_PUBLISHED, {
+          tutorialId: tutorial.id,
+          isPaid: !!tutorial.is_paid,
+          priceCents: tutorial.price_cents ?? null,
+        });
+      }
+    } else {
+      if (existing.status !== 'published' && tutorial.status === 'published') {
+        trackClientEvent(QURATOR_EVENT.TUTORIAL_PUBLISHED, {
+          tutorialId: tutorial.id,
+          isPaid: !!tutorial.is_paid,
+          priceCents: tutorial.price_cents ?? null,
+        });
+      }
+      if (existing.status === 'published' && tutorial.status !== 'published') {
+        trackClientEvent(QURATOR_EVENT.TUTORIAL_UNPUBLISHED, {
+          tutorialId: tutorial.id,
+        });
+      }
+      if (!existing.is_paid && tutorial.is_paid) {
+        trackClientEvent(QURATOR_EVENT.TUTORIAL_PAID_ENABLED, {
+          tutorialId: tutorial.id,
+          priceCents: tutorial.price_cents ?? null,
+        });
+      }
+    }
 
     const stepRows = steps.map((s) => ({
       id: s.id,

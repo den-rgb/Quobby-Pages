@@ -32,4 +32,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Database Setup
 
-Run `supabase_qurator_setup.sql` in the Supabase SQL Editor. For categories migration, run `migrate-categories.sql` afterwards.
+Qurator uses the same Supabase project as the Quobby app. Run `../Quobby/supabase_setup.sql` in the Supabase SQL Editor. For categories migration, run `migrate-categories.sql` afterwards.

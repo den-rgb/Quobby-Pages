@@ -1,6 +1,7 @@
 'use client';
 
 import { BoardView } from '@/components/board-view';
+import { TutorialPaywall } from '@/components/tutorial-paywall';
 import { useAuth } from '@/lib/auth';
 import { DEMO_TUTORIALS } from '@/lib/demo-tutorials';
 import { containsProfanity } from '@/lib/profanity';
@@ -17,6 +18,7 @@ import {
   parseMarkdownLite,
   resolveBranches,
 } from '@/lib/tutorial-navigation';
+import type { TutorialQuote } from '@/lib/tutorial-pricing';
 import { type InteractiveElement, type TutorialConnection, type TutorialStep, type TutorialVariable, buildEmbedUrl } from '@/lib/types';
 import {
   AlertTriangle,
@@ -584,6 +586,8 @@ interface TutorialData {
   rating_count: number;
   play_count: number;
   creator_id: string;
+  is_paid?: boolean;
+  price_cents?: number | null;
   game?: { title: string; bgg_id: number | null; min_players: number; max_players: number; complexity: number } | null;
 }
 
@@ -613,6 +617,8 @@ export default function TutorialPlayerPage() {
   const [followLoading, setFollowLoading] = useState(false);
   const [bggRating, setBggRating] = useState<number | null>(null);
   const [bggComplexity, setBggComplexity] = useState<number | null>(null);
+  const [locked, setLocked] = useState(false);
+  const [quote, setQuote] = useState<TutorialQuote | null>(null);
 
   const contentSteps = useMemo(
     () => allSteps.filter((s) => s.step_type === 'content'),
@@ -762,11 +768,7 @@ export default function TutorialPlayerPage() {
         return;
       }
 
-      if (!alreadyCounted) {
-        sessionStorage.setItem(playCountKey, '1');
-        supabase.rpc('increment_play_count', { tid: tutorialId }).then(() => { });
-      }
-
+      const isPaid = !!tut.is_paid;
       setTutorialData({
         id: tut.id,
         title: tut.title,
@@ -774,8 +776,10 @@ export default function TutorialPlayerPage() {
         estimated_minutes: tut.estimated_minutes,
         rating_avg: tut.rating_avg,
         rating_count: tut.rating_count,
-        play_count: (tut.play_count ?? 0) + (alreadyCounted ? 0 : 1),
+        play_count: tut.play_count ?? 0,
         creator_id: tut.creator_id,
+        is_paid: isPaid,
+        price_cents: tut.price_cents,
         game: tut.games as TutorialData['game'],
       });
 
@@ -799,6 +803,35 @@ export default function TutorialPlayerPage() {
         .order('sort_order');
 
       const fetchedSteps = (stepData as TutorialStep[]) ?? [];
+      const isOwner = !!user && user.id === tut.creator_id;
+      const isLocked = isPaid && fetchedSteps.length === 0 && !isOwner;
+      setLocked(isLocked);
+
+      if (isLocked) {
+        if (user) {
+          const q = await fetch(`/api/tutorials/${tutorialId}/quote`);
+          if (q.ok) {
+            const body = await q.json();
+            setQuote(body.quote ?? null);
+          }
+        } else {
+          setQuote(null);
+        }
+        setAllSteps([]);
+        setConnections([]);
+        setVariables([]);
+        setLoading(false);
+        return;
+      }
+
+      if (!alreadyCounted) {
+        sessionStorage.setItem(playCountKey, '1');
+        supabase.rpc('increment_play_count', { tid: tutorialId }).then(() => { });
+        setTutorialData((prev) =>
+          prev ? { ...prev, play_count: (tut.play_count ?? 0) + 1 } : prev,
+        );
+      }
+
       setAllSteps(fetchedSteps);
 
       const stepIds = fetchedSteps.map((s) => s.id);
@@ -824,7 +857,7 @@ export default function TutorialPlayerPage() {
     }
 
     fetchTutorial();
-  }, [tutorialId]);
+  }, [tutorialId, user?.id]);
 
   useEffect(() => {
     const game = tutorialData?.game;
@@ -944,7 +977,41 @@ export default function TutorialPlayerPage() {
     );
   }
 
-  if (notFound || !tutorialData || contentSteps.length === 0) {
+  if (notFound || !tutorialData) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center p-8">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Tutorial Not Found</h2>
+          <p className="text-foreground-muted mb-6">
+            This tutorial doesn&apos;t exist or hasn&apos;t been published yet.
+          </p>
+          <Link
+            href="/tutorials"
+            className="px-6 py-2.5 bg-accent text-black text-sm font-semibold rounded-lg hover:bg-accent-light transition-colors"
+          >
+            Browse Tutorials
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (locked) {
+    return (
+      <TutorialPaywall
+        title={tutorialData.title}
+        description={tutorialData.description}
+        listPriceCents={tutorialData.price_cents ?? 0}
+        quote={quote}
+        onUnlocked={() => {
+          sessionStorage.removeItem(`qurator-played-${tutorialId}`);
+          window.location.reload();
+        }}
+      />
+    );
+  }
+
+  if (contentSteps.length === 0) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center p-8">

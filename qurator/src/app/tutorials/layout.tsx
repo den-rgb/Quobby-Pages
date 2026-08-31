@@ -14,24 +14,24 @@ export async function generateMetadata(): Promise<Metadata> {
     .filter(Boolean)
     .join(' ');
   const description = catalogBlurb
-    ? `Discover free interactive tutorials created by the community. ${catalogBlurb} Cooking recipes, DIY guides, software tutorials - all with step-by-step walkthroughs, quizzes, and video.`
-    : 'Discover free interactive tutorials created by the community. Learn how to play board games, follow cooking recipes, and more with guided walkthroughs, quizzes, and video.';
+    ? `Find tutors and interactive tutorials created by the community. ${catalogBlurb} Cooking recipes, DIY guides, software tutorials - all with step-by-step walkthroughs, quizzes, and video.`
+    : 'Find tutors and interactive tutorials created by the community. Learn how to play board games, follow cooking recipes, and more with guided walkthroughs, quizzes, and video.';
 
   return {
-    title: 'Browse Interactive Tutorials - Board Games, Cooking, Software & More',
+    title: 'Browse Tutors & Interactive Tutorials - Board Games, Cooking, Software & More',
     description,
     keywords: [...BASE_BROWSE_KEYWORDS, ...liveKeywords],
     openGraph: {
-      title: 'Browse Interactive Tutorials - Board Games, Cooking, Software & More',
+      title: 'Browse Tutors & Interactive Tutorials - Board Games, Cooking, Software & More',
       description,
       url: 'https://qurator.quobby.com/tutorials',
       type: 'website',
     },
     twitter: {
       card: 'summary',
-      title: 'Browse Interactive Tutorials | Qurator',
+      title: 'Browse Tutors & Tutorials | Qurator',
       description:
-        'Discover free interactive tutorials for board games, cooking, software, and more.',
+        'Find tutors and interactive tutorials for board games, cooking, software, and more.',
     },
     alternates: {
       canonical: 'https://qurator.quobby.com/tutorials',
@@ -74,7 +74,7 @@ async function buildItemListJsonLd() {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Interactive Tutorials',
-      description: 'Community-created interactive tutorials for board games, cooking, software, and more.',
+      description: 'Tutors and the community create interactive tutorials for board games, cooking, software, and more.',
       numberOfItems: tutorials.length,
       itemListElement: tutorials.map((t, i) => {
         const game = t.games as unknown as { title: string; bgg_image_url: string | null } | null;

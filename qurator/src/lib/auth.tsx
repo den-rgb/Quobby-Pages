@@ -39,6 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) {
+      document.cookie = `qurator-ref=${encodeURIComponent(ref)}; path=/; max-age=2592000; SameSite=Lax`;
+    }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -81,6 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     const returnTo = window.location.pathname + window.location.search;
     document.cookie = `qurator-auth-return=${encodeURIComponent(returnTo)}; path=/; max-age=600; SameSite=Lax`;
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) {
+      document.cookie = `qurator-ref=${encodeURIComponent(ref)}; path=/; max-age=2592000; SameSite=Lax`;
+    }
     await supabase.auth.signInWithOAuth({
       provider,
       options: {

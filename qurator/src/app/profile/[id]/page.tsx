@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
+import { formatEur } from '@/lib/tutorial-pricing';
 import type { Tutorial } from '@/lib/types';
 import {
   ArrowLeft,
@@ -9,6 +10,7 @@ import {
   Loader2,
   Play,
   Star,
+  Tag,
   UserMinus,
   UserPlus,
 } from 'lucide-react';
@@ -157,6 +159,9 @@ export default function PublicProfilePage() {
           </h1>
           <p className="text-xs text-foreground-faint">
             {followerCount} follower{followerCount !== 1 ? 's' : ''} · {tutorials.length} tutorial{tutorials.length !== 1 ? 's' : ''}
+            {tutorials.some((t) => t.is_paid)
+              ? ` · ${tutorials.filter((t) => t.is_paid).length} paid`
+              : ''}
           </p>
         </div>
         {user && !isOwnProfile && (
@@ -209,6 +214,12 @@ export default function PublicProfilePage() {
                 </p>
               )}
               <div className="flex items-center gap-3 text-[11px] text-foreground-faint">
+                {t.is_paid && (
+                  <span className="flex items-center gap-1 text-amber-300 font-semibold">
+                    <Tag className="w-3 h-3" />
+                    {t.price_cents ? formatEur(t.price_cents) : 'Paid'}
+                  </span>
+                )}
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {t.estimated_minutes}m

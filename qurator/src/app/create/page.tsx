@@ -221,6 +221,10 @@ export default function CreatePage() {
   }, []);
 
   const handleCreate = useCallback(() => {
+    if (!user) {
+      signIn();
+      return;
+    }
     if (!tutorialTitle.trim() || !selectedCategory) return;
     const params = new URLSearchParams({ title: tutorialTitle, category: JSON.stringify(selectedCategory) });
 
@@ -240,7 +244,7 @@ export default function CreatePage() {
     }
 
     router.push(`/create/new?${params.toString()}`);
-  }, [selectedGame, selectedCategory, tutorialTitle, router]);
+  }, [selectedGame, selectedCategory, tutorialTitle, router, user, signIn]);
 
   const isBoardGames = selectedCategory?.slug === 'board-games';
 

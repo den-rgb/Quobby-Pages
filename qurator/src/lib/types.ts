@@ -84,6 +84,10 @@ export interface Tutorial {
   rating_avg: number;
   rating_count: number;
   play_count: number;
+  is_paid?: boolean;
+  price_cents?: number | null;
+  currency?: string | null;
+  seller_terms_accepted_at?: string | null;
   created_at: string;
   updated_at: string;
   game?: Game;

@@ -1,6 +1,8 @@
+import { getPublishedCatalog, type PublishedCatalog } from '@/lib/seo';
 import {
   ChevronDown,
   Download,
+  Euro,
   Film,
   Gamepad2,
   GitFork,
@@ -16,9 +18,15 @@ import {
   Workflow,
 } from 'lucide-react';
 import Link from 'next/link';
-import { getPublishedCatalog, type PublishedCatalog } from '@/lib/seo';
 
 const features = [
+  {
+    icon: Euro,
+    title: 'Publish & sell',
+    description:
+      'Publish & sell your tutorials today! Set a price and get paid for what you teach. Premium members get up to 35% off when they buy. T&C apply.',
+    color: 'rgba(184, 255, 107, 0.12)',
+  },
   {
     icon: Workflow,
     title: 'Visual Flow Editor',
@@ -37,7 +45,7 @@ const features = [
     icon: Users,
     title: 'Community-Driven',
     description:
-      'Anyone can create and publish tutorials. Rate, review, and fork existing tutorials to make them even better.',
+      'Anyone can publish & sell. Rate, review, and fork tutorials to make them even better.',
     color: 'rgba(184, 255, 107, 0.12)',
   },
   {
@@ -77,7 +85,7 @@ const steps = [
   {
     icon: Sparkles,
     title: '3. Publish',
-    description: 'Preview your tutorial and publish it for the community.',
+    description: 'Preview it, then hit publish — free, or put it up for sale.',
   },
 ];
 
@@ -85,12 +93,32 @@ const faqs = [
   {
     question: 'What is Qurator and how does it work?',
     answer:
-      'Qurator is a free, community-driven platform for creating and following interactive, step-by-step tutorials on any topic. You build tutorials with a visual drag-and-drop flow editor that supports branching logic, comprehension quizzes, video, images, code blocks, and board game visualisations. Learners follow guided walkthroughs rather than reading static text.',
+      'Qurator is a tutor and tutorial platform. Tutors and creators publish interactive, step-by-step lessons on any topic. You build tutorials with a visual drag-and-drop flow editor that supports branching logic, comprehension quizzes, video, images, code blocks, and board game visualisations. Learners follow guided walkthroughs rather than reading static text.',
+  },
+  {
+    question: 'Can I find a tutor on Qurator?',
+    answer:
+      'Yes. Browse interactive lessons from tutors and creators, including paid walkthroughs. You follow each tutorial at your own pace — with quizzes, video, and branching paths — rather than a live call.',
+  },
+  {
+    question: 'How do I become a tutor on Qurator?',
+    answer:
+      'Publish & sell your tutorials today! Sign in, build one in the editor, and hit publish — free, or put a price on it. T&C apply.',
   },
   {
     question: 'Is Qurator free to use?',
     answer:
-      'Yes. Creating and following tutorials is completely free. A Premium subscription adds advanced features like video splitting, analytics, and higher upload limits, but the core experience costs nothing.',
+      'Yep — creating and following free tutorials costs nothing. You can sell yours too. Premium adds extras like video splitting, analytics, and up to 35% off paid tutorials. T&C apply.',
+  },
+  {
+    question: 'Can I sell tutorials on Qurator?',
+    answer:
+      'Yes. When you publish, you can set a EUR price between €2.00 and €49.99. You keep 90% of the amount the buyer actually pays; Stripe card fees come from that 90%. Withdrawals go through Stripe Express (minimum €20) after a 14-day hold. Purchase is on the web — the Quobby apps unlock the tutorial after checkout.',
+  },
+  {
+    question: 'Do Quobby Premium members get a discount on paid tutorials?',
+    answer:
+      'Yep — Premium members get up to 35% off paid tutorials. T&C apply.',
   },
   {
     question: 'What topics can I create tutorials for?',
@@ -192,8 +220,8 @@ export default async function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(139,0,81,0.08),transparent_70%)] pointer-events-none -z-10" />
         <div className="max-w-[1100px] mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent-glow border border-accent/20 rounded-full text-sm text-accent font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
-            Community-powered tutorials
+            <Euro className="w-4 h-4" />
+            Publish &amp; sell · up to 35% off with Premium
           </div>
           <h1 className="text-[clamp(2.5rem,6vw,4rem)] font-extrabold text-foreground leading-[1.15] tracking-tight mb-5">
             Teach anything.
@@ -203,9 +231,9 @@ export default async function Home() {
             </span>
           </h1>
           <p className="text-[clamp(1.05rem,2vw,1.25rem)] text-foreground-muted max-w-[560px] mx-auto mb-10 leading-relaxed">
-            Qurator lets the community create interactive tutorials for
-            anything - board games, cooking, software, and more. Learn
-            through guided, step-by-step walkthroughs.
+            Qurator is a tutor and tutorial platform. Find a lesson, or
+            publish &amp; sell your own today! Premium members get up to
+            35% off. T&amp;C apply.
           </p>
           <div className="flex justify-center gap-4 flex-wrap">
             <Link
@@ -233,7 +261,7 @@ export default async function Home() {
               Everything you need to teach &amp; learn
             </h2>
             <p className="text-lg text-foreground-muted max-w-[500px] mx-auto">
-              A complete platform for creating and following interactive
+              A complete platform for creating, following, and selling interactive
               tutorials.
             </p>
           </div>
@@ -270,6 +298,69 @@ export default async function Home() {
                 </div>
               </details>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-20">
+        <div className="max-w-[1100px] mx-auto">
+          <div className="p-8 md:p-12 bg-gradient-to-br from-green/[0.06] to-accent/[0.04] border border-green/[0.12] rounded-3xl relative overflow-hidden">
+            <div className="absolute -top-1/2 right-[-20%] w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,rgba(184,255,107,0.04),transparent_70%)] pointer-events-none" />
+            <div className="flex flex-col md:flex-row items-center gap-8 relative">
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green/10 border border-green/15 rounded-full text-[0.7rem] font-semibold uppercase tracking-wider text-green mb-4">
+                  Publish &amp; sell today
+                </div>
+                <h2 className="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-foreground mb-3">
+                  Get paid for what you teach
+                </h2>
+                <p className="text-foreground-muted leading-relaxed mb-5 max-w-lg">
+                  Publish &amp; sell your tutorials today! Premium members get up to 35% off when they buy. T&amp;C apply.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-green/10 flex items-center justify-center">
+                      <Euro className="w-3.5 h-3.5 text-green" />
+                    </div>
+                    Sell in EUR
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <Sparkles className="w-3.5 h-3.5 text-accent" />
+                    </div>
+                    You keep most of it
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                      <Users className="w-3.5 h-3.5 text-yellow-400" />
+                    </div>
+                    Up to 35% off with Premium
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Play className="w-3.5 h-3.5 text-blue-400" />
+                    </div>
+                    T&amp;C apply
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
+                <Link
+                  href="/create"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-accent text-black font-semibold rounded-[14px] transition-all hover:bg-accent-light hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(139,0,81,0.3)]"
+                >
+                  <Workflow className="w-5 h-5" />
+                  Publish &amp; sell
+                </Link>
+                <Link
+                  href="/tutorials"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/[0.06] text-foreground font-semibold rounded-[14px] border border-border transition-all hover:bg-white/10 hover:-translate-y-0.5"
+                >
+                  <Play className="w-5 h-5" />
+                  Browse Paid &amp; Free
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -407,7 +498,7 @@ export default async function Home() {
             Flashcards with spaced repetition, Smart vocabulary generation, document scanning, habit tracking, and group study sessions. Free on iOS.
           </p>
           <p className="text-sm font-medium text-green mb-5 relative">
-            Browse and follow Qurator tutorials directly in the app
+            Follow tutorials in the app. Premium members get up to 35% off. T&amp;C apply.
           </p>
           <a
             href="https://www.quobby.com"
@@ -475,7 +566,7 @@ export default async function Home() {
               Common questions about Qurator
             </h2>
             <p className="text-lg text-foreground-muted max-w-[500px] mx-auto">
-              Everything you need to know about creating and following interactive tutorials.
+              Everything you need to know about creating, following, and selling interactive tutorials.
             </p>
           </div>
           <div className="space-y-3">
@@ -505,10 +596,10 @@ export default async function Home() {
         <div className="max-w-[1100px] mx-auto text-center p-16 bg-gradient-to-br from-accent/[0.08] to-accent/[0.08] border border-accent/[0.12] rounded-3xl relative overflow-hidden">
           <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_center,rgba(139,0,81,0.05),transparent_60%)] pointer-events-none" />
           <h2 className="text-[clamp(1.5rem,3vw,2rem)] font-bold text-foreground mb-3 relative">
-            Ready to teach something?
+            Publish &amp; sell your tutorials today!
           </h2>
           <p className="text-lg text-foreground-muted mb-8 relative">
-            Join the community and help everyone learn faster.
+            Free to publish, or put a price on it and get paid. Premium members get up to 35% off. T&amp;C apply.
           </p>
           <Link
             href="/create"

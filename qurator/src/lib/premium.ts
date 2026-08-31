@@ -12,6 +12,11 @@ export function videoRawMaxLabel(isPremium: boolean): string {
 export const PREMIUM_FEATURES = [
   {
     category: 'Qurator',
+    title: 'Up to 35% off tutorials',
+    description: 'Get up to 35% off paid Qurator tutorials with Premium. T&C apply.',
+  },
+  {
+    category: 'Qurator',
     title: 'Larger video uploads',
     description: 'Upload videos up to 1 GB (free users: 250 MB).',
   },

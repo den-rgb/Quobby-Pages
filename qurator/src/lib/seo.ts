@@ -162,7 +162,13 @@ export function buildSeoKeywords(opts: {
       `interactive ${opts.categoryName.toLowerCase()} guide`,
     );
   }
-  keywords.push('interactive tutorial', 'step by step guide', 'free tutorial');
+  keywords.push(
+    'interactive tutorial',
+    'step by step guide',
+    'free tutorial',
+    'online tutor',
+    'find a tutor',
+  );
   return keywords;
 }
 
@@ -370,6 +376,12 @@ export function catalogKeywords(catalog: PublishedCatalog): string[] {
 
 export const BASE_SITE_KEYWORDS = [
   'interactive tutorials',
+  'online tutor',
+  'find a tutor',
+  'become a tutor',
+  'tutoring platform',
+  'tutor marketplace',
+  'tutor lessons',
   'tutorial maker',
   'how to create tutorials',
   'board game tutorial',
@@ -393,6 +405,10 @@ export const BASE_SITE_KEYWORDS = [
 ];
 
 export const BASE_BROWSE_KEYWORDS = [
+  'find a tutor',
+  'online tutors',
+  'tutor lessons',
+  'paid tutorials',
   'board game tutorials',
   'how to play board games',
   'board game rules',

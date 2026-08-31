@@ -19,28 +19,28 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL('https://qurator.quobby.com'),
     title: {
-      default: 'Qurator - Free Interactive Tutorial Maker for Any Topic',
+      default: 'Qurator - Interactive Tutorials & Tutors for Any Topic',
       template: '%s | Qurator',
     },
     description:
-      'Create and share free interactive tutorials for board games, cooking, software, music, DIY, and more. Visual flow editor with branching logic, quizzes, and video. Learn by doing, not reading.',
+      'Find tutors and interactive tutorials for board games, cooking, software, music, DIY, and more. Publish & sell your own — Premium members get up to 35% off. T&C apply.',
     keywords: [...BASE_SITE_KEYWORDS, ...catalogKeywords(catalog), 'board game strategy guide'],
     icons: { icon: '/app-icon.png', apple: '/app-icon.png' },
     openGraph: {
-      title: 'Qurator - Free Interactive Tutorial Maker for Any Topic',
+      title: 'Qurator - Interactive Tutorials & Tutors for Any Topic',
       description:
-        'Create and share free interactive tutorials for board games, cooking, software, music, DIY, and more. Visual flow editor with branching logic, quizzes, and video.',
+        'Find tutors and interactive tutorials. Publish & sell your own — Premium members get up to 35% off. T&C apply.',
       url: 'https://qurator.quobby.com',
       siteName: 'Qurator',
-      images: [{ url: '/app-icon.png', width: 512, height: 512, alt: 'Qurator - Interactive tutorials for anything' }],
+      images: [{ url: '/app-icon.png', width: 512, height: 512, alt: 'Qurator - Tutors and interactive tutorials' }],
       type: 'website',
       locale: 'en_US',
     },
     twitter: {
       card: 'summary',
-      title: 'Qurator - Free Interactive Tutorial Maker for Any Topic',
+      title: 'Qurator - Interactive Tutorials & Tutors',
       description:
-        'Create and share free interactive tutorials for board games, cooking, software, music, and more. Learn by doing.',
+        'Find tutors and interactive tutorials. Publish & sell your own — Premium members get up to 35% off. T&C apply.',
       images: ['/app-icon.png'],
     },
     alternates: {
@@ -76,12 +76,12 @@ const webAppJsonLd = {
   name: 'Qurator',
   url: 'https://qurator.quobby.com',
   description:
-    'A community-driven platform for creating and following interactive, step-by-step tutorials for board games, cooking, software, music, DIY, and more.',
+    'Find tutors and interactive, step-by-step tutorials. Publish & sell your own — Premium members get up to 35% off. T&C apply.',
   applicationCategory: 'EducationalApplication',
   operatingSystem: 'Any',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   featureList:
-    'Visual Flow Editor, Branching Logic, Community Tutorials, Video Processing, Board Game Designer, Embeddable Tutorials',
+    'Find Tutors, Become a Tutor, Visual Flow Editor, Branching Logic, Community Tutorials, Video Processing, Board Game Designer, Embeddable Tutorials, Paid Tutorials, Premium Loyalty Discount',
   creator: organizationJsonLd,
 };
 

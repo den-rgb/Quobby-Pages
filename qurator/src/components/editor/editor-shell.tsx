@@ -21,6 +21,7 @@ import {
   RefreshCw,
   Save,
   Search,
+  Tag,
   Variable,
   X,
 } from 'lucide-react';
@@ -31,10 +32,11 @@ import { ContentPanel } from './content-panel';
 import { FlowEditor } from './flow-editor';
 import { ObjectsPanel } from './objects-panel';
 import { OnboardingOverlay } from './onboarding-overlay';
+import { PaidPanel, canPublishPaid } from './paid-panel';
 import { TutorialPreview } from './tutorial-preview';
 import { VariablesPanel } from './variables-panel';
 
-export type SidebarId = 'content' | 'variables' | 'objects' | 'preview' | null;
+export type SidebarId = 'content' | 'variables' | 'objects' | 'preview' | 'paid' | null;
 
 const sidebarButtons: {
   id: Exclude<SidebarId, null>;
@@ -45,6 +47,7 @@ const sidebarButtons: {
     { id: 'variables', label: 'Variables', icon: Variable },
     { id: 'objects', label: 'Objects', icon: Box },
     { id: 'preview', label: 'Preview', icon: Eye },
+    { id: 'paid', label: 'Paid', icon: Tag },
   ];
 
 export function EditorShell() {
@@ -177,6 +180,10 @@ export function EditorShell() {
         rating_avg: 0,
         rating_count: 0,
         play_count: 0,
+        is_paid: false,
+        price_cents: null,
+        currency: 'eur',
+        seller_terms_accepted_at: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
@@ -342,6 +349,12 @@ export function EditorShell() {
                 setShowPublishIssues(true);
                 return;
               }
+              const paidBlock = await canPublishPaid(tutorial);
+              if (paidBlock) {
+                alert(paidBlock);
+                setActiveSidebar('paid');
+                return;
+              }
             }
             const confirmed = tutorial.status === 'published'
               ? confirm('Unpublish this tutorial? It will no longer be visible to others.')
@@ -403,6 +416,7 @@ export function EditorShell() {
               {activeSidebar === 'variables' && <VariablesPanel />}
               {activeSidebar === 'objects' && <ObjectsPanel />}
               {activeSidebar === 'preview' && <TutorialPreview />}
+              {activeSidebar === 'paid' && <PaidPanel />}
             </div>
           </div>
         )}
@@ -458,6 +472,14 @@ export function EditorShell() {
                 </button>
                 <button
                   onClick={async () => {
+                    if (!tutorial || !user) return;
+                    const paidBlock = await canPublishPaid(tutorial);
+                    if (paidBlock) {
+                      alert(paidBlock);
+                      setShowPublishIssues(false);
+                      setActiveSidebar('paid');
+                      return;
+                    }
                     setShowPublishIssues(false);
                     if (!tutorial || !user) return;
                     setTutorial({ ...tutorial, status: 'published' });

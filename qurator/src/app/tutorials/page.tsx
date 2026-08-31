@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth';
 import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST, DEMO_TUTORIALS } from '@/lib/demo-tutorials';
+import { QURATOR_EVENT, trackClientEvent } from '@/lib/qurator-events';
 import { createClient } from '@/lib/supabase/client';
 import type { Category, Tutorial } from '@/lib/types';
 import {
@@ -20,6 +21,7 @@ import {
   Search,
   Share2,
   Star,
+  Tag,
   Trash2,
   Users
 } from 'lucide-react';
@@ -93,6 +95,7 @@ export default function TutorialsPage() {
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [showingPaid, setShowingPaid] = useState(false);
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'highest_rated' | 'following'>('popular');
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [bggData, setBggData] = useState<Record<number, { rating: number; complexity: number }>>({});
@@ -247,6 +250,7 @@ export default function TutorialsPage() {
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
+    if (tutorial.is_paid) return;
     setForkingId(tutorial.id);
     const supabase = createClient();
 
@@ -361,6 +365,15 @@ export default function TutorialsPage() {
 
     setForkingId(null);
     if (!tutErr) {
+      trackClientEvent(QURATOR_EVENT.TUTORIAL_CREATED, {
+        tutorialId: newTutorialId,
+        forked: true,
+        sourceId: tutorial.id,
+      });
+      trackClientEvent(QURATOR_EVENT.TUTORIAL_FORKED, {
+        tutorialId: newTutorialId,
+        sourceId: tutorial.id,
+      });
       router.push(`/create/new?load=${newTutorialId}`);
     }
   }, [user, router]);
@@ -420,6 +433,7 @@ export default function TutorialsPage() {
   const filtered = allTutorials.filter(
     (t) => {
       if (sortBy === 'following' && !followedIds.has(t.creator_id)) return false;
+      if (showingPaid && !t.is_paid) return false;
       if (!query) return true;
       const gameTitle = (t as TutorialWithGame).games?.title ?? t.game?.title ?? '';
       return (
@@ -437,29 +451,36 @@ export default function TutorialsPage() {
             Browse Tutorials
           </h1>
           <p className="text-lg text-foreground-muted max-w-[500px] mx-auto">
-            Find interactive tutorials for anything.
+            Find tutors and interactive tutorials for anything.
           </p>
         </div>
 
-        {categories.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <button
+            type="button"
+            onClick={() => { setSelectedCategoryId(null); setShowingPaid(false); }}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${!selectedCategoryId && !showingPaid ? 'bg-accent text-black' : 'bg-white/[0.05] text-foreground-muted hover:text-foreground hover:bg-white/10 border border-border'}`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowingPaid((v) => !v)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${showingPaid ? 'bg-accent text-black' : 'bg-white/[0.05] text-foreground-muted hover:text-foreground hover:bg-white/10 border border-border'}`}
+          >
+            Paid
+          </button>
+          {categories.map((cat) => (
             <button
-              onClick={() => setSelectedCategoryId(null)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${!selectedCategoryId ? 'bg-accent text-black' : 'bg-white/[0.05] text-foreground-muted hover:text-foreground hover:bg-white/10 border border-border'}`}
+              type="button"
+              key={cat.id}
+              onClick={() => setSelectedCategoryId(cat.id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategoryId === cat.id ? 'bg-accent text-black' : 'bg-white/[0.05] text-foreground-muted hover:text-foreground hover:bg-white/10 border border-border'}`}
             >
-              All
+              {cat.name}
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategoryId(cat.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategoryId === cat.id ? 'bg-accent text-black' : 'bg-white/[0.05] text-foreground-muted hover:text-foreground hover:bg-white/10 border border-border'}`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
 
         <div className="flex items-center justify-between max-w-xl mx-auto mb-6">
           <div className="relative flex-1 mr-4">
@@ -493,7 +514,7 @@ export default function TutorialsPage() {
           <div className="text-center py-20">
             <BookOpen className="w-12 h-12 text-foreground-faint mx-auto mb-4" />
             <p className="text-foreground-muted">
-              No tutorials found. Try a different search or{' '}
+              {showingPaid ? 'No paid tutorials found. Try another filter or ' : 'No tutorials found. Try a different search or '}
               <Link href="/create" className="text-accent hover:text-accent-light">
                 create one
               </Link>
@@ -530,6 +551,11 @@ export default function TutorialsPage() {
                 >
                   <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/[0.02]">
                     <GameCover src={imgUrl} alt={subtitle} />
+                    {t.is_paid && (
+                      <span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/70 text-[10px] font-semibold text-amber-300">
+                        <Tag className="w-3 h-3" /> Paid
+                      </span>
+                    )}
                   </div>
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
@@ -635,7 +661,7 @@ export default function TutorialsPage() {
                             >
                               {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
                             </button>
-                            {t.creator_id !== user.id && (
+                            {t.creator_id !== user.id && !t.is_paid && (
                               <button
                                 onClick={(e) => handleFork(e, tw)}
                                 disabled={forkingId === t.id}
