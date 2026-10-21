@@ -68,7 +68,7 @@ ${catalogSection ? `${catalogSection}\n\n` : ''}## Links
 
 # Quobby - Smart Flashcards & Study Tools
 
-> Quobby is a free mobile study companion app available on iOS, featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, group study sessions, and gamification.
+> Quobby is a free mobile study companion app available on iOS and Android, featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, group study sessions, and gamification.
 
 ## What is Quobby?
 
@@ -101,6 +101,7 @@ Quobby (https://www.quobby.com) is an all-in-one study app designed to make lear
 ## Platforms
 
 - iOS: https://apps.apple.com/ie/app/quobby/id6758044478
+- Android: https://play.google.com/store/apps/details?id=com.quobby.app
 
 - Website: https://www.quobby.com
 

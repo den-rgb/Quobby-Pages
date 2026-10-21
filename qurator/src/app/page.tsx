@@ -495,7 +495,7 @@ export default async function Home() {
             Study smarter with Quobby
           </h2>
           <p className="text-foreground-muted mb-4 max-w-[500px] mx-auto relative">
-            Flashcards with spaced repetition, Smart vocabulary generation, document scanning, habit tracking, and group study sessions. Free on iOS.
+            Flashcards with spaced repetition, Smart vocabulary generation, document scanning, habit tracking, and group study sessions. Free on iOS and Android.
           </p>
           <p className="text-sm font-medium text-green mb-5 relative">
             Follow tutorials in the app. Premium members get up to 35% off. T&amp;C apply.
