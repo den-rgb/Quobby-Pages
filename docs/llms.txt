@@ -22,6 +22,14 @@ Quobby (https://www.quobby.com) is an all-in-one study app designed to make lear
 - **Dyslexia Support**: Dyslexia fonts, bionic reading, reading tints, syllable hints, reading ruler, and calm study mode.
 - **Available in 7 Languages**: English, Chinese, French, German, Spanish, Polish, and Ukrainian.
 
+## Blog
+
+The Quobby blog shares product guides and practical comparisons about study tools and learning workflows.
+
+- Blog index: https://www.quobby.com/blog/
+- October 2026 update — Alphabet Practice decks, spoken letter pronunciation, deck editing and deletion, and Android card style carryover: https://www.quobby.com/blog/alphabet-practice-update.html
+- Quobby vs. Quizlet, Anki, and Duolingo: One App for More of Your Study Day: https://www.quobby.com/blog/quobby-vs-quizlet-anki-duolingo.html
+
 ## Who Should Use Quobby?
 
 - Students preparing for exams

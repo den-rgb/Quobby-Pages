@@ -43,8 +43,10 @@ Each board game tutorial includes setup instructions, rule explanations, strateg
 
 ## About Quobby
 
-Quobby is a free mobile study companion app featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, and group study sessions. Qurator tutorials are integrated into the Quobby app.
+Quobby is a free mobile study companion app available on iOS and Android, featuring flashcards with spaced repetition, document scanning, handwritten notes, habit tracking, a focus timer, and group study sessions. Qurator tutorials are integrated into the Quobby app.
 
+- iOS: https://apps.apple.com/ie/app/quobby/id6758044478
+- Android: https://play.google.com/store/apps/details?id=com.quobby.app
 - Website: https://www.quobby.com
 - Instagram: https://www.instagram.com/quobby.official/
 - Support: helpmequobby@gmail.com
