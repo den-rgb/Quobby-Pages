@@ -244,6 +244,13 @@ export default async function Home() {
               Browse Tutorials
             </Link>
             <Link
+              href="/games"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-white/[0.06] text-foreground font-semibold rounded-[14px] border border-border transition-all hover:bg-white/10 hover:-translate-y-0.5"
+            >
+              <Gamepad2 className="w-5 h-5" />
+              Play Daily Games
+            </Link>
+            <Link
               href="/create"
               className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-white/[0.06] text-foreground font-semibold rounded-[14px] border border-border transition-all hover:bg-white/10 hover:-translate-y-0.5"
             >

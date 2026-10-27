@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST, DEMO_TUTORIALS } from '@/lib/demo-tutorials';
 import { QURATOR_EVENT, trackClientEvent } from '@/lib/qurator-events';
 import { createClient } from '@/lib/supabase/client';
+import { matchesTutorialSearch } from '@/lib/tutorial-search';
 import type { Category, Tutorial } from '@/lib/types';
 import {
   Bookmark,
@@ -436,10 +437,13 @@ export default function TutorialsPage() {
       if (showingPaid && !t.is_paid) return false;
       if (!query) return true;
       const gameTitle = (t as TutorialWithGame).games?.title ?? t.game?.title ?? '';
-      return (
-        gameTitle.toLowerCase().includes(query.toLowerCase()) ||
-        t.title.toLowerCase().includes(query.toLowerCase())
-      );
+      const categoryName = (t as TutorialWithGame).categories?.name ?? t.category?.name;
+      return matchesTutorialSearch({
+        title: t.title,
+        description: t.description,
+        gameTitle,
+        categoryName,
+      }, query);
     }
   );
 

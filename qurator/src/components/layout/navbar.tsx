@@ -12,6 +12,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const links = [
   { href: '/tutorials', label: 'Browse Tutorials' },
+  { href: '/games', label: 'Games' },
+  { href: '/blog', label: 'Blog' },
 ];
 
 interface NavProfile {
@@ -292,7 +294,7 @@ export function Navbar() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${pathname === link.href
+                  className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${pathname === link.href || (link.href === '/games' && pathname.startsWith('/games/'))
                     ? 'text-foreground bg-white/5'
                     : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
                     }`}

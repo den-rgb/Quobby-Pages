@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.quobby.app",
+      "sha256_cert_fingerprints": [
+        "CD:7F:17:ED:0B:AC:9F:E3:EC:46:2D:0B:5C:25:12:0D:ED:9F:FB:C3:6A:90:A0:EB:8E:F5:23:59:67:4E:B8:9F"
+      ]
+    }
+  }
+]
