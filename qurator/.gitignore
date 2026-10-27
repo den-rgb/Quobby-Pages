@@ -49,3 +49,6 @@ AGENTS.md
 
 # sql scripts (run manually, contain seed data / secrets)
 *.sql
+!supabase/migrations/20261027000000_qurator_games_hub.sql
+!supabase/migrations/20261101000000_qurator_game_verified_words.sql
+!supabase/migrations/20261109000000_letter_ledger_completion_insights.sql

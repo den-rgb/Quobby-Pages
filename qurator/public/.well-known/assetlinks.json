@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.quobby.app",
+      "sha256_cert_fingerprints": [
+        "CD:7F:17:ED:0B:AC:9F:E3:EC:46:2D:0B:5C:25:12:0D:ED:9F:FB:C3:6A:90:A0:EB:8E:F5:23:59:67:4E:B8:9F",
+        "3E:AC:05:AC:A7:22:4B:B1:A0:70:8D:08:10:DE:23:0E:0A:71:1B:10:0C:05:EF:B4:31:0E:66:71:3D:5F:F4:FD"
+      ]
+    }
+  }
+]

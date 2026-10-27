@@ -41,6 +41,7 @@ Qurator is built by the Quobby team and complements the Quobby mobile app.
 - **Sell Tutorials**: Creators can set a EUR price (€2.00–€49.99), keep 90% of the amount paid, and withdraw via Stripe Express (minimum €20) after a 14-day hold. Checkout is on the web.
 - **Premium Loyalty**: Paying Quobby Premium members (not trial) get 5–35% off paid tutorials, growing with account age. Accounts in their first 30 days can claim one tutorial of €5 or less for free.
 - **Free to Use**: Creating and following free tutorials is free. Premium adds video splitting, analytics, and the tutorial loyalty discount.
+- **Original Daily Games**: Play shared daily word, number, and riddle challenges in Qurator. Players can choose one mode; signed-in results can add XP to the Quobby profile and contribute to a separate Games streak.
 
 ## Who Should Use Qurator?
 
@@ -60,6 +61,12 @@ Board Games, Cooking, DIY & Crafts, Software, Music, Sports, Science
 
 ${catalogSection ? `${catalogSection}\n\n` : ''}## Links
 
+- Qurator Games: https://qurator.quobby.com/games
+- Letter Ledger word game: https://qurator.quobby.com/games/letter-ledger
+- Number Trail number game: https://qurator.quobby.com/games/number-trail
+- Riddle Master: https://qurator.quobby.com/games/riddle-master
+- Qurator Blog: https://qurator.quobby.com/blog
+- About the Qurator Games hub: https://qurator.quobby.com/blog/qurator-games-hub
 - Browse tutorials: https://qurator.quobby.com/tutorials
 - Create a tutorial: https://qurator.quobby.com/create
 - Qurator home: https://qurator.quobby.com

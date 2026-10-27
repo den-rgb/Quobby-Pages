@@ -69,6 +69,19 @@ export default async function TutorialLayout({ params, children }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(seo.breadcrumb) }}
         />
       )}
+      {seo && (
+        <article className="max-w-4xl mx-auto px-6 pt-12 pb-2 text-foreground-secondary">
+          <p className="text-xs font-semibold tracking-[0.18em] text-accent uppercase mb-3">Interactive tutorial</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-4">{seo.intro.title}</h1>
+          <p className="text-lg leading-relaxed max-w-3xl">{seo.intro.description}</p>
+          {seo.intro.firstStep && (
+            <section className="mt-8 max-w-3xl border-l-2 border-accent/50 pl-5">
+              <h2 className="text-xl font-semibold text-foreground mb-2">{seo.intro.firstStep.heading}</h2>
+              <p className="leading-relaxed whitespace-pre-line">{seo.intro.firstStep.body}</p>
+            </section>
+          )}
+        </article>
+      )}
       {children}
     </>
   );

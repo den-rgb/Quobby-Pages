@@ -1,11 +1,13 @@
 import { DEMO_CATEGORY_SLUGS, DEMO_TUTORIALS } from '@/lib/demo-tutorials';
-import { createClient } from '@/lib/supabase/server';
+import { buildTutorialSeoIntro, type TutorialSeoIntro } from '@/lib/tutorial-seo-intro';
+import { createClient as createPublicClient } from '@supabase/supabase-js';
 import {
   hasWebFindings,
   recipeSearchName,
   resolveTutorialWebEntity,
   sameAsUrls,
 } from '@/lib/web-entity';
+import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 
 export type CatalogEntry = { title: string; tutorialId: string };
@@ -37,7 +39,7 @@ function demoCatalog(): PublishedCatalog {
   return { games, recipes };
 }
 
-export async function getPublishedCatalog(): Promise<PublishedCatalog> {
+async function loadPublishedCatalog(): Promise<PublishedCatalog> {
   const demos = demoCatalog();
   const games: CatalogEntry[] = [];
   const recipes: CatalogEntry[] = [];
@@ -45,7 +47,17 @@ export async function getPublishedCatalog(): Promise<PublishedCatalog> {
   const seenRecipes = new Set<string>();
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      },
+    );
     const { data } = await supabase
       .from('tutorials')
       .select('id, title, games(title), categories(slug)')
@@ -84,6 +96,12 @@ export async function getPublishedCatalog(): Promise<PublishedCatalog> {
 
   return { games, recipes };
 }
+
+export const getPublishedCatalog = unstable_cache(
+  loadPublishedCatalog,
+  ['published-catalog'],
+  { revalidate: 3600 },
+);
 
 export function clipDescription(text: string, max = 300): string {
   const clean = text.replace(/\s+/g, ' ').trim();
@@ -439,6 +457,7 @@ type GameRow = {
 export type TutorialPageSeo = {
   pageTitle: string;
   description: string;
+  intro: TutorialSeoIntro;
   keywords: string[];
   url: string;
   ogImages?: { url: string; width: number; height: number; alt: string }[];
@@ -546,6 +565,11 @@ async function assembleTutorialSeo(input: {
   return {
     pageTitle,
     description: seoDescription,
+    intro: buildTutorialSeoIntro({
+      title: input.title,
+      description: input.description,
+      steps: input.steps,
+    }),
     keywords: buildSeoKeywords({
       gameTitle: input.isRecipe ? undefined : gameTitle,
       categoryName: input.categoryName,
@@ -566,7 +590,7 @@ async function assembleTutorialSeo(input: {
   };
 }
 
-export const getTutorialPageSeo = cache(async (id: string): Promise<TutorialPageSeo | null> => {
+async function loadTutorialPageSeo(id: string): Promise<TutorialPageSeo | null> {
   const demo = DEMO_TUTORIALS[id];
   if (demo) {
     const slug = demo.tutorial.category_id
@@ -589,7 +613,17 @@ export const getTutorialPageSeo = cache(async (id: string): Promise<TutorialPage
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      },
+    );
     const { data: tutorial } = await supabase
       .from('tutorials')
       .select('title, description, cover_image_url, rating_avg, rating_count, estimated_minutes, games(title, bgg_id, bgg_image_url, min_players, max_players, play_time_minutes, year_published, bgg_rating, description), categories(name, slug)')
@@ -626,4 +660,12 @@ export const getTutorialPageSeo = cache(async (id: string): Promise<TutorialPage
   } catch {
     return null;
   }
-});
+}
+
+const getCachedTutorialPageSeo = unstable_cache(
+  loadTutorialPageSeo,
+  ['tutorial-page-seo'],
+  { revalidate: 3600 },
+);
+
+export const getTutorialPageSeo = cache(getCachedTutorialPageSeo);

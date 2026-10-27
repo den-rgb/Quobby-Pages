@@ -1,7 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
+import { isPublicTutorialRoute } from '@/lib/public-tutorial-route';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function proxy(request: NextRequest) {
+  if (isPublicTutorialRoute(request.nextUrl.pathname)) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

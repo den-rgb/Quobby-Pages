@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createClient } from './supabase/client';
+import { hasActivePremium } from './premium';
 
 type OAuthProvider = 'google' | 'apple';
 
@@ -18,6 +19,7 @@ interface AuthContextValue {
   loading: boolean;
   isAdmin: boolean;
   isPremium: boolean;
+  hasBillingPremium: boolean;
   signIn: (provider?: OAuthProvider) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -27,6 +29,7 @@ const AuthContext = createContext<AuthContextValue>({
   loading: true,
   isAdmin: false,
   isPremium: false,
+  hasBillingPremium: false,
   signIn: async () => { },
   signOut: async () => { },
 });
@@ -68,11 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     supabase
       .from('profiles')
-      .select('subscription_tier')
+      .select('subscription_tier, has_lifetime_premium, subscription_expires_at')
       .eq('id', user.id)
       .single()
       .then(({ data }) => {
-        setPremium(data?.subscription_tier === 'premium');
+        setPremium(hasActivePremium(data ?? {}));
       });
 
     fetch('/api/me')
@@ -109,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isPremium = premium || isAdmin;
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, isPremium, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, isPremium, hasBillingPremium: premium, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

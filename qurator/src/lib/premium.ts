@@ -1,6 +1,16 @@
 export const FREE_VIDEO_RAW_MAX_BYTES = 250 * 1024 * 1024;
 export const PREMIUM_VIDEO_RAW_MAX_BYTES = 1024 * 1024 * 1024;
 
+export function hasActivePremium(profile: {
+  has_lifetime_premium?: boolean | null;
+  subscription_tier?: string | null;
+  subscription_expires_at?: string | null;
+}): boolean {
+  if (profile.has_lifetime_premium) return true;
+  if (profile.subscription_tier !== 'premium' || !profile.subscription_expires_at) return false;
+  return new Date(profile.subscription_expires_at).getTime() > Date.now();
+}
+
 export function videoRawMaxBytes(isPremium: boolean): number {
   return isPremium ? PREMIUM_VIDEO_RAW_MAX_BYTES : FREE_VIDEO_RAW_MAX_BYTES;
 }
@@ -39,6 +49,11 @@ export const PREMIUM_FEATURES = [
     category: 'Quobby App',
     title: 'Cloud sync',
     description: 'Sync your data across all your devices.',
+  },
+  {
+    category: 'Quobby App',
+    title: 'Mind maps on desktop',
+    description: 'Create and edit synced mind maps on a larger canvas.',
   },
   {
     category: 'Quobby App',

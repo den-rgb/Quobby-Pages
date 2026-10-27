@@ -10,6 +10,8 @@ Quobby (https://www.quobby.com) is an all-in-one study app designed to make lear
 
 - **Flashcards & Spaced Repetition**: Create flashcards with text, images, voice recordings, and example sentences. Study with flip cards, multiple-choice quizzes, or typing practice. Spaced repetition algorithm optimises review intervals.
 - **Language Learning**: AI-powered vocabulary generation in 21+ languages with auto-translate and text-to-speech.
+- **Daily Games**: Play Letter Ledger, Number Trail, and Riddle Master; daily completions are shared between Quobby and Qurator.
+- **Alphabet Practice**: Build decks across 21 supported languages with example words and letter pronunciations.
 - **Document Scanner**: Scan textbooks and worksheets with word-level OCR precision. Auto-generate flashcards from scanned text using AI.
 - **Handwritten Notes**: Create notes with pen, pencil, marker, and highlighter tools. Use templates, shapes, rulers, and themed backgrounds. Export as image or PDF.
 - **Habit Tracker**: Build study habits with daily tracking, streaks, and calendar views.
@@ -27,6 +29,7 @@ Quobby (https://www.quobby.com) is an all-in-one study app designed to make lear
 The Quobby blog shares product guides and practical comparisons about study tools and learning workflows.
 
 - Blog index: https://www.quobby.com/blog/
+- November 2026 update — Daily Games, Alphabet Practice, and study improvements for iOS and Android: https://www.quobby.com/blog/quobby-latest-update.html
 - October 2026 update — Alphabet Practice decks, spoken letter pronunciation, deck editing and deletion, and Android card style carryover: https://www.quobby.com/blog/alphabet-practice-update.html
 - Quobby vs. Quizlet, Anki, and Duolingo: One App for More of Your Study Day: https://www.quobby.com/blog/quobby-vs-quizlet-anki-duolingo.html
 
