@@ -49,3 +49,4 @@ AGENTS.md
 
 # sql scripts (run manually, contain seed data / secrets)
 *.sql
+!supabase/migrations/20261027000000_qurator_games_hub.sql

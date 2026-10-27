@@ -5,6 +5,7 @@ import { PremiumUpsell } from '@/components/premium-upsell';
 import { ThemePicker } from '@/components/theme-picker';
 import { useAuth } from '@/lib/auth';
 import { DEMO_CATEGORY_SLUGS, DEMO_CREATOR_ID, DEMO_TUTORIAL_LIST } from '@/lib/demo-tutorials';
+import type { GameProfileStats } from '@/lib/games/types';
 import { createClient } from '@/lib/supabase/client';
 import { formatEur } from '@/lib/tutorial-pricing';
 import type { Tutorial } from '@/lib/types';
@@ -19,6 +20,7 @@ import {
   Crown,
   Edit3,
   Flame,
+  Gamepad2,
   Loader2,
   Lock,
   LogOut,
@@ -216,6 +218,7 @@ export default function ProfilePage() {
   const { user, loading: authLoading, isAdmin, isPremium, signIn, signOut } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<QuobbyProfile | null>(null);
+  const [gamesStatsState, setGamesStatsState] = useState<{ userId: string; stats: GameProfileStats } | null>(null);
   const [tutorials, setTutorials] = useState<TutorialWithGame[]>([]);
   const [savedTutorials, setSavedTutorials] = useState<TutorialWithGame[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -230,6 +233,9 @@ export default function ProfilePage() {
   const [removalNotice, setRemovalNotice] = useState<{ id: string; tutorial_title: string; reason: string; created_at: string } | null>(null);
   const [notifications, setNotifications] = useState<{ id: string; type: string; message: string; is_read: boolean; created_at: string; from_user: { display_name: string; avatar_emoji: string; avatar_background_color_hex: string } | null }[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const gamesStats = gamesStatsState && gamesStatsState.userId === user?.id
+    ? gamesStatsState.stats
+    : null;
 
   const handleManageSubscription = useCallback(async () => {
     setPortalLoading(true);
@@ -338,6 +344,21 @@ export default function ProfilePage() {
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, [user, authLoading, fetchAll]);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    fetch('/api/games/stats', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return await response.json() as GameProfileStats;
+      })
+      .then((stats) => {
+        if (active && stats) setGamesStatsState({ userId: user.id, stats });
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [user]);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -757,6 +778,34 @@ export default function ProfilePage() {
                 value={profile.study_points.toLocaleString()}
                 label="Study Points"
                 color="rgba(184, 255, 107, 0.15)"
+              />
+            </div>
+          </div>
+        )}
+
+        {profile && gamesStats && (
+          <div>
+            <h2 className="text-xs font-semibold text-foreground-faint uppercase tracking-wider mb-3 px-1">
+              Qurator Games Stats
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <StatCard
+                icon={Flame}
+                value={gamesStats.currentStreak}
+                label="Games Streak"
+                color="rgba(255, 149, 0, 0.15)"
+              />
+              <StatCard
+                icon={Flame}
+                value={gamesStats.bestStreak}
+                label="Best Games Streak"
+                color="rgba(255, 69, 58, 0.15)"
+              />
+              <StatCard
+                icon={Gamepad2}
+                value={gamesStats.totalCompleted.toLocaleString()}
+                label="Games Completed"
+                color="rgba(90, 200, 250, 0.12)"
               />
             </div>
           </div>

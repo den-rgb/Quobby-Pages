@@ -16,6 +16,7 @@ Qurator lets anyone create interactive tutorials with a visual drag-and-drop flo
 - Board Game Designer: Built-in hex grid, rectangular grid, and custom canvas board visualizer
 - Embeddable: Every tutorial has an embed code for websites and blogs
 - Free: Core experience costs nothing; Premium adds video splitting and analytics
+- Original Daily Games: Play shared daily word, number, and riddle challenges. Choose one mode; profile rewards and the separate Games streak are linked to Quobby.
 
 ## Tutorial Categories
 
@@ -37,6 +38,12 @@ Each board game tutorial includes setup instructions, rule explanations, strateg
 ## URLs
 
 - Homepage: https://qurator.quobby.com
+- Qurator Games hub: https://qurator.quobby.com/games
+- Letter Ledger: https://qurator.quobby.com/games/letter-ledger
+- Number Trail: https://qurator.quobby.com/games/number-trail
+- Riddle Master: https://qurator.quobby.com/games/riddle-master
+- Qurator Blog: https://qurator.quobby.com/blog
+- About the daily games: https://qurator.quobby.com/blog/qurator-games-hub
 - Browse Tutorials: https://qurator.quobby.com/tutorials
 - Create a Tutorial: https://qurator.quobby.com/create
 - Sitemap: https://qurator.quobby.com/sitemap.xml
