@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["NJXPZ6DPXQ.com.quobby.app"],
+        "components": [
+          {
+            "/": "/tutorials/*",
+            "comment": "Open Qurator tutorials in Quobby."
+          }
+        ]
+      }
+    ]
+  }
+}

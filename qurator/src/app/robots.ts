@@ -9,7 +9,16 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/profile', '/create/', '/premium/', '/admin'],
       },
       {
-        userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'Anthropic-AI', 'ClaudeBot', 'PerplexityBot', 'Cohere-AI'],
+        userAgent: [
+          'OAI-SearchBot',
+          'GPTBot',
+          'ChatGPT-User',
+          'Google-Extended',
+          'Anthropic-AI',
+          'ClaudeBot',
+          'PerplexityBot',
+          'Cohere-AI',
+        ],
         allow: ['/', '/llms.txt'],
         disallow: ['/api/', '/profile', '/create/', '/premium/', '/admin'],
       },

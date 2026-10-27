@@ -28,6 +28,22 @@ export function Footer() {
           </li>
           <li>
             <Link
+              href="/games"
+              className="text-foreground-muted text-sm hover:text-foreground transition-colors"
+            >
+              Games
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/blog"
+              className="text-foreground-muted text-sm hover:text-foreground transition-colors"
+            >
+              Blog
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/create"
               className="text-foreground-muted text-sm hover:text-foreground transition-colors"
             >
