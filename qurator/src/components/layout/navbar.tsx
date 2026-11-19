@@ -5,7 +5,7 @@ import { PremiumUpsell } from '@/components/premium-upsell';
 import { ThemePicker } from '@/components/theme-picker';
 import { useAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
-import { BarChart3, Crown, Download, HelpCircle, LogOut, Menu, Palette, User, X } from 'lucide-react';
+import { BarChart3, Crown, Download, HelpCircle, LogOut, Menu, Palette, User, Video, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -163,6 +163,16 @@ function UserMenu() {
             <User className="w-3.5 h-3.5" />
             Profile
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin/content-studio"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground-muted hover:text-foreground hover:bg-white/5 transition-colors"
+            >
+              <Video className="w-3.5 h-3.5" />
+              Content Studio
+            </Link>
+          )}
           {isAdmin && (
             <Link
               href="/admin"

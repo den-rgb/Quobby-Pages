@@ -1,0 +1,12 @@
+{
+  "name": "quobby-content-studio-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=25.0.0" },
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "start": "node --experimental-strip-types src/index.ts",
+    "render:test": "node --experimental-strip-types test/render-fixture.ts"
+  }
+}

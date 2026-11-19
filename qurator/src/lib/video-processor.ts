@@ -1,4 +1,6 @@
 import { fetchFile } from '@ffmpeg/util';
+import { memeFfmpegArgs, type MemeTimeline } from './content-studio/meme-render';
+import { voiceOverFfmpegArgs } from './content-studio/video-render';
 
 let worker: Worker | null = null;
 let loaded = false;
@@ -226,4 +228,74 @@ export async function splitVideo(
   await deleteFile(inName);
   currentProgressCb = null;
   return results;
+}
+
+
+async function hasAudioStream(path: string): Promise<boolean> {
+  // A null-mux remux is a fast demux-only probe: exit 0 means the stream exists.
+  const code = await exec(['-hide_banner', '-nostdin', '-i', path, '-map', '0:a:0', '-c', 'copy', '-f', 'null', '-']);
+  return code === 0;
+}
+
+// Composes the meme entirely in the browser: no Mac worker, no server render.
+export async function renderMeme(input: {
+  clip: Blob; top: Blob; end: Blob; timeline: MemeTimeline; onProgress?: (progress: number) => void;
+}): Promise<Blob> {
+  await ensureLoaded();
+  const files = ['clip.mp4', 'top.png', 'end.png'];
+  try {
+    await writeFile(files[0], new Uint8Array(await input.clip.arrayBuffer()));
+    await writeFile(files[1], new Uint8Array(await input.top.arrayBuffer()));
+    await writeFile(files[2], new Uint8Array(await input.end.arrayBuffer()));
+    // Probe first: its own progress events must not drive the render bar.
+    const hasAudio = await hasAudioStream(files[0]);
+    currentProgressCb = input.onProgress ?? null;
+    await execOrThrow(memeFfmpegArgs(input.timeline, hasAudio));
+    return await readAndClean('out.mp4');
+  } finally {
+    currentProgressCb = null;
+    await Promise.all([...files, 'out.mp4'].map((name) => deleteFile(name).catch(() => {})));
+  }
+}
+
+
+// Voice-over templates: looped recording, optional images, three caption phases,
+// synthesized voice mixed with optional background music.
+export async function renderVoiceOver(input: {
+  recording: Blob; recordingName: string; voice: Blob;
+  images: { name: string; blob: Blob }[];
+  music?: { name: string; blob: Blob } | null;
+  captions: [Blob, Blob, Blob];
+  durationSeconds: number;
+  onProgress?: (progress: number) => void;
+}): Promise<Blob> {
+  await ensureLoaded();
+  const written: string[] = ['recording', 'voice.wav', 'hook.png', 'title.png', 'cta.png'];
+  try {
+    const recording = input.recordingName || 'recording.mp4';
+    await writeFile(recording, new Uint8Array(await input.recording.arrayBuffer()));
+    await writeFile('voice.wav', new Uint8Array(await input.voice.arrayBuffer()));
+    for (const image of input.images) {
+      await writeFile(image.name, new Uint8Array(await image.blob.arrayBuffer()));
+      written.push(image.name);
+    }
+    if (input.music) {
+      await writeFile(input.music.name, new Uint8Array(await input.music.blob.arrayBuffer()));
+      written.push(input.music.name);
+    }
+    for (const [name, blob] of [['hook.png', input.captions[0]], ['title.png', input.captions[1]], ['cta.png', input.captions[2]]] as const) {
+      await writeFile(name, new Uint8Array(await blob.arrayBuffer()));
+    }
+    currentProgressCb = input.onProgress ?? null;
+    await execOrThrow(voiceOverFfmpegArgs({
+      durationSeconds: input.durationSeconds,
+      recordingName: recording,
+      imageNames: input.images.map((image) => image.name),
+      musicName: input.music?.name ?? null,
+    }));
+    return await readAndClean('out.mp4');
+  } finally {
+    currentProgressCb = null;
+    await Promise.all([...written, 'recording.mp4', 'recording.mov', 'out.mp4'].map((name) => deleteFile(name).catch(() => {})));
+  }
 }

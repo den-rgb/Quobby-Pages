@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.quobby.content-studio-worker</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE_BINARY__</string>
+    <string>--experimental-strip-types</string>
+    <string>__WORKER_DIRECTORY__/src/index.ts</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>__WORKER_DIRECTORY__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>CONTENT_STUDIO_BASE_URL</key>
+    <string>__CONTENT_STUDIO_BASE_URL__</string>
+    <key>CONTENT_STUDIO_MACHINE_ID</key>
+    <string>__CONTENT_STUDIO_MACHINE_ID__</string>
+    <key>FFMPEG_PATH</key>
+    <string>__FFMPEG_PATH__</string>
+    <key>FFPROBE_PATH</key>
+    <string>__FFPROBE_PATH__</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/QuobbyContentStudio/worker.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/QuobbyContentStudio/worker.err.log</string>
+</dict>
+</plist>

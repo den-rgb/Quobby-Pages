@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.example
 
 # vercel
 .vercel
@@ -49,6 +50,9 @@ AGENTS.md
 
 # sql scripts (run manually, contain seed data / secrets)
 *.sql
+!migrate-content-studio.sql
+!migrate-content-studio-meme-clips.sql
+!migrate-content-studio-browser-render.sql
 !supabase/migrations/20261027000000_qurator_games_hub.sql
 !supabase/migrations/20261101000000_qurator_game_verified_words.sql
 !supabase/migrations/20261109000000_letter_ledger_completion_insights.sql

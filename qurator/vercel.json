@@ -1,0 +1,5 @@
+{
+  "crons": [
+    { "path": "/api/internal/content-studio/curate", "schedule": "0 4 * * *" }
+  ]
+}
